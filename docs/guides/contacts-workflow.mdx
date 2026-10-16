@@ -1,0 +1,85 @@
+---
+title: "The Contacts CRM Workflow"
+description: "Automatically build a unified directory of every human who interacts with your forms. Search, sort, and export with ease."
+icon: "users"
+keywords: ["contacts", "directory", "export", "csv", "crm", "leads"]
+boost: 3
+---
+
+Forms don't just collect abstract data; they collect people. 
+
+The **Contacts** directory is a built-in, lightweight CRM. Every time a user completes a submission that includes their Name or Email, the Flex Forms engine automatically extracts their identity and builds a unified profile across all your forms.
+
+```mermaid
+flowchart LR
+  Submit[User_Submits_Form] --> Extract[Engine_Extracts_Identity]
+  Extract --> Contact[Profile_Created_or_Updated]
+  Contact --> Directory[Global_Contacts_Directory]
+  Directory --> Search[Search_and_Filter]
+  Directory → Export[Export_to_CSV]
+  Directory → CRM[Sync_to_External_CRM]
+```
+
+CSV export downloads as a streamed file (filters applied) so large directories do not freeze the Studio tab.
+
+---
+
+## The unified Profile
+
+Instead of hunting through hundreds of raw submissions to find "Jane Doe", you can simply open the Contacts directory.
+
+<Table>
+  <thead>
+    <tr>
+      <th>Profile Intelligence</th>
+      <th>What it tells you</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>**Core Identity**</td>
+      <td>Their Full Name and Primary Email Address.</td>
+    </tr>
+    <tr>
+      <td>**Origin Tracking**</td>
+      <td>Exactly which form (e.g., *Summer Giveaway* vs. *Contact Us*) acquired this user.</td>
+    </tr>
+    <tr>
+      <td>**Engagement Score**</td>
+      <td>The total number of times this specific human has interacted with your brand across all active forms.</td>
+    </tr>
+    <tr>
+      <td>**Lifecycle Timestamps**</td>
+      <td>When they first discovered you (*Joined At*), and the last time they interacted (*Last Seen At*).</td>
+    </tr>
+  </tbody>
+</Table>
+
+<Callout type="info">
+  **Intelligent Deduplication:** If Jane Doe submits your "Contact Us" form on Monday, and your "Giveaway" form on Friday, the engine does *not* create two duplicate contacts. It intelligently updates her existing profile, incrementing her engagement score and updating her *Last Seen* timestamp.
+</Callout>
+
+---
+
+## Managing Your Audience
+
+The Contacts directory is built for speed, allowing you to instantly manipulate massive lists of leads.
+
+<Steps>
+  <Step title="Lightning-Fast Search">
+    Type a name or email into the search bar to instantly isolate a specific high-value lead.
+  </Step>
+  <Step title="Behavioral Sorting">
+    Sort your audience by **Last Seen** to find your most active recent leads, or by **Submission Count** to identify your most loyal brand advocates.
+  </Step>
+  <Step title="CSV Exporting">
+    Click the **Export** button to instantly generate a clean CSV file of your filtered audience, ready to be dropped into Mailchimp, Excel, or a manual mail-merge.
+  </Step>
+  <Step title="Automated CRM Syncing">
+    For zero-touch operations, skip manual exports entirely. Use the [Integrations Engine](/features/settings/integrations) to automatically push these contacts directly into HubSpot, Salesforce, or Zapier the millisecond they hit submit.
+  </Step>
+</Steps>
+
+<Panel>
+  **Next Steps:** [Automating Emails & PDFs](/guides/emails-and-pdf) · [Connecting HubSpot](/integrations/hubspot)
+</Panel>

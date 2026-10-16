@@ -1,0 +1,145 @@
+---
+title: "Require answer"
+description: "Then action: Make the chosen fields mandatory on fill."
+icon: "asterisk"
+keywords: ["logic", "action", "require-answer", "then"]
+---
+
+**Require answer** marks selected fields **mandatory** while **When** matches — respondents must fill them before progressing or submitting (if visible on the current page).
+
+Use with [Show blocks](/features/studio/logic/actions/show-blocks) for conditional required follow-ups.
+
+---
+
+## When to choose this
+
+| Goal | Use **Require answer** | Use something else instead |
+|------|------------------------|----------------------------|
+| Conditional mandatory fields | ✓ | — |
+| Remove mandatory flag | ✗ | **[Make optional](/features/studio/logic/actions/make-optional)** |
+| Hide field entirely | ✗ | **[Hide blocks](/features/studio/logic/actions/hide-blocks)** |
+| Block all submissions | ✗ | **[Hide submit](/features/studio/logic/actions/hide-submit)** |
+
+Block-level **Required** toggle sets the default; logic **Require** overrides while rule matches (subject to last-wins ordering).
+
+---
+
+## Exact behavior
+
+- Sets `required: true` on targets while **When** is true.
+- **Hidden fields are never required** — engine forces required off if field not visible (Hide, other page, or default hidden).
+- Validation runs on **current visible page** before Next — future-page required fields do not block yet.
+- **Last matching rule wins** vs **Make optional** on same target.
+- Does not Show fields — pair with **Show blocks** if follow-up starts hidden.
+
+<Callout type="warning">
+  **Intelligent validation:** Required fields hidden by logic or on future pages are ignored until visible — users are not blocked by questions they cannot see.
+</Callout>
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| Field hidden | Required ignored |
+| **When** false | May revert to block default required state |
+| **Make optional** later in order | Optional wins if that rule matches last |
+| Multi-page | Required on Page 3 does not block Page 1 Next |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    Prefer **Branch** or **Add condition** on the parent field for local follow-ups.
+  </Step>
+  <Step title="Build When">
+    Condition that should trigger mandatory follow-up.
+  </Step>
+  <Step title="Show follow-up (if hidden)">
+    Add **Show blocks** on same or earlier rule if targets start hidden.
+  </Step>
+  <Step title="Add Require answer">
+    Select follow-up block(s).
+  </Step>
+  <Step title="Preview validation on Fill">
+    Try Next/Submit without filling — should block with field error when visible.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### “Other” specification
+
+> **When** Plan **equals** `Other` → **Show blocks** `Please specify` + **Require answer** `Please specify`
+
+### Call-back phone
+
+> **When** “Call me back” **equals** `Yes` → **Show blocks** `Phone` + **Require answer** `Phone`
+
+### Enterprise compliance
+
+> **When** Plan **equals** `Enterprise` → **Require answer** `DPA contact email`
+
+Assumes field already visible on canvas.
+
+### Urgent notes
+
+> **When** Notes **contains** `urgent` → **Require answer** `Phone`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Trigger When">
+    Asterisk / required indicator appears on targets.
+  </Step>
+  <Step title="Leave required empty on current page">
+    Next or Submit blocked with validation message.
+  </Step>
+  <Step title="Fill required field">
+    Progress allowed.
+  </Step>
+  <Step title="Revert When">
+    Required indicator may disappear — field may revert to default optional.
+  </Step>
+  <Step title="Hide required field">
+    Submit not blocked by that field.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- **Require** on hidden follow-up without **Show**.
+- **Require** on Page 2 field while testing Page 1 submit — may not block until that page visible.
+- Fighting **Make optional** rules — fix order or exclusive **When**.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Required but no asterisk">
+    Field hidden or **When** false — check Show/Hide state.
+  </Accordion>
+  <Accordion title="Submit fails unexpectedly">
+    Another visible required field on current page — not necessarily your logic target.
+  </Accordion>
+  <Accordion title="Required when should be optional">
+    Later **Require** rule still matches, or block default is required — add **Make optional** rule.
+  </Accordion>
+  <Accordion title="Follow-up visible but not required">
+    **Require** action missing or overridden — add action or reorder rules.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Make optional](/features/studio/logic/actions/make-optional) · [Show blocks](/features/studio/logic/actions/show-blocks) · [Field conditions](/features/studio/logic/field-conditions) · [How logic works](/features/studio/logic/overview)
+</Panel>

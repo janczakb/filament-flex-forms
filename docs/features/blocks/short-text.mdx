@@ -1,0 +1,162 @@
+---
+title: "Text Input Block"
+description: "Single-line text — Studio catalog label: Text input (`flex_text_input`)."
+icon: "text-size"
+keywords: ["text input", "short text", "flex_text_input", "masking", "dictation", "emoji"]
+---
+
+<Banner type="info" dismissible={true}>
+  In Studio this block is **Text input** (not “Short Text”). It supports masking and speech dictation.
+</Banner>
+
+The **Text input** block collects single-line answers: titles, codes, and free text. Prefer the [Name](/features/blocks/name) block for first/last name composites.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Identity Capture" icon="id-card">
+    The standard input for collecting First Names, Last Names, and Company Titles.
+  </Card>
+  <Card title="Structured Codes" icon="barcode">
+    Use Custom Masking to force users to correctly type License Plates, Coupon Codes, or Serial Numbers.
+  </Card>
+  <Card title="Social Links" icon="link">
+    Use URL prefixes to guarantee users submit clean links to their LinkedIn or Twitter profiles.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Short Text** block from the Component Catalog onto your canvas.
+  </Step>
+  <Step title="Configure the Inspector">
+    Set the **Label** and **Placeholder**. Use the Inspector to activate advanced visual modes like the **Emoji Picker** or **Speech Dictation**.
+  </Step>
+  <Step title="Apply a Mask (Optional)">
+    If you need specific data (like a postal code or license plate), select a **Mask Preset** to format the user's input automatically as they type.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+Unlock the full power of the short text block with these Inspector configurations.
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the input field. Options: `sm`, `md`, `lg`.
+    </ParamField>
+    
+    <ParamField path="variant" type="string" default="primary">
+      The UI variant styling applied to the input field.
+    </ParamField>
+    
+    <ParamField path="prefix_icon" type="string">
+      The name of a Heroicon to display at the beginning of the input field.
+    </ParamField>
+    
+    <ParamField path="prefix" type="string">
+      A static string prepended to the input (e.g., `https://`).
+    </ParamField>
+    
+    <ParamField path="suffix" type="string">
+      A static string appended to the input (e.g., `.com`).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Behavioral Features">
+    <ParamField path="speech_dictation" type="boolean" default="false">
+      Enables a microphone icon inside the input, allowing users to dictate their answer using native speech-to-text.
+    </ParamField>
+    
+    <ParamField path="speech_dictation_language" type="string">
+      The locale code for speech dictation (e.g., `en-US` or `pl-PL`).
+    </ParamField>
+    
+    <ParamField path="emoji_picker" type="boolean" default="false">
+      Adds a native emoji picker button directly inside the text input.
+    </ParamField>
+    
+    <ParamField path="mask_preset" type="string">
+      Applies an automatic formatting mask as the user types. Available presets: `date`, `time`, `phone`, `card`, `postal`, `custom`.
+    </ParamField>
+    
+    <ParamField path="mask" type="string">
+      If `mask_preset` is set to `custom`, this string defines the exact mask pattern (e.g., `99-999`).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Validation Rules">
+    <ParamField path="character_counter" type="boolean" default="false">
+      Displays a live character count below the input field.
+    </ParamField>
+    
+    <ParamField path="min_length" type="integer">
+      The minimum number of characters the user must type.
+    </ParamField>
+    
+    <ParamField path="max_length" type="integer">
+      The maximum number of characters the user is allowed to type.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Because the Short Text block collects simple strings, the resulting JSON payload is straightforward, but it automatically trims leading and trailing whitespace.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_404",
+    "data": {
+      "first_name": "Alexander",
+      "custom_license_plate": "WJ-4921"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'first_name' => 'Alexander',
+      'custom_license_plate' => 'WJ-4921',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Input Masking
+
+Input masking solves the problem of messy data. If you ask for a license plate number without a mask, you might get `ABC 1234`, `abc1234`, or `ABC-1234`. 
+
+By applying a **Custom Mask** (e.g., `AAA-9999`), the field physically prevents the user from typing anything else and automatically inserts the hyphen, ensuring your database remains perfectly clean.
+
+<Callout type="warning">
+  **Masks vs. Validation:** A mask controls *how* the user types, but it does not validate the underlying logic. For example, a date mask `99/99/9999` will accept `99/99/9999`, which is not a real date. Use the [Date & Time Block](/features/blocks/date-time) for genuine date collection.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="When to use Speech Dictation">
+    Enable dictation when you expect users to fill out the form on mobile devices while on the go (e.g., field workers submitting inspection reports). It drastically reduces typing friction.
+  </Accordion>
+  <Accordion title="Using Prefixes for URLs">
+    If you want a user to submit their website, use the **Prefix** feature to lock in `https://`. This prevents them from typing `www.` or `http://`, standardizing your data output so you don't have to clean it up later.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Long Text Block](/features/blocks/long-text)
+</Panel>

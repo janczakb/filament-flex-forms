@@ -1,0 +1,230 @@
+---
+title: "Help Scout Integration"
+description: "A comprehensive guide to instantly converting form submissions into Support Conversations inside Help Scout."
+icon: "life-ring"
+keywords: ["helpscout", "support", "tickets", "conversations", "helpdesk", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API structures customer profiles and Conversation objects, please read the [Official Help Scout API Documentation](https://developer.helpscout.com/mailbox-api/endpoints/conversations/create/).
+</Banner>
+
+The **Help Scout** integration seamlessly connects your website forms to your customer support helpdesk. Instead of relying on email forwarding (which strips out crucial metadata and ruins threading), Flex Forms connects directly to the Help Scout API to generate clean, native "Conversations" in a specific Mailbox.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Instant Support Ticketing" icon="ticket">
+    When a customer fills out a complex bug report form, Flex Forms creates a new Conversation in Help Scout. It correctly maps their email address as the "Customer", meaning when your agents reply in Help Scout, it goes directly to the user.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Help Scout requires generating an **App ID** and an **App Secret** via an OAuth2 flow. Follow these exact instructions to ensure the integration is properly authenticated.
+
+<Steps>
+  <Step title="Step 1: Log into Help Scout">
+    Open your web browser and navigate to your Help Scout dashboard. Enter your credentials to log in. 
+    
+    *Note: You must have Administrator privileges to create OAuth applications.*
+  </Step>
+  
+  <Step title="Step 2: Access the User Profile Menu">
+    Look at the absolute **top right corner** of your screen. Click on your profile icon (or the avatar silhouette). 
+  </Step>
+  
+  <Step title="Step 3: Navigate to Your Profile">
+    In the dropdown menu that appears, click exactly on the link labeled **Your Profile**.
+  </Step>
+  
+  <Step title="Step 4: Access 'My Apps'">
+    You are now viewing your profile settings. Look at the **left-hand sidebar menu**. Click exactly on the link labeled **My Apps**.
+  </Step>
+  
+  <Step title="Step 5: Create a New App">
+    On the My Apps page, click the prominent blue button labeled **Create My App**. A configuration form will appear.
+  </Step>
+  
+  <Step title="Step 6: Configure the Application Details">
+    Fill out the form with the following exact details:
+    - **App Name:** `Flex Forms Website Integration`
+    - **Redirection URL:** You MUST enter `https://your-domain.com` (Replace with your actual website URL). Even though this is a server-to-server integration, Help Scout requires a valid, secure HTTPS URL here.
+    
+    Click the **Create** button.
+  </Step>
+  
+  <Step title="Step 7: Copy the App ID and Secret">
+    You will be redirected back to the My Apps overview, and your new `Flex Forms Website Integration` app will be listed. Click on it.
+    
+    You will now see two strings of text: the **App ID** and the **App Secret**. 
+    
+    Highlight the **App ID**, right-click, and select **Copy**.
+  </Step>
+  
+  <Step title="Step 8: Inject Credentials into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Help Scout.
+    2. Paste the App ID into the **App ID** field.
+    3. Switch back to Help Scout, copy the **App Secret**, and paste it into the **App Secret** field in Flex Forms.
+    4. Click the **Save Settings** button to finalize the secure OAuth connection.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: Routing to Mailboxes
+
+Establishing the connection allows data to flow, but you must instruct Flex Forms exactly which "Mailbox" should receive the new Support Conversations.
+
+<Callout type="info">
+  **Mailbox ID Requirement:** You must provide the specific **Mailbox ID** in the form's integration settings. To find this, open your Help Scout dashboard, click on the specific Mailbox you want to route to (e.g., "Support"), and look at the URL in your browser. The URL will look like `.../mailbox/123456/...`. That number is your Mailbox ID.
+</Callout>
+
+### Field Mapping Architecture
+
+Flex Forms handles the complex API logic of associating the user's email address with a Help Scout Customer Profile automatically (meaning you do not need to manually map the email field).
+
+Furthermore, Flex Forms intelligently compiles all the other answers the user provided into a clean, HTML-formatted block and injects it into the **Conversation Thread**.
+
+<Tabs>
+  <Tab title="Subject Line Mapping">
+    You can map a specific form field to act as the primary **Subject Line** of the Help Scout Conversation.
+    
+    The format is always: `subject=flex_forms_block_name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      subject=support_topic_dropdown
+      firstName=first_name_input
+      lastName=last_name_input
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+If you do not map the `subject` field, Flex Forms will generate a generic subject (e.g., "New Form Submission - [Date]").
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: 401 Unauthorized">
+    **The Problem:** The server logs show a `401 Unauthorized` error when attempting to create a Conversation.
+    
+    **The Solution:** This almost always means either your App ID or App Secret is incorrect, or contains a trailing space. Verify both credentials against the Help Scout dashboard.
+  </Accordion>
+  <Accordion title="API Error: 400 Bad Request (Mailbox Not Found)">
+    **The Problem:** The server logs show a `400 Bad Request` regarding the Mailbox.
+    
+    **The Solution:** The Mailbox ID you pasted into the form settings is incorrect, or the OAuth App you created does not have permission to access that specific Mailbox. Double-check the ID from the URL.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="access_token" type="password" required>
+  **Access token**
+  Help Scout OAuth access token with mailbox and customer scopes.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+<ParamField path="mailbox_id" type="remote_select" required>
+  **Mailbox**
+</ParamField>
+
+<ParamField path="assign_to" type="remote_select" >
+  **Assign to**
+  Mailbox-scoped Help Scout users and teams (Teams listed as “Team: …”).
+</ParamField>
+
+<ParamField path="customer_email_field" type="select" >
+  **Customer email field**
+</ParamField>
+
+<ParamField path="customer_first_name_field" type="select" >
+  **Customer first name field**
+</ParamField>
+
+<ParamField path="customer_last_name_field" type="select" >
+  **Customer last name field**
+</ParamField>
+
+<ParamField path="customer_phone_field" type="select" >
+  **Customer phone field**
+</ParamField>
+
+<ParamField path="tags" type="text" >
+  **Tags**
+  Comma-separated. Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="subject" type="text" required>
+  **Subject**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="body" type="textarea" required>
+  **Message body**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="note" type="textarea" >
+  **Internal note**
+  Optional note thread prepended to the conversation. Supports {{field_name}}.
+</ParamField>
+
+<ParamField path="status" type="select" default="active" >
+  **Status**
+  
+  **Options:**
+  - `active`: Active
+  - `pending`: Pending
+  - `closed`: Closed
+  - `spam`: Spam
+</ParamField>
+
+<ParamField path="type" type="select" default="email" >
+  **Type**
+  
+  **Options:**
+  - `email`: Email
+  - `chat`: Chat
+  - `phone`: Phone
+</ParamField>
+
+<ParamField path="auto_reply" type="select" default="0" >
+  **Send auto reply**
+  
+  **Options:**
+  - `0`: No
+  - `1`: Yes
+</ParamField>
+
+<ParamField path="attachment_fields" type="text" >
+  **Attachment fields**
+  Comma-separated upload field names to attach to the conversation.
+</ParamField>
+
+<ParamField path="cc" type="text" >
+  **CC**
+  Comma-separated. Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="bcc" type="text" >
+  **BCC**
+  Comma-separated. Supports {{field_name}} merge tags.
+</ParamField>

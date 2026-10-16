@@ -1,0 +1,150 @@
+---
+title: "Actions (Then)"
+description: "Index of every Then action — show, hide, require, jump, calculate, hide submit — and how they interact on fill."
+icon: "zap"
+keywords: ["logic", "actions", "then", "show", "hide", "jump"]
+boost: 2
+---
+
+Actions are what happens **after** **When** is true. You can stack several actions on one rule — show a follow-up **and** require it **and** jump to a page, all from the same match.
+
+This page is the map. Each action has its own Studio tutorial linked below.
+
+---
+
+## How to add Then actions in Studio
+
+<Steps>
+  <Step title="Build When first">
+    Open **Logic** → **Rules**, **Branch** / **Add condition** on a field, or a **Calculated** block. Complete at least one **When** clause (or **Always** on Calculated blocks).
+  </Step>
+  <Step title="Expand Then">
+    Below **When**, click **Add action** (or use the pre-filled **Then** on Calculated blocks).
+  </Step>
+  <Step title="Pick an action type">
+    Choose from Show / Hide blocks, Require / Make optional, Disable / Enable blocks, Set / Clear value, Jump to page, Calculate, or Hide submit.
+  </Step>
+  <Step title="Configure targets">
+    Select block(s) from the canvas list, pick a destination page, or build a formula — depending on action.
+  </Step>
+  <Step title="Resolve conflicts">
+    Fix Studio conflict hints (Show ↔ Hide on same target) before publish.
+  </Step>
+  <Step title="Preview on Fill">
+    Walk the form — toggle answers and confirm actions apply and revert live.
+  </Step>
+</Steps>
+
+---
+
+## Action catalog
+
+| Action | What respondents see | Deep dive |
+|--------|----------------------|-----------|
+| [Show blocks](/features/studio/logic/actions/show-blocks) | Hidden fields become visible | Targets specific canvas blocks |
+| [Hide blocks](/features/studio/logic/actions/hide-blocks) | Fields disappear; answers cleared | Cannot submit hidden data |
+| [Require answer](/features/studio/logic/actions/require-answer) | Fields become mandatory | Ignored while hidden or disabled |
+| [Make optional](/features/studio/logic/actions/make-optional) | Required flag removed | Opposite of require |
+| [Disable blocks](/features/studio/logic/actions/disable-blocks) | Fields lock (read-only) | Never required while disabled |
+| [Enable blocks](/features/studio/logic/actions/enable-blocks) | Fields unlock for editing | Opposite of disable |
+| [Set value](/features/studio/logic/actions/set-value) | Answer written automatically | Literal or another field’s answer |
+| [Clear value](/features/studio/logic/actions/clear-value) | Answer wiped | Target field blanked |
+| [Jump to page](/features/studio/logic/actions/jump-to-page) | Skip to another page | Last jump wins |
+| [Calculate](/features/studio/logic/actions/calculate) | Formula written to target | Feeds later rules |
+| [Hide submit](/features/studio/logic/actions/hide-submit) | Legacy flag (Fill still shows Next/Submit) | Prefer Require / Jump |
+
+---
+
+## Evaluation order
+
+1. **Form Logic Board** rules (top → bottom)
+2. Field-anchored rules and **Calculated** Always→Calculate in evaluation / canvas order
+3. **Hidden or disabled fields forced not required** (invariant — you cannot require what they cannot edit)
+4. On fill, **hidden answers are cleared** so stale data never submits
+5. **Set value** / **Clear value** write into the live answer bag (and calculated feed) before jumps run
+
+<Warning>
+  **Last matching rule wins** for the same target. If two enabled rules both match and both change visibility, required state, or jump destination, the **later** rule in evaluation order wins.
+</Warning>
+
+---
+
+## Common action interactions
+
+| Combination | Behavior |
+|-------------|----------|
+| **Hide** then **Require** on same field | Hide wins if it runs last; hidden fields are never required anyway |
+| **Show** + **Require** | Recommended pattern: show follow-up, then require it |
+| **Calculate** then **When Score ≥ 80** | Calculated values feed forward in the same pass — later rules read fresh totals |
+| **Hide submit** + message block | Prefer Require / Jump; Hide submit no longer removes buttons |
+| **Jump to page** + skipped required fields | Submit validation uses the **visited path** (pages the respondent actually opened) plus currently visible required fields — fields only on unvisited branch pages do not block |
+
+---
+
+## Where to add actions
+
+| Location | Best for |
+|----------|----------|
+| **Logic Board** | Form-wide routing, eligibility gates, quiz jumps |
+| **Branch** / **Add condition** on a field | Local follow-ups tied to one question |
+| **Calculated** block | Live formula field (Always → Calculate) |
+| **Calculated** block | **Always → Calculate** live formulas |
+
+<Note>
+  Keep **Rules** for cross-form routing. Put field-specific Show/Require pairs on **Branch** / **Add condition** so Rules stays readable.
+</Note>
+
+---
+
+## Test on fill (action checklist)
+
+<Steps>
+  <Step title="Trigger When true">
+    Confirm each **Then** action visible effect (fields shown, required asterisk, jump, missing submit).
+  </Step>
+  <Step title="Trigger When false">
+    Actions should revert unless another rule keeps them active.
+  </Step>
+  <Step title="Submit attempt">
+    Required visible fields block submit; hidden fields never block.
+  </Step>
+  <Step title="Multi-page jump">
+    Skipped pages stay unvisited — answers there remain blank for operators.
+  </Step>
+  <Step title="Calculate targets">
+    Change inputs — computed fields and downstream When rules update live.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Stacking Show and Hide on the same target without exclusive **When** clauses — last rule wins unpredictably.
+- **Require** without **Show** on a hidden follow-up — users cannot answer.
+- **Hide submit** expecting the button to disappear — Fill always keeps Next/Submit; use Require or Jump.
+- **Jump** to deleted page — Studio warns; fix before publish.
+- Removing **Always → Calculate** from Calculated blocks — formulas stop updating.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Action never applies">
+    **When** false — incomplete clause, blank source field, or fail-closed comparison value.
+  </Accordion>
+  <Accordion title="Action stuck on after answer change">
+    Another rule still matches, or a later rule won — inspect Logic Board order.
+  </Accordion>
+  <Accordion title="Submit fails mysteriously">
+    Visible required field empty — not hidden ones. Check current page validation.
+  </Accordion>
+  <Accordion title="Studio conflict hint">
+    Show ↔ Hide fight on same block — reorder rules or narrow **When** until hint clears.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [How logic works](/features/studio/logic/overview) · [Operators](/features/studio/logic/operators/overview) · [Field conditions](/features/studio/logic/field-conditions) · [Logic Board](/features/studio/logic-board)
+</Panel>

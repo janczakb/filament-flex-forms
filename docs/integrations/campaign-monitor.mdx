@@ -1,0 +1,165 @@
+---
+title: "Campaign Monitor"
+description: "Automatically sync respondents to your Campaign Monitor lists with advanced resubscribe and consent-to-track controls."
+icon: "chart-line"
+keywords: ["campaign monitor", "newsletter", "subscribers", "marketing", "lists", "consent"]
+boost: 3
+---
+
+The **Campaign Monitor** integration allows you to instantly route form respondents directly into your Campaign Monitor subscriber lists. It features deep custom field mapping, robust consent tracking options, and granular control over autoresponder re-triggers.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Marketing Automation" icon="robot">
+    Inject leads into an automated drip campaign the moment they submit a form.
+  </Card>
+  <Card title="GDPR Compliance" icon="shield-check">
+    Ensure strict data privacy by explicitly declaring the respondent's `consent_to_track` status upon insertion.
+  </Card>
+  <Card title="Win-back Campaigns" icon="rotate-left">
+    Use the `resubscribe` feature to automatically revive dead leads who fill out a new form after previously unsubscribing.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to Campaign Monitor, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your API Key">
+    Log into your Campaign Monitor dashboard. Navigate to **Account Settings → API keys**. 
+    Generate and copy your **API Key**.
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **Campaign Monitor** card and enter your API Key.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.createsend.com/api/v3.3` endpoint to ensure the credentials are valid and that your client lists can be fetched.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### The Masterclass: Data Mapping & Subscriber Controls
+
+When mapping data from Flex Forms to Campaign Monitor, the system fetches all of your lists across all of your clients via live `remote_select`.
+
+<ParamField path="list_id" type="remote_select" required>
+  **Target Contact List**
+  Loaded live from your Campaign Monitor account. All new submissions will be added to this specific list.
+</ParamField>
+
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  Select the block on your form that collects the respondent's primary email.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name Field**
+  Optional. Lists only **Name** blocks on this form. Leave empty to use the form’s Name field automatically.
+</ParamField>
+
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to Campaign Monitor Custom Fields. 
+  
+  **Syntax:** `CampaignMonitorFieldKey=flex_forms_block_name` (One per line).
+  
+  **Example Mapping:**
+  ```text
+  phone_number=contact_phone
+  company_name=company_input
+  ```
+</ParamField>
+
+### Advanced Subscriber States
+
+Campaign Monitor allows for very strict control over how a subscriber enters (or re-enters) a list.
+
+<ParamField path="resubscribe" type="toggle" default="false">
+  **Resubscribe previously unsubscribed contacts**
+  When enabled, if a respondent previously clicked "Unsubscribe" on one of your emails, but then voluntarily fills out this Flex Form, they will be forcibly moved from the 'Unsubscribed' state back to the 'Active' state on the list.
+</ParamField>
+
+<ParamField path="restart_autoresponders" type="toggle" default="false">
+  **Restart subscription-based autoresponders**
+  If this contact already existed on the list, enabling this toggle will force Campaign Monitor to restart any welcome sequences or autoresponders attached to the list for this specific user.
+</ParamField>
+
+<ParamField path="consent_to_track" type="select" default="Yes">
+  **Consent to Track (GDPR)**
+  Controls email tracking behavior for this specific respondent.
+  - `Yes`: Consent is granted. Campaign Monitor tracks opens and clicks.
+  - `No`: Consent is denied. Campaign Monitor will not track engagement.
+  - `Unchanged`: Only use this if updating an existing subscriber whose consent status shouldn't be overridden.
+</ParamField>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_key" type="password" required>
+  **Campaign Monitor API Key**
+  Your master API key. Generate this in your Campaign Monitor account under **Account Settings → API keys**.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Subscriber Placement
+<ParamField path="list_id" type="remote_select" required>
+  **Target Contact List**
+  Loaded live from your Campaign Monitor account. All new submissions will be added to this specific list.
+</ParamField>
+
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  Select the block on your form that collects the respondent's primary email.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name Field**
+  Optional. Lists only **Name** blocks on this form. Leave empty to use the form’s Name field automatically.
+</ParamField>
+
+#### Field Mapping
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to Campaign Monitor Custom Fields. 
+  
+  **Syntax:** `CampaignMonitorFieldKey=flex_forms_block_name` (One per line).
+</ParamField>
+
+<ParamField path="custom_field_catalog" type="remote_select" >
+  **Available custom fields (reference)**
+  A read-only helper. Select a list to view its custom fields and their exact keys, so you can easily copy/paste them into the `custom_field_map` above.
+</ParamField>
+
+#### Advanced Options
+<ParamField path="resubscribe" type="toggle" default="false">
+  **Resubscribe previously unsubscribed contacts**
+  When enabled, if a respondent previously clicked "Unsubscribe" on one of your emails, but then voluntarily fills out this Flex Form, they will be forcefully moved back to the 'Active' state.
+</ParamField>
+
+<ParamField path="restart_autoresponders" type="toggle" default="false">
+  **Restart subscription-based autoresponders**
+  If this contact already existed on the list, enabling this toggle will force Campaign Monitor to restart any welcome sequences.
+</ParamField>
+
+<ParamField path="consent_to_track" type="select" default="Yes">
+  **Consent to Track (GDPR)**
+  Controls email tracking behavior for this specific respondent (`Yes`, `No`, or `Unchanged`).
+</ParamField>

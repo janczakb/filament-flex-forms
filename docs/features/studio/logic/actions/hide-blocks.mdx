@@ -1,0 +1,146 @@
+---
+title: "Hide blocks"
+description: "Then action: Remove fields from the fill form and clear their answers."
+icon: "eye-off"
+keywords: ["logic", "action", "hide-blocks", "then"]
+---
+
+**Hide blocks** removes selected fields from the fill experience while **When** matches — respondents cannot see or edit them, and **stored answers are cleared** so hidden data never submits.
+
+Use it to strip irrelevant sections, collapse optional paths, and enforce “out of scope” UX.
+
+---
+
+## When to choose this
+
+| Goal | Use **Hide blocks** | Use something else instead |
+|------|---------------------|----------------------------|
+| Remove irrelevant fields | ✓ | — |
+| Reveal fields | ✗ | **[Show blocks](/features/studio/logic/actions/show-blocks)** |
+| Optional without hiding | ✗ | **[Make optional](/features/studio/logic/actions/make-optional)** |
+| Block submit entirely | ✗ | **[Hide submit](/features/studio/logic/actions/hide-submit)** |
+| Skip whole pages | ✗ | **[Jump to page](/features/studio/logic/actions/jump-to-page)** (fields may stay blank on skipped pages) |
+
+---
+
+## Exact behavior
+
+- Targets become **not visible** on fill.
+- **Answers on hidden fields are cleared** on recalculation — prevents stale smuggling on submit.
+- Hidden fields are **never required** — engine clears required flag even if [Require answer](/features/studio/logic/actions/require-answer) ran earlier.
+- **Last matching rule wins** vs **Show blocks** on the same target.
+- Default-hidden blocks (`hidden` in block settings) start hidden; **Show** can override while its rule matches.
+
+<Warning>
+  Hiding clears data. If **When** toggles back, users re-enter answers — Show does not restore previous values.
+</Warning>
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| Rule stops matching | Field may become visible again (empty) if Show or default visibility applies |
+| Hide after user answered | Answer cleared from submission payload |
+| Hide + Require same field | Hide wins for visibility; required forced off while hidden |
+| Field on future page | Hidden in schema even before page visited |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Build When">
+    e.g. Plan **is not** `Enterprise`, Company **is empty**, Country **is none of** `US`.
+  </Step>
+  <Step title="Add Then → Hide blocks">
+    Select blocks to remove from fill.
+  </Step>
+  <Step title="Avoid Show conflicts">
+    Do not Hide and Show same target without mutually exclusive **When** clauses.
+  </Step>
+  <Step title="Pair with user messaging (optional)">
+    Static copy explaining why sections are absent — Hide alone gives no explanation.
+  </Step>
+  <Step title="Test toggle on Fill">
+    Fill field → trigger Hide → confirm data cleared in submission preview if available.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Hide enterprise SSO
+
+> **When** Plan **is not** `Enterprise` → **Hide blocks** `SSO details, Audit log`
+
+### No company → no invoice block
+
+> **When** Company **is empty** → **Hide blocks** `Invoice address, Tax ID`
+
+### Domestic-only shipping
+
+> **When** Country **equals** `US` → **Hide blocks** `International customs form`
+
+Often paired with inverse Show on international path.
+
+### Cleanup “Other” follow-up
+
+> **When** Industry **is not** `Other` → **Hide blocks** `Please specify industry`
+
+Clears free text if they switch away from Other.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Trigger Hide">
+    Targets disappear from form.
+  </Step>
+  <Step title="Had data before hide">
+    Re-show (When false) — fields empty.
+  </Step>
+  <Step title="Submit with hidden required fields">
+    Submit succeeds — hidden fields cannot block.
+  </Step>
+  <Step title="Toggle When repeatedly">
+    No ghost data in submission.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Hiding without inverse **Show** when users can return to qualifying answers — field stays hidden until Show rule matches.
+- Expecting hidden values in integrations — cleared answers omit from payload.
+- Hide vs Make optional — optional visible fields still show; Hide removes entirely.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Field still visible">
+    Later Show rule won, or **When** false. Check rule order.
+  </Accordion>
+  <Accordion title="Submit still blocked">
+    Different visible required field empty — not the hidden one.
+  </Accordion>
+  <Accordion title="Old answer in submission">
+    Should not happen after hide recalc — retest Fill fresh; inspect integration mapping.
+  </Accordion>
+  <Accordion title="Hide + Require on same rule">
+    Require ineffective while hidden — by design. Show first on another rule if needed.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Show blocks](/features/studio/logic/actions/show-blocks) · [Make optional](/features/studio/logic/actions/make-optional) · [Is empty operator](/features/studio/logic/operators/empty) · [How logic works](/features/studio/logic/overview)
+</Panel>

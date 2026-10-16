@@ -1,0 +1,148 @@
+---
+title: "Less than or equal"
+description: "When clause operator: The number is at or below this threshold."
+icon: "chevrons-down"
+keywords: ["logic", "operator", "lte", "condition", "when"]
+---
+
+**Less than or equal** checks whether a numeric answer is **at or below** your threshold — including an exact match at the cap.
+
+Use it for spending limits, inventory caps, “score ≤ failing threshold”, and tier ceilings. **Number fields only** — date fields use **Before** without an inclusive variant.
+
+---
+
+## When to choose this
+
+| Goal | Use **Less than or equal** | Use something else instead |
+|------|---------------------------|----------------------------|
+| At or below a number | ✓ | — |
+| Strictly below (exclude boundary) | ✗ | **[Less than](/features/studio/logic/operators/lt)** |
+| At or above floor | ✗ | **[Greater than or equal](/features/studio/logic/operators/gte)** |
+| Date on or before | ✗ | **Before** with adjusted date on date fields |
+| Exact match only | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+
+---
+
+## Exact behavior
+
+- **Numbers only.**
+- Blank source or comparison → never matches.
+- Float comparison (`<=`); `"100"` vs `100` works.
+- Pick another field in **Value** for dynamic ceilings.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Number | ✓ |
+| Date & time | — |
+| Text, choice, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Add [Is empty](/features/studio/logic/operators/empty) for skipped-field paths.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select a number field">
+    Currency, integer, rating, calculated total, etc.
+  </Step>
+  <Step title="Choose Less than or equal">
+    Number family only.
+  </Step>
+  <Step title="Enter the cap">
+    e.g. `500`, `3.5`, or pick `Max allowed` in **Value**.
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks) warnings, [Hide submit](/features/studio/logic/actions/hide-submit) when over limit (pair with inverse rule).
+  </Step>
+  <Step title="Test on Fill">
+    At cap, above cap, below cap, blank.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Free tier limit
+
+> **When** Team size **less than or equal** `5` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Free plan eligible`
+
+Exactly 5 seats qualifies.
+
+### Fail band
+
+> **When** Score **less than or equal** `49` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Retake`
+
+Score 49 matches; 50 does not.
+
+### Within approved budget
+
+> **When** Estimated cost **less than or equal** *(pick)* `Budget cap` → **Then** enable submit path
+
+### Inventory warning
+
+> **When** Requested qty **less than or equal** `0` → **Then** [Hide submit](/features/studio/logic/actions/hide-submit)
+
+Combine with validation messaging on canvas.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Above cap">
+    Rule off (for ≤ cap rules).
+  </Step>
+  <Step title="Exactly at cap">
+    Rule on.
+  </Step>
+  <Step title="Below cap">
+    Rule on.
+  </Step>
+  <Step title="Empty field">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting **≤** on dates — not in Studio for date family.
+- Using **Less than** when boundary should pass — use **≤**.
+- Single rule for both over-cap and under-cap — split into two rules or use separate **Rules** rows.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Operator missing">
+    Field not numeric — use integer/currency or calculated number.
+  </Accordion>
+  <Accordion title="Cap reference empty">
+    Referenced field blank until filled.
+  </Accordion>
+  <Accordion title="Need inclusive date cutoff">
+    Use **Before** with (deadline + 1 day) or numeric days-until field.
+  </Accordion>
+  <Accordion title="Floating point surprises">
+    Currency with many decimals — test realistic inputs on Fill.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Less than / before](/features/studio/logic/operators/lt) · [Greater than or equal](/features/studio/logic/operators/gte) · [How logic works](/features/studio/logic/overview)
+</Panel>

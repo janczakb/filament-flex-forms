@@ -1,0 +1,147 @@
+---
+title: "Kit (ConvertKit)"
+description: "Automatically sync respondents to your Kit (formerly ConvertKit) forms, sequences, and tags with dynamic mapping."
+icon: "convertkit"
+keywords: ["convertkit", "kit", "newsletter", "subscribers", "marketing", "tags", "sequences"]
+boost: 3
+---
+
+The **Kit (formerly ConvertKit)** integration allows you to instantly route form respondents directly into your Kit ecosystem. It goes far beyond simple list sync by allowing you to dynamically assign Tags, enroll users in Sequences (Courses), and map deep custom demographic fields.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Creator Newsletters" icon="envelope">
+    Automatically push new blog readers straight into your main Kit Form.
+  </Card>
+  <Card title="Drip Courses" icon="graduation-cap">
+    Instantly enroll respondents into a specific Kit Sequence when they sign up for a webinar.
+  </Card>
+  <Card title="Dynamic Tagging" icon="tags">
+    Apply specific tags (e.g., "Enterprise Lead" vs "SMB Lead") based on the exact answers they provide in Flex Forms.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to Kit, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your Kit v4 API Key">
+    Log into your Kit dashboard. Navigate to **Settings → Developer**. 
+    Locate and copy your **v4 API Key**.
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **Kit (ConvertKit)** card and enter your API Key.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.kit.com/v4` endpoint to ensure the credentials are valid and that your forms/sequences can be fetched.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### The Masterclass: Data & Tag Mapping
+
+Unlike older CRMs that use "Lists", Kit is primarily organized around Forms, Sequences, and Tags. Flex Forms fetches all of your Kit assets live via `remote_select` so you never have to hunt for internal IDs.
+
+<ParamField path="form_id" type="remote_select" required>
+  **Target Kit Form**
+  Loaded live from your Kit account. Contacts must be subscribed to a Form to enter your Kit ecosystem.
+</ParamField>
+
+<ParamField path="sequence_id" type="remote_select">
+  **Kit Sequence (Optional)**
+  Optionally add the subscriber directly to a Kit sequence (email course) upon submission.
+</ParamField>
+
+<ParamField path="tag_id" type="remote_select">
+  **Primary Tag (Optional)**
+  Select a primary tag to be applied to every respondent who fills out this form.
+</ParamField>
+
+<ParamField path="extra_tag_ids" type="string">
+  **Extra Tag IDs**
+  Comma-separated Kit tag IDs to apply in addition to the primary tag (e.g., `12345, 67890`).
+</ParamField>
+
+<ParamField path="tags_field" type="select">
+  **Dynamic Tags Field**
+  Select a block from your form (like a Checkbox Group). If the respondent selects options that exactly match the names of Tags in your Kit account, the engine will automatically apply those tags to their profile.
+</ParamField>
+
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to Kit Custom Fields. 
+  
+  **Syntax:** `KitCustomFieldKey=flex_forms_block_name` (One per line).
+  
+  **Example Mapping:**
+  ```text
+  company_size=company_size_dropdown
+  job_title=job_title_input
+  ```
+</ParamField>
+
+---
+
+## Technical Resources & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Does this update existing Kit subscribers?">
+    Yes. If a respondent submits the form and their email address already exists in your Kit account, the API performs an upsert. It will append any new Tags and update their Custom Fields without duplicating the contact.
+  </Accordion>
+  <Accordion title="Where do I find my Kit Custom Field Keys?">
+    Inside your Kit account, navigate to a Subscriber profile to view your Custom Fields. The exact lowercase key of that field must be placed on the left side of the `=` sign in the mapping text area.
+  </Accordion>
+  <Accordion title="Official Documentation Reference">
+    For advanced architectural questions regarding the v4 payload, refer to the official [Kit v4 API Documentation](https://developers.kit.com/v4).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+### Global Settings
+<ParamField path="api_secret" type="password" required>
+  **ConvertKit API Secret**
+  The legacy master V3 API key. (Often labeled API Secret in ConvertKit).
+</ParamField>
+
+<ParamField path="api_key" type="password" required>
+  **ConvertKit Public API Key**
+  The public API key used for some V3 endpoint requests.
+</ParamField>
+
+### Form-Level Settings
+
+#### Subscriber Data
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  The primary email field for the subscriber.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name Field**
+  The subscriber's first name field.
+</ParamField>
+
+#### Field Mapping
+<ParamField path="custom_field_catalog" type="remote_select" >
+  **Available custom fields (reference)**
+  A read-only helper to fetch live custom fields from ConvertKit for mapping reference.
+</ParamField>
+
+#### Advanced State
+<ParamField path="subscriber_state" type="select" default="active">
+  **Subscriber State**
+  Allows you to bypass Double Opt-in by explicitly setting the creation state (e.g., `active`, `inactive`).
+</ParamField>

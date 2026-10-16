@@ -1,0 +1,14 @@
+name: Docs issue
+description: Fix or improve documentation
+labels: ["docs"]
+body:
+  - type: textarea
+    id: page
+    attributes:
+      label: Page URL / path
+  - type: textarea
+    id: fix
+    attributes:
+      label: What is wrong or missing?
+    validations:
+      required: true

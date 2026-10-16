@@ -1,0 +1,47 @@
+---
+title: "Prefilling Fields via URL"
+description: "Automatically populate form fields using URL query parameters on embed and popup routes."
+icon: "text-cursor-input"
+keywords: ["prefill", "query params", "url", "personalization", "utm", "embed"]
+boost: 2
+---
+
+Prefilling removes friction. By passing known data (like a user's name, email, or marketing UTM tags) in the URL, you increase conversion rates and ensure data accuracy.
+
+Prefill runs **only on embed and popup** fills — not on the plain public fill link.
+
+## How Prefilling Works
+
+Flex Forms reads the URL query string when an **embed** or **popup** form loads. If a query parameter matches a field's exact **Name** property, that field is prefilled.
+
+```text Example embed URL
+https://your-app.com/forms/demo/embed?email=jane@example.com&utm_source=newsletter
+```
+
+<Steps>
+  <Step title="Identify the Field Name">
+    Open the Studio, select a field, and check its **Name** in the Inspector panel. *Note: Use the internal Name, not the visual Label.*
+  </Step>
+  <Step title="Append to an embed or popup URL">
+    Add `?fieldname=value` to the **embed** or **popup** URL (Share → Embed), not the standalone fill link.
+  </Step>
+  <Step title="Lock the Field (Optional)">
+    If you don't want the user to change the prefilled value (e.g., a hidden CRM ID), change the field's visibility to **Hidden** or set it to **Read-Only** in the Studio settings.
+  </Step>
+</Steps>
+
+<Note>
+Need prefill on a shared link? Use a [Standard embed](/features/share/embed-modes) and put the query string on the embed iframe URL. The plain fill link ignores prefill params by design.
+</Note>
+
+---
+
+## Security Best Practices
+
+<Warning>
+  **Never pass sensitive secrets (like passwords or secure tokens) in the query string.** URLs are stored in browser history and intermediate proxy logs. If you need to pass secure context, use an opaque ID and resolve it via your backend integrations.
+</Warning>
+
+<Panel>
+  **Deep Dive:** Complete reference in [Query Parameters Guide](/features/share/query-params) and [Developer API](/developers/query-params).
+</Panel>

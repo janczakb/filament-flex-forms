@@ -1,0 +1,179 @@
+---
+title: "Events & hooks"
+description: "Listen for FormSubmissionCompleted, queue listeners, submission pipeline middleware, and client-side embed events."
+icon: "bell"
+keywords: ["events", "listeners", "FormSubmissionCompleted", "pipeline", "middleware", "ShouldQueue"]
+---
+
+Flex Forms dispatches Laravel events at clear lifecycle points. Use **events + listeners** (or queued listeners) for server-side reactions — not Eloquent observers on submission models.
+
+## FormSubmissionCompleted
+
+Fired after a **full** (non-partial) submission is ingested and persisted — in the same `afterCommit` callback that queues `FinalizeSubmissionSideEffectsJob`. Partial saves dispatch `FormSubmissionPartialSaved` instead.
+
+**Ordering (important):** the event runs **before** outbound integrations and Studio post-submit actions. Those run asynchronously in the finalize job. Do **not** assume CRM delivery rows exist when your listener runs. If you need “after integrations,” listen for `IntegrationDispatchSucceeded` / `PostSubmitActionSucceeded`, or queue work that polls delivery status.
+
+The event carries:
+
+- `$event->form` — `FlexForm` instance
+- `$event->submission` — `FlexFormSubmission` instance
+- `$event->context` — typed `SubmissionContext` (`source`, `formId`, `submissionId`, optional safe `meta`) — never answers or secrets
+
+```php
+$event->context->source;        // e.g. "ingest"
+$event->context->formId;
+$event->context->submissionId;
+$event->context->toArray();     // array shape for logs
+```
+
+### Basic listener
+
+```php title="app/Listeners/SyncSubmissionToCrm.php"
+namespace App\Listeners;
+
+use Bjanczak\FilamentFlexForms\Events\FormSubmissionCompleted;
+
+final class SyncSubmissionToCrm
+{
+    public function handle(FormSubmissionCompleted $event): void
+    {
+        // $event->submission->answers, $event->form->slug, …
+    }
+}
+```
+
+Register in `AppServiceProvider` or an event service provider:
+
+```php
+use Bjanczak\FilamentFlexForms\Events\FormSubmissionCompleted;
+use App\Listeners\SyncSubmissionToCrm;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(FormSubmissionCompleted::class, SyncSubmissionToCrm::class);
+```
+
+Or use Laravel's attribute discovery (`#[ListensTo(FormSubmissionCompleted::class)]`) if your app uses it.
+
+### Queued listener
+
+Offload slow work (CRM API, enrichment) to the queue:
+
+```php
+use Bjanczak\FilamentFlexForms\Events\FormSubmissionCompleted;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+final class NotifySlackOnSubmission implements ShouldQueue
+{
+    public string $queue = 'integrations';
+
+    public function handle(FormSubmissionCompleted $event): void
+    {
+        // …
+    }
+}
+```
+
+<Info>
+  Integrations, mail, and Insights side effects already use queues in production. Your listeners should assume a queue worker is running.
+</Info>
+
+## Other server events
+
+| Event | When |
+|-------|------|
+| `FormSubmissionPartialSaved` | Partial / save-later progress stored |
+| `FormSubmissionDeleted` | Submission removed from inbox |
+| `FormCreated` / `FormUpdated` / `FormDeleted` | Studio create, schema save, delete |
+| `FormPublished` / `FormUnpublished` | Publish state changed in Studio |
+| `IntegrationDispatchSucceeded` / `IntegrationDispatchFailed` | Per-feed outbound result |
+| `IntegrationDeliveryReplayed` | Admin replayed a failed delivery |
+| `PostSubmitActionSucceeded` / `PostSubmitActionFailed` | Per Studio post-submit action |
+| `PaymentCaptured` / `PaymentFailed` / `PaymentRefunded` | Stripe payment block lifecycle |
+
+Use these when you need observability beyond a single `FormSubmissionCompleted` hook.
+
+<Note>
+  Submission events are **not** `ShouldBroadcast` by default. Real-time admin dashboards are out of scope for this package — broadcast from your own listener if you need WebSockets.
+</Note>
+
+## Submission pipeline middleware
+
+Pipeline middleware is registered once (config + `push()`). Duplicate class names are ignored so Octane/long-lived workers do not stack the same middleware repeatedly.
+
+For logic that must run **before** answers are saved (validation, enrichment, blocking spam), implement `SubmissionMiddleware` instead of listening after the fact.
+
+```php title="app/FlexForms/BlockDisposableEmails.php"
+namespace App\FlexForms;
+
+use Bjanczak\FilamentFlexForms\Contracts\SubmissionMiddleware;
+use Bjanczak\FilamentFlexForms\Support\Pipeline\SubmissionPipelinePayload;
+use Closure;
+
+final class BlockDisposableEmails implements SubmissionMiddleware
+{
+    public function handle(SubmissionPipelinePayload $payload, Closure $next): SubmissionPipelinePayload
+    {
+        $email = $payload->answers['email'] ?? null;
+
+        if (is_string($email) && str_ends_with(strtolower($email), '@mailinator.com')) {
+            return $payload->abort('Please use a work email address.');
+        }
+
+        return $next($payload);
+    }
+}
+```
+
+Register in config:
+
+```php
+'extensibility' => [
+    'submission_middleware' => [
+        \App\FlexForms\BlockDisposableEmails::class,
+    ],
+],
+```
+
+Or push at runtime from `AppServiceProvider`:
+
+```php
+use Bjanczak\FilamentFlexForms\Support\Pipeline\SubmissionPipeline;
+
+app(SubmissionPipeline::class)->push(\App\FlexForms\BlockDisposableEmails::class);
+```
+
+Check `$payload->isAborted()` downstream; aborted submissions surface the message to the respondent.
+
+<Warning>
+  Do **not** attach Eloquent observers to `FlexFormSubmission` for ingest side effects. The ingestor owns persistence order; observers race integrations and encryption. Use events or pipeline middleware instead.
+</Warning>
+
+## Client-side embed events
+
+For marketing sites and SPAs, forward fill lifecycle events to the host page with `formEventsForwarding=1` on the embed URL. The parent receives `postMessage` payloads like `FlexForms.FormSubmitted`.
+
+Full attribute list and event names: [Embed widget API](/developers/embed-api).
+
+```html
+<iframe
+  data-flex-form-src="https://your-app.test/forms/demo/embed?formEventsForwarding=1"
+  …
+></iframe>
+<script async src="https://your-app.test/vendor/flex-forms/embed.js"></script>
+```
+
+```js
+window.addEventListener('message', (event) => {
+  if (typeof event.data !== 'string') return;
+
+  const message = JSON.parse(event.data);
+
+  if (message.event === 'FlexForms.FormSubmitted') {
+    // GTM, analytics, close modal, …
+  }
+});
+```
+
+<Panel>
+**Next:** [Field mapping](/developers/field-mapping) · [Post-submit actions](/developers/post-submit-actions) · [Webhooks](/developers/webhooks)
+</Panel>

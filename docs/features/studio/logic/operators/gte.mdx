@@ -1,0 +1,152 @@
+---
+title: "Greater than or equal"
+description: "When clause operator: The number is at or above this threshold."
+icon: "chevrons-up"
+keywords: ["logic", "operator", "gte", "condition", "when"]
+---
+
+**Greater than or equal** checks whether a numeric answer is **at or above** your threshold — including an exact match at the boundary.
+
+Use it for “18+”, minimum order quantities, passing scores (`≥ 70`), and tier unlocks. **Number fields only** — date fields do not offer this operator in Studio.
+
+---
+
+## When to choose this
+
+| Goal | Use **Greater than or equal** | Use something else instead |
+|------|------------------------------|----------------------------|
+| At or above a number (inclusive) | ✓ | — |
+| Strictly above (exclude boundary) | ✗ | **[Greater than](/features/studio/logic/operators/gt)** |
+| Below a cap | ✗ | **[Less than or equal](/features/studio/logic/operators/lte)** |
+| Date on or after | ✗ | Not on date fields — use **After** with adjusted date or numeric offset |
+| Exact number only | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+
+---
+
+## Exact behavior
+
+- **Numbers only** — integer, stepper, currency, sliders, rating, year, duration, calculated numbers.
+- **Both sides must be present and valid** — blank answers never match.
+- Compared as floating-point (`>=`).
+- String numerics like `"18"` compare correctly against `18`.
+- Blank comparison value → clause never matches (fail-closed).
+- Pick another field in **Value** for dynamic floors (e.g. Spend **≥ Minimum**).
+
+---
+
+## Which field types
+
+| Family | Available | Label in Studio |
+|--------|-----------|-----------------|
+| Number | ✓ | Greater than or equal |
+| Date & time | — | Use [After](/features/studio/logic/operators/gt) with adjusted boundary |
+| Text, choice, yes/no, presence | — | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Pair with [Is empty](/features/studio/logic/operators/empty) if skipped fields need their own branch.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select a number field">
+    Pick integer, currency, rating, calculated total, etc.
+  </Step>
+  <Step title="Choose Greater than or equal">
+    Appears only for number family fields.
+  </Step>
+  <Step title="Enter the minimum threshold">
+    Literal (e.g. `18`, `100.00`) or pick another numeric field in **Value**.
+  </Step>
+  <Step title="Add Then actions">
+    e.g. [Show blocks](/features/studio/logic/actions/show-blocks), [Jump to page](/features/studio/logic/actions/jump-to-page), [Hide submit](/features/studio/logic/actions/hide-submit) for ineligible users.
+  </Step>
+  <Step title="Test boundary on Fill">
+    Values at, below, and above threshold.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Age 18+ gate
+
+> **When** Age **greater than or equal** `18` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Adult section`
+
+Age `18` matches; age `17` does not.
+
+### Minimum order quantity
+
+> **When** Quantity **greater than or equal** `10` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Bulk discount applied`
+
+Exactly 10 units qualifies.
+
+### Passing quiz score
+
+> **When** Score **greater than or equal** `70` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Pass certificate`
+
+Use **≥** so a score of exactly 70 passes.
+
+### Spend meets minimum
+
+> **When** Cart total **greater than or equal** *(pick)* `Free shipping minimum` → **Then** show free shipping banner
+
+Both totals must be entered and numeric.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Enter one below threshold">
+    Rule off.
+  </Step>
+  <Step title="Enter exactly at threshold">
+    Rule **on** — this is the key difference from **Greater than**.
+  </Step>
+  <Step title="Enter well above threshold">
+    Rule stays on.
+  </Step>
+  <Step title="Clear the field">
+    Rule off immediately.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Looking for **≥** on date fields — not available; use [After](/features/studio/logic/operators/gt) or a calculated day count.
+- Using **Greater than** when boundary should qualify — switch to **≥**.
+- Comparing non-numeric text — operator unavailable by design.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Operator not in dropdown">
+    Field is not in the number family. Convert to integer/currency or use a calculated numeric field.
+  </Accordion>
+  <Accordion title="70.0 vs 70 mismatch">
+    Float compare should treat them equal — if not, check for hidden characters in text masquerading as numbers.
+  </Accordion>
+  <Accordion title="Referenced field empty">
+    Dynamic minimum unset → comparison value blank → fail-closed until filled.
+  </Accordion>
+  <Accordion title="Need date on or after">
+    Use **After** with (boundary − 1 day) or store epoch/day-count in a number field with **≥**.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Greater than](/features/studio/logic/operators/gt) · [Less than or equal](/features/studio/logic/operators/lte) · [How logic works](/features/studio/logic/overview)
+</Panel>

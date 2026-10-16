@@ -1,0 +1,131 @@
+---
+title: "Flex Checklist Block"
+description: "Multi-select checklist — Studio catalog label: Flex checklist (`flex_checklist`)."
+icon: "check-square"
+keywords: ["checkbox", "flex checklist", "multi choice", "multiple", "select"]
+---
+
+<Banner type="warning" dismissible={true}>
+  In Studio this block is **Flex checklist**. Answers are always a JSON array, even for a single selection.
+</Banner>
+
+The **Flex checklist** block shows every option on screen and allows any combination — ideal for “select all that apply”.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Legal Consent" icon="scale-balanced">
+    "I agree to the Terms of Service" and "I agree to the Privacy Policy" (using exact selections).
+  </Card>
+  <Card title="Preferences" icon="heart">
+    "Which dietary requirements do you have?" (e.g., Vegan, Gluten-Free, Halal).
+  </Card>
+  <Card title="Feature Polling" icon="square-poll-vertical">
+    "Select your top 3 favorite tools" (enforcing a max selection of 3).
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Checkboxes** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Build the List">
+    Add your options (Values and Labels).
+  </Step>
+  <Step title="Enforce Limits">
+    If you ask "Select your top 3 features," use the Inspector to set the **Max Selections** and **Min Selections** to exactly 3.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The size of the checkboxes and accompanying text. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="icons" type="array">
+      An associative array mapping option keys to Heroicon names, displaying an icon next to specific checkboxes.
+    </ParamField>
+    
+    <ParamField path="descriptions" type="array">
+      An associative array mapping option keys to secondary description strings, adding sub-text below specific checkboxes.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Validation & Logic">
+    <ParamField path="options" type="array" required>
+      The list of checkbox options, defined as key-value pairs (Value and Label).
+    </ParamField>
+    
+    <ParamField path="disabled_options" type="array">
+      An array of option keys that should be rendered as disabled (grayed out and unclickable).
+    </ParamField>
+    
+    <ParamField path="min_selections" type="integer">
+      Strict validation rule enforcing the minimum number of checkboxes the user must tick.
+    </ParamField>
+    
+    <ParamField path="max_selections" type="integer">
+      Strict validation rule enforcing the maximum number of checkboxes the user is allowed to tick.
+    </ParamField>
+    
+    <ParamField path="exact_selections" type="integer">
+      Strict validation rule enforcing an exact required number of selections (e.g., "Select exactly 3").
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+The selected checkboxes are saved as a JSON **array** of strings representing the keys (values) of the ticked boxes. 
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_611",
+    "data": {
+      "dietary_restrictions": ["vegan", "gluten_free"],
+      "consent_agreed": ["tos_2024"]
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'dietary_restrictions' => ['vegan', 'gluten_free'],
+      'consent_agreed' => ['tos_2024'],
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Validation Control
+
+Checkboxes are prone to bad data if left unchecked. If you ask "What are your 2 favorite colors?", a user could easily click all 10 options just to get through the form faster.
+
+By using the **Exact Selections** or **Max Selections** validation rules, the form will literally lock down and physically prevent the user from clicking a 3rd box, flashing an error state until they correct their behavior. This guarantees your data matches your intent.
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="When to switch to a Dropdown (multiple)">
+    If your list of Checkboxes exceeds 10 items, it creates a massive wall of text that is intimidating to users. At that scale, switch to a [Dropdown](/features/blocks/dropdown) with **Multiple** enabled to condense the interface into a searchable menu.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Dropdown](/features/blocks/dropdown) · [Multiple Choice](/features/blocks/multiple-choice)
+</Panel>

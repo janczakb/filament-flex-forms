@@ -1,0 +1,166 @@
+---
+title: "Salesforce Integration"
+description: "A comprehensive, enterprise-grade guide to seamlessly push form data directly into Salesforce Objects, Leads, and Contacts."
+icon: "salesforce"
+keywords: ["salesforce", "crm", "leads", "enterprise", "objects", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** For detailed architecture on Object creation and OAuth flows, refer to the [Official Salesforce REST API Documentation](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_sobject_create.htm).
+</Banner>
+
+The **Salesforce** integration brings absolute enterprise-grade data piping to Flex Forms. It allows you to instantly generate Leads, update Contacts, or create highly customized `sObjects` without writing a single line of Apex code or relying on fragile, rate-limited middleware like Zapier.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Sales Pipeline Automation" icon="funnel-dollar">
+    Automatically push high-value enterprise inquiries directly into the Salesforce Lead queue. Flex Forms can map hidden UTM tracking data directly to Lead Source fields, enabling immediate, context-aware SDR follow-up.
+  </Card>
+  <Card title="Support Case Creation" icon="ticket">
+    Map a technical support form directly to the `Case` object in Salesforce. This instantly assigns tickets to your Service Cloud agents, bypassing email queues entirely.
+  </Card>
+</CardGroup>
+
+---
+
+## Connect Salesforce
+
+Flex Forms talks to Salesforce with a **Connected App** using the **client credentials** grant (Consumer Key, Consumer Secret, and your org **Instance URL**). No username/password paste in Studio.
+
+### Recommended: Integrations → Connections
+
+Create one Connection per Salesforce org (Production, Sandbox, EU) and pick it on each form feed.
+
+<Steps>
+  <Step title="Create a Connected App">
+    In Salesforce **Setup → App Manager → New Connected App**, enable OAuth settings, add a HTTPS callback URL (required by Salesforce even for client credentials), and select scopes that allow API access for your use case. Save and wait a few minutes for the app to activate.
+  </Step>
+
+  <Step title="Copy Consumer Key and Secret">
+    Open **Manage Consumer Details** and copy the Consumer Key and Consumer Secret.
+  </Step>
+
+  <Step title="Create a Connection in Flex Forms">
+    Open **Integrations** (left rail) → **Connections**. Choose **Salesforce**, label it (for example `Production org`), paste Consumer Key, Consumer Secret, and Instance URL (`https://your-domain.my.salesforce.com`, no trailing slash), then **Create**. Run **Test** until the status is Connected.
+  </Step>
+
+  <Step title="Enable Salesforce in Catalog">
+    Open **Integrations → Catalog**, enable **Salesforce**, and Save so the driver appears on form feeds. Catalog credentials can stay empty when every feed uses a Connection.
+  </Step>
+
+  <Step title="Configure the form feed">
+    On the form hub **Integrations** tab, enable Salesforce, select your **Connection**, choose the object type, map fields, and save. Send a test submission and confirm the record in Salesforce.
+  </Step>
+</Steps>
+
+### Alternative: Catalog (global) credentials
+
+For a single org across all forms, paste Consumer Key / Secret / Instance URL under **Integrations → Catalog → Salesforce**. Leave the form feed **Connection** empty to use those globals.
+
+<Callout type="info">
+  `php artisan flex-forms:upgrade` can migrate legacy global Salesforce credentials into a Connection row. Globals remain available as a fallback.
+</Callout>
+
+---
+
+## Map payloads to Salesforce objects
+
+Salesforce relies on extremely strict Object structures. You must tell Flex Forms exactly which Salesforce Object to target and how to map the specific fields.
+
+<Tabs>
+  <Tab title="Object Selection & Standard Mapping">
+    In your Form's specific integration settings, you must specify the **Target Object** (it defaults to `Lead`, but you can type `Contact`, `Case`, or `Account`).
+    
+    Then, define your mappings using the exact API Names of the Salesforce fields.
+    
+    The format is always: `Salesforce_API_Name=Flex_Forms_Field_Name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      FirstName=first_name
+      LastName=last_name
+      Company=company_name
+      LeadSource=hidden_utm_source
+      Custom_Survey_Answer__c=matrix_block_result
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How Custom Fields Work in Salesforce
+
+If you are mapping data to a custom field you manually created in Salesforce (e.g., "Industry Type"), you must be aware of the custom field naming convention.
+
+<Tree>
+  <Tree.Folder name="The __c Suffix Requirement" defaultOpen>
+    <Tree.File name="Salesforce automatically appends '__c' to all custom fields." />
+    <Tree.File name="If your field is named 'Industry Type'..." />
+    <Tree.File name="The API Name is actually 'Industry_Type__c'." />
+    <Tree.File name="You MUST map it as: Industry_Type__c=industry_dropdown" />
+  </Tree.Folder>
+</Tree>
+
+<Callout type="warning">
+  **The Missing Suffix Trap:** If you forget to include the `__c` suffix in your field mapping, the Salesforce API will reject the payload with an `INVALID_FIELD` error, and the lead will not be created.
+</Callout>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Unable to obtain an access token">
+    Confirm Instance URL has no trailing slash, Consumer Key/Secret match the Connected App, and the app has finished activating (often 2–10 minutes after create).
+  </Accordion>
+  <Accordion title="INVALID_FIELD on create">
+    Custom fields need the `__c` suffix in the field map. Copy API names from the Object fields helper on the form feed.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration reference
+
+### Credentials (Catalog or Connection)
+
+Same fields under **Integrations → Catalog → Salesforce** and **Integrations → Connections**.
+
+<ParamField path="client_id" type="password" required>
+  **Consumer Key (client ID)**
+</ParamField>
+
+<ParamField path="client_secret" type="password" required>
+  **Consumer Secret**
+</ParamField>
+
+<ParamField path="instance_url" type="text" required>
+  **Instance URL** — e.g. `https://your-company.my.salesforce.com` (no trailing slash).
+</ParamField>
+
+### Form feed
+
+Located on the form hub **Integrations** tab.
+
+<ParamField path="connection_id" type="select">
+  **Connection** — named Connected App from Integrations → Connections, or Catalog (global) when empty.
+</ParamField>
+
+#### Object Mapping
+<ParamField path="object_type" type="remote_select" required>
+  **Object type**
+  Select which Salesforce sObject this form should create (`Lead`, `Contact`, `Account`, `Opportunity`, `Case`, …).
+</ParamField>
+
+<ParamField path="field_map" type="textarea">
+  **Field map** — one rule per line: `SalesforceApiName=flex_forms_block_name`. Primary email fills `Email` when unmapped. Checkboxes become booleans; multi-selects become semicolon-delimited values; `{{merge}}` tags are supported.
+</ParamField>
+
+<ParamField path="field_catalog" type="remote_select">
+  **Object fields (reference)** — live describe helper for copying API names into the field map.
+</ParamField>
+
+<ParamField path="update_duplicates" type="select" default="0">
+  **Update duplicates** — `0` fail closed on Salesforce duplicate rules; `1` PATCH the matched record when `DUPLICATES_DETECTED`.
+</ParamField>

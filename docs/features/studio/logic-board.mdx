@@ -1,0 +1,124 @@
+---
+title: "The Logic Board"
+description: "Full-screen Flow, Rules, and Simulator inside the Studio Workflow hub."
+icon: "git-branch"
+keywords: ["logic board", "rules", "workflow", "simulator", "jump to page", "tutorial"]
+boost: 3
+---
+
+Logic lives in the Studio **Workflow** hub — a full-screen workspace with three surfaces: **Flow**, **Rules**, and **Simulator**. Open it from the center top bar (**Workflow**), ⌘/Ctrl+Shift+L, a field’s advanced logic control, or a jump edge on the Flow map.
+
+Use **Branch** on choice fields for per-answer follow-ups and jumps. Use **Rules** for **routing, gates, and advanced When → Then**. New to the model? Read [How logic works](/features/studio/logic/overview) first.
+
+---
+
+## What you see
+
+| Region | Purpose |
+|--------|---------|
+| **Workflow surfaces** | Tabs: **Flow · Rules · Simulator** |
+| **Flow** | Full-screen page map (zoom / pan / fit). Solid edges = jumps; dashed = default next |
+| **Rules** | Form-wide When → Then editor, search, conflicts, field anchors, FAQ |
+| **Simulator** | Answers + sticky Run → **path outcome** (with jump reasons), then Field state / Branches |
+| **Flow health** | Chip on the **right** of the Workflow header (tooltip + conflict count). Critical issues also alert on Rules and **block Publish** |
+| **Back to Content** | Appears when you opened Rules from Content / a field — returns you to the canvas |
+
+### Flow surface
+
+Open **Workflow → Flow** for the map of pages and jumps. Click a jump edge to open that rule on **Rules**. **Orphan** and **cycle** states match Flow health. Click a page card to jump back to **Content** on that page.
+
+### Rules surface
+
+Search and compact stats, short health/conflict alerts when needed, the full `schema.logic` editor, field anchors on the right, and a short FAQ. Escape (or **Back to Content**) returns you when you arrived from Content.
+
+### Simulator surface
+
+Dry-run the respondent path:
+
+1. Fill **answers** by page (left). Mock controls follow the same field families as Rules (text, number, choice, date, yes/no, presence). Presence fields (file, signature, …) use **empty / filled**.
+2. Optionally save **scenarios** (chips in the toolbar) — loading a scenario re-runs automatically.
+3. **Run** (or ⌘/Ctrl+Enter). Outcome (right) shows the **path** first: each step is Start, Next, or Jump (with the rule). Click a page to open **Content**, or a jump to open **Rules**.
+4. Under the path, open **Field state** or **Branches** for details. Use **Highlight on Flow** to see visited pages on the map.
+
+With no rules yet, Simulator still works (linear path) and shows a soft advisory with a link to Rules. Coverage chips summarize terminal / pages / jumps. Flow-health issues from the run list with links into Rules.
+
+---
+
+## Add your first rule
+
+<Steps>
+  <Step title="Open Workflow → Rules">
+    In Studio, open **Workflow** (or press ⌘/Ctrl+Shift+L). Select the **Rules** surface.
+  </Step>
+  <Step title="Add a rule">
+    Click **Add rule**. A new When → Then card appears.
+  </Step>
+  <Step title="Configure When">
+    1. Pick the source field.  
+    2. Choose an [operator](/features/studio/logic/operators/overview) (Studio filters by field type).  
+    3. Set the value (literal, choice chip, or another field).  
+    4. Use **All** / **Any** for multiple clauses or nested groups.
+  </Step>
+  <Step title="Configure Then">
+    Add one or more [actions](/features/studio/logic/actions/overview):
+    - [Jump to page](/features/studio/logic/actions/jump-to-page) — pair with [auto-jump](/features/settings/behavior) for choice UX
+    - [Show](/features/studio/logic/actions/show-blocks) / [Hide](/features/studio/logic/actions/hide-blocks) — hide **clears** answers
+    - [Require](/features/studio/logic/actions/require-answer) / [Make optional](/features/studio/logic/actions/make-optional)
+    - [Calculate](/features/studio/logic/actions/calculate)
+    - [Hide submit](/features/studio/logic/actions/hide-submit)
+  </Step>
+  <Step title="Reorder if needed">
+    Drag rules when you have more than one. Top → bottom is evaluation order.
+  </Step>
+  <Step title="Check Flow + flow health">
+    Resolve conflict chips and **flow health** criticals before publish. The **Flow** surface shows jumps, linear next, cycles, and missing jump targets. Linear quiz pages do not need a Publish confirm; unreachable terminals after another terminal (no jump in) still require acknowledge.
+  </Step>
+  <Step title="Test on Simulator or Preview">
+    Use **Simulator** with mock answers, or Preview (draft) / public fill (published).
+  </Step>
+</Steps>
+
+---
+
+## Branch vs Rules
+
+| Layer | Where | Best for |
+|-------|-------|----------|
+| **Branch** | Choice field chrome (when that field is selected) | Per-answer show follow-up / go to page + **Otherwise** |
+| **Rules** | Workflow → Rules; also under a field when its rules are too advanced for Branch | Complex When, hide Submit, multi-action stacks, form-wide gates |
+| **Calculated** | Catalog → Logic | Live totals / scores |
+
+Every Branch compile and every Rules edit lives in the **same** `schema.logic` store. Later matching rules that touch the same target **win**.
+
+---
+
+## Field anchors list
+
+The side list shows fields that already have attached rules.
+
+- Click a row to **jump to that block** on the Content canvas.  
+- Edit Branch on the field, or open advanced When / Then via **Add condition**.  
+- Empty state explains Branch and Add condition.
+
+---
+
+## Diagnostics you must clear
+
+Rules shows:
+
+- Rules enabled / total  
+- How many fields carry conditions  
+- Total rules in evaluation order  
+- **Unique** conflict count  
+
+Conflict copy uses **field labels** when available.
+
+<Warning>
+  Treat conflicts and **critical flow health** issues as **release blockers**. Publish is refused when the flow has jump cycles, incomplete jump targets, unreachable non-terminals, or no reachable terminal page.
+</Warning>
+
+---
+
+## Cascade scrub
+
+Delete a field, page, or option that logic referenced → Studio **scrubs** those references automatically and shows a toast with the cleaned count (or stays quiet when nothing needed cleaning). You should not need to hunt orphan jumps by hand.

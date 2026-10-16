@@ -1,0 +1,141 @@
+---
+title: "Support"
+description: "How to get help — bug reports, feature requests, private security disclosure, and where to ask implementation questions."
+icon: "life-buoy"
+keywords: ["support", "help", "contact", "bug report", "security", "vulnerability", "disclosure"]
+---
+
+<img
+  src="/images/tiles/support.webp"
+  alt="Flex Forms support — Help Center paths, contact options, and issue templates"
+/>
+
+<CardGroup cols={2}>
+  <Card title="Report a bug" icon="bug" href="https://github.com/janczakb/filament-flex-forms/issues/new?template=bug.yml">
+    Something broken? File it on the public Issues board with steps to reproduce.
+  </Card>
+  <Card title="Request a feature" icon="sparkles" href="https://github.com/janczakb/filament-flex-forms/issues/new?template=feature.yml">
+    Missing something? Tell us what you're trying to build.
+  </Card>
+  <Card title="License portal" icon="key-round" href="https://license.bjanczak.com/flex-forms/panel">
+    Manage your license key, domains, and plan.
+  </Card>
+  <Card title="What's new" icon="newspaper" href="/resources/whats-new">
+    Recent product updates and Help Center highlights.
+  </Card>
+  <Card title="Report a security issue" icon="shield-alert" href="#report-a-security-vulnerability">
+    Suspected vulnerability? Use private disclosure — never a public GitHub issue.
+  </Card>
+</CardGroup>
+
+<Steps>
+  <Step title="Search the docs first">
+    Most installation, config, and "how do I…" questions are answered in [Get started](/get-started/installation), [Guides](/guides/multi-page-stepper), and [Developers](/developers/embed-api).
+  </Step>
+  <Step title="Check What's new">
+    If something changed recently, check [What's new](/resources/whats-new) before filing a bug.
+  </Step>
+  <Step title="File a focused bug report">
+    Include your Flex Forms version, Filament/Laravel/PHP versions, and exact reproduction steps — screenshots or a short screen recording help a lot for UI issues.
+  </Step>
+  <Step title="Flag license/billing issues separately">
+    License key, domain activation, or billing questions go through the [license portal](https://license.bjanczak.com/flex-forms/panel), not GitHub Issues.
+  </Step>
+</Steps>
+
+---
+
+## Report a security vulnerability
+
+If you believe you found a flaw that could let someone bypass authentication, read another tenant's submissions, execute code, or exfiltrate data **without** going through the product's documented controls, treat it as a **security report** — not a regular bug.
+
+<Warning>
+  **Do not** open a public [GitHub issue](https://github.com/janczakb/filament-flex-forms/issues), post on social media, or share exploit details in community threads before we have had a chance to respond. Public disclosure makes incidents harder to fix and puts other customers at risk.
+</Warning>
+
+### What belongs in a security report
+
+Report issues in **Flex Forms package code** when they affect confidentiality, integrity, or availability — for example:
+
+- Authentication or authorization bypass in **Studio**, **fill**, **embed**, or **Insights share** surfaces
+- Cross-tenant or cross-form data leakage in submissions, Contacts, or exports
+- Server-side request forgery (SSRF) or unsafe outbound HTTP beyond the documented integration hardening
+- Stored or reflected XSS delivered through fill output, embed parents, or shared Insights pages
+- Bypass of [answer encryption](/features/settings/general), access gates, or CAPTCHA when the bypass is in product code — not misconfiguration
+- Privilege escalation around [Studio permissions](/developers/studio-permissions) or Filament policy hooks shipped with the package
+
+<Tip>
+  **Not sure?** Email anyway with a short impact summary. We would rather triage a borderline report privately than miss a real issue.
+</Tip>
+
+### What is *not* a security report
+
+Use the public [bug template](https://github.com/janczakb/filament-flex-forms/issues/new?template=bug.yml) instead for:
+
+- Visual glitches, copy issues, or Studio UX bugs without a security impact
+- License portal, billing, or domain activation problems → [License Portal](https://license.bjanczak.com/flex-forms/panel)
+- Integration failures caused by wrong API keys, field maps, or provider rate limits
+- Hardening advice for **your** Laravel app (WAF, CSP, server headers) unless Flex Forms ships insecure defaults you can demonstrate
+
+### How to send a private report
+
+<Steps>
+  <Step title="Email us privately">
+    Send details to **[barek122@gmail.com](mailto:barek122@gmail.com?subject=Flex%20Forms%20security)** with the subject line **`Flex Forms security`** (or prefix your own subject with that phrase so it is routed correctly).
+
+    **Enterprise** customers may also reach the priority channel agreed in your plan (email or private Slack) — still mark the message as a security report.
+  </Step>
+  <Step title="Include enough context to reproduce">
+    Help us move fast:
+
+    - **Flex Forms version** (`composer show janczakb/filament-flex-forms`)
+    - **Laravel, PHP, Filament, Livewire** versions
+    - **Hostname / environment** (production, staging, local — no need for secrets)
+    - **Impact** — who can exploit it, what data or actions are exposed
+    - **Steps to reproduce** — minimal, ordered list
+    - **Proof of concept** — curl, screenshots, or a short video if UI-related
+    - **Your contact** — email (and optional PGP fingerprint if you encrypt mail)
+  </Step>
+  <Step title="Wait for acknowledgment before public disclosure">
+    We coordinate fix timing with you. Please do not publish write-ups, scanner signatures, or exploit code until we confirm a release or agreed disclosure date.
+  </Step>
+</Steps>
+
+### What happens after you report
+
+| Stage | What to expect |
+| --- | --- |
+| **Acknowledgment** | We aim to confirm receipt within **3 business days** (often sooner). |
+| **Triage** | We reproduce the issue, assess severity, and ask clarifying questions if needed. |
+| **Fix & release** | Patches ship through the private Composer registry for supported versions. |
+| **Disclosure** | We agree on customer notification and any public advisory text with you. |
+| **Credit** | Researchers who report valid issues in good faith may be credited in release notes if they want. |
+
+### Supported versions
+
+Security fixes are published for **currently supported** Flex Forms releases. Check [`SECURITY.md`](https://github.com/janczakb/filament-flex-forms/blob/main/SECURITY.md) on GitHub for the supported version table. If you are on an older major, upgrade via [Upgrading](/get-started/upgrading) before expecting a backport.
+
+<Info>
+  **Scope reminder:** Flex Forms runs in **your** Laravel app. Server misconfiguration (debug mode on production, open S3 buckets, missing HTTPS) is outside package scope — but tell us if you think the product encourages an unsafe default we should change.
+</Info>
+
+---
+
+<AccordionGroup>
+  <Accordion title="What's the expected response time?">
+    Bug reports and feature requests are triaged on the public Issues board; response time depends on severity and current volume.
+  </Accordion>
+  <Accordion title="Where do I report a security issue?">
+    Use [Report a security vulnerability](#report-a-security-vulnerability) above — private email to [barek122@gmail.com](mailto:barek122@gmail.com?subject=Flex%20Forms%20security), never a public GitHub issue. Full policy: [`SECURITY.md`](https://github.com/janczakb/filament-flex-forms/blob/main/SECURITY.md).
+  </Accordion>
+  <Accordion title="Can I get priority support?">
+    **Enterprise** ($799 / year) includes **Priority support** by email or a private Slack channel, **Prioritized feature requests**, and **Help shape the roadmap**. See [Standard, Pro, Enterprise](/plans/standard-pro-enterprise) or reach out via the license portal.
+  </Accordion>
+  <Accordion title="How much do plans cost?">
+    Yearly: Standard **$99** · Pro **$199** · Enterprise **$799**. Lifetime **$899** one-time (Pro features · 10 activations · updates forever). Full comparison: [Plans & Pricing](/plans/overview).
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+**Also see:** [What's new](/resources/whats-new) · [Roadmap](/resources/roadmap) · [Standard, Pro, Enterprise](/plans/standard-pro-enterprise)
+</Panel>

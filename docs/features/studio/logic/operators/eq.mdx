@@ -1,0 +1,169 @@
+---
+title: "Equals (is)"
+description: "When clause operator: The answer is exactly this value."
+icon: "equal"
+keywords: ["logic", "operator", "eq", "condition", "when"]
+---
+
+**Equals** checks whether the respondent’s answer **matches exactly** the value you provide — same choice, same number, same yes/no, or equivalent text after type normalization.
+
+Use it when you need a precise match: “Plan is Pro”, “Country is PL”, “Call me back is Yes”. It is the default operator for most branching logic.
+
+---
+
+## When to choose this
+
+| Goal | Use **Equals** | Use something else instead |
+|------|----------------|----------------------------|
+| Exact single choice | ✓ | — |
+| Exact number or date | ✓ | **Greater than** / **After** for thresholds |
+| “Includes this option” on multi-select | Works (any selected option) | **[Contains](/features/studio/logic/operators/contains)** if you mean substring on text; **[Equals set](/features/studio/logic/operators/eq_set)** for exact multi-select with no extras |
+| Field left blank | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Answer is one of several | ✗ | **[Is any of](/features/studio/logic/operators/in)** |
+| Answer is not X | ✗ | **[Not equals](/features/studio/logic/operators/neq)** |
+| Partial text match | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+
+<Note>
+  Older forms may label this operator **Is** — behavior is identical to **Equals**.
+</Note>
+
+---
+
+## Exact behavior
+
+- Compares the respondent’s answer to your expected value using flexible but strict matching:
+  - **Text and numbers** are compared as strings (`"5"` equals `5`).
+  - **Yes/no** accepts common forms: `true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`.
+  - **Multi-select** answers match when they contain the **same options in any order** — but for “exactly these and nothing else”, use [Equals set](/features/studio/logic/operators/eq_set).
+- If your comparison value is blank or missing, the clause **never matches** (fail-closed).
+- You can compare to a **fixed value** or pick another field in **Value** — both sides must be non-blank for a match.
+
+---
+
+## Which field types
+
+| Family | Available | Notes |
+|--------|-----------|-------|
+| Text | ✓ | Full string match after normalization |
+| Number | ✓ | `"10"` matches `10` |
+| Date & time | ✓ | Exact date/time string match |
+| Choice (single or multi) | ✓ | Multi-select: same set in any order |
+| Yes / no (toggle, checkbox) | ✓ | Use Yes/No chips or boolean values |
+| Presence (uploads, signature, …) | — | Use [Is empty](/features/studio/logic/operators/empty) / [Is not empty](/features/studio/logic/operators/not_empty) |
+| Default fallback | ✓ | |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** An empty, null, or unanswered field does not equal anything — not even an empty expected value.
+
+To react to skipped questions, use [Is empty](/features/studio/logic/operators/empty). To react to “anything except X”, use [Not equals](/features/studio/logic/operators/neq) — but only **after** they answer.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    Open top bar → **Logic** → **Rules**, or **Branch** / **Add condition** on a field. Expand the **When** section.
+  </Step>
+  <Step title="Select the source field">
+    Pick the field whose answer you want to test (e.g. **Plan**, **Country**, **Call me back**).
+  </Step>
+  <Step title="Choose Equals">
+    In the operator dropdown, select **Equals** (or **Is** on older schemas).
+  </Step>
+  <Step title="Set the comparison value">
+    Type a literal, pick an option chip, or pick another field in **Value** to mirror it (e.g. confirm email matches email).
+  </Step>
+  <Step title="Add Then actions">
+    Stack actions such as [Show blocks](/features/studio/logic/actions/show-blocks), [Require answer](/features/studio/logic/actions/require-answer), or [Jump to page](/features/studio/logic/actions/jump-to-page).
+  </Step>
+  <Step title="Save and preview on Fill">
+    Publish when ready, then open **Fill** to verify the branch fires on the exact value only.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Single choice — show VAT field
+
+> **When** Country **equals** `PL` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `VAT number` + [Require answer](/features/studio/logic/actions/require-answer) `VAT number`
+
+Use **Equals** because you need exactly Poland — not “any EU country”.
+
+### Yes / no — require phone
+
+> **When** “Call me back” **equals** `Yes` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Phone` + [Require answer](/features/studio/logic/actions/require-answer) `Phone`
+
+Toggle and checkbox blocks only support **Equals** / **Not equals** — not empty checks.
+
+### Confirm email matches
+
+> **When** Confirm email **equals** *(pick)* `Email` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Success message`
+
+Both fields must be filled; until Confirm email is typed, the clause stays false.
+
+### Multi-select — one option present
+
+> **When** Add-ons **equals** `Priority support` → **Then** show SLA disclaimer
+
+Matches if Priority support is selected **even if other add-ons are too**. For “only Priority support, nothing else”, use [Equals set](/features/studio/logic/operators/eq_set).
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Open Fill from Studio">
+    Launch the live preview in a new tab.
+  </Step>
+  <Step title="Enter the exact expected value">
+    Pick or type the value from your rule. Confirm **Then** actions activate immediately.
+  </Step>
+  <Step title="Try a different value">
+    Change the answer — actions should revert unless another rule keeps them on.
+  </Step>
+  <Step title="Leave the field blank">
+    Confirm the rule does **not** fire. If you need blank behavior, add a separate **Is empty** rule.
+  </Step>
+  <Step title="Test field-to-field pairs">
+    Fill the referenced field first, then the source — match should update live as both change.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Equals** to detect a blank field — use **Is empty** instead.
+- Using **Equals** on multi-select when you need an exact set with no extras — switch to **Equals set**.
+- Expecting a Page 4 field to match before the respondent reaches Page 4 — the answer is empty until then.
+- Duplicating rules for `"5"` and `5` — normalization handles both; one rule is enough.
+- Using **Equals** for “contains urgent in notes” — use **Contains** for substring search.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires even with the right answer">
+    Check option **value** vs **label** in Studio — logic compares stored values. Confirm the comparison value is not blank and the field type supports **Equals**.
+  </Accordion>
+  <Accordion title="Rule fires when I expected false">
+    Another rule may also match, or **Equals** on multi-select matched because the option is among selections. Narrow with **Equals set** or add **Not equals** guards.
+  </Accordion>
+  <Accordion title="Confirm-email rule never passes">
+    Both fields must be non-empty. A field pick on an empty confirm field fails closed until typed.
+  </Accordion>
+  <Accordion title="Multi-select behaves like Contains">
+    **Equals** on multi-select compares full sorted sets when both sides are arrays. For “includes this one option”, **Contains** or **Is any of** may read clearer — but **Equals** with one chip still matches if that option is selected among others via loose matching.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Not equals](/features/studio/logic/operators/neq) · [Is empty](/features/studio/logic/operators/empty) · [How logic works](/features/studio/logic/overview) · [Field conditions](/features/studio/logic/field-conditions)
+</Panel>

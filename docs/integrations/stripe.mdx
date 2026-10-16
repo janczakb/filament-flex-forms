@@ -1,0 +1,171 @@
+---
+title: "Stripe Integration"
+description: "Accept Stripe payments on fill and embed — global keys in Integrations, once-per-form Payment block, optional webhooks, and a Transactions ledger with refunds."
+icon: "credit-card"
+keywords: ["stripe", "payment", "payment element", "webhook", "transactions", "billing", "blik", "apple pay", "refund"]
+---
+
+<Banner type="info" dismissible={false}>
+  Connect Stripe under **Integrations** (keys + optional webhook). Payment options (amount, currency, capture, billing fields, …) live only on the **Stripe Payment** block settings in Studio — not on Form Settings → Integrations.
+</Banner>
+
+Stripe is available on **every Flex Forms plan**. There is no separate “Enterprise-only Stripe” tier — you need a Stripe account and a published form with a Payment block.
+
+## Architecture
+
+| Surface | What you configure |
+|---|---|
+| **Integrations** (left rail) | Test/Live publishable + secret keys, mode, optional webhook signing secret |
+| **Studio → [Stripe Payment](/features/blocks/stripe-payment)** block | Amount (fixed or from field), currency, capture, receipts, billing/shipping collection, Payment Element options, **Required** |
+| **Form Settings → Integrations** | Stripe does **not** appear here |
+| **[Transactions](/features/transactions/overview)** (rail, under Contacts) | Ledger of payments — export CSV and refund from the hub |
+
+A form may contain **at most one** Stripe Payment block.
+
+---
+
+## Connect Stripe (global)
+
+<Steps>
+  <Step title="Open Stripe API keys">
+    Use [Stripe Dashboard → API keys](https://dashboard.stripe.com/apikeys). Start in **Test mode**.
+  </Step>
+  <Step title="Paste keys in Flex Forms">
+    Integrations → **Stripe** → enable → Mode **Test** → paste `pk_test_…` and `sk_test_…` → Save. Flex Forms verifies the secret against Stripe’s Balance API and marks the connection **Ready** when it succeeds.
+  </Step>
+  <Step title="Optional webhook (recommended)">
+    In Stripe → Developers → Webhooks, add your endpoint:
+
+    `https://your-domain.com/flex-forms/integrations/stripe/webhook`
+
+    (Named route: `flex-forms.stripe.webhook`.)
+
+    Subscribe to **all** of these events:
+
+    | Event | Why |
+    |---|---|
+    | `payment_intent.succeeded` | Confirm / sync successful charges |
+    | `payment_intent.payment_failed` | Mark failed attempts |
+    | `payment_intent.canceled` | Mark canceled intents |
+    | `payment_intent.processing` | Delayed methods (e.g. some bank transfers) |
+    | `charge.refunded` | Sync full/partial refunds made in Stripe Dashboard or the hub |
+
+    Paste the `whsec_…` signing secret into Stripe integration settings.
+  </Step>
+  <Step title="Go Live">
+    Switch Mode to **Live**, paste live keys, save, and restrict the publishable key by domain in Stripe. Use a **separate** Live webhook endpoint (or dual endpoints) with the Live signing secret.
+  </Step>
+</Steps>
+
+<Warning>
+  Secret keys never leave your server. Restrict publishable keys by domain in production. Webhooks are optional for first-time success recording — submit-time verification already writes the ledger when payment is required — but **strongly recommended** for refunds done in the Stripe Dashboard, delayed methods, and status drift.
+</Warning>
+
+---
+
+## Payment block settings (Studio)
+
+After Stripe is **Ready**, insert **Stripe Payment** from **Payments** (see also the [block page](/features/blocks/stripe-payment)).
+
+Configure on the block (not in Form Integrations):
+
+- **Required** — when off, respondents may submit without paying (optional payment / donation-style forms)
+- **Payment type**
+  - **Fixed amount** — one charge amount
+  - **Product options (choice cards)** — labeled options with prices (Studio canvas: Add option → name + price). On fill, respondents pick a radio card.
+  - **Customer enters amount** — free amount field; optional **minimum** / **maximum** toggles with amounts below each toggle
+  - **From a form field** — pick a Number, Number stepper, or Currency field from a dropdown (Amount field)
+- **Also allow custom amount** — when using Product options, let respondents type their own amount instead
+- **Currency** — one currency for the whole Payment block
+- **Charge description**
+- **Capture** — Automatic or Manual authorize
+- **Payment methods**
+  - **Automatic (Dynamic payment methods)** — Stripe shows relevant methods for the currency and your Dashboard (cards, BLIK, Przelewy24, Klarna, Apple Pay / Google Pay when eligible)
+  - **Cards only** — card Payment Element only
+- **Stripe receipt email** — Stripe’s API supports `PaymentIntent.receipt_email` and emails a receipt on successful capture. Flex Forms options:
+  - **Do not send**
+  - **Primary email on the form**
+  - **Specific email field**
+  - **Email collected in Stripe Payment Element** — uses the billing email typed in the payment UI (ConfirmationToken → patch PI → confirm)
+- **Collect billing** name, email, phone, address — Stripe’s Payment Element collects these when the selected payment method needs them
+- **Collect shipping address** — when on, Stripe can collect a shipping address in the payment form
+- **Show amount summary**
+- Save payment method (`setup_future_usage`)
+- Statement descriptor suffix
+
+Successful charges write **payment method type** (card / BLIK / P24 / …) plus **card brand + last 4** into the [Transactions](/features/transactions/overview) ledger (never the full card number).
+
+---
+
+## Poland / wallets checklist (Dynamic payment methods)
+
+Use **Payment methods → Automatic** and complete these in Stripe (not inside Flex Forms):
+
+1. [Payment methods](https://dashboard.stripe.com/settings/payment_methods) — enable BLIK, Przelewy24, Klarna, cards, wallets as needed  
+2. Charge currency on the block (e.g. **PLN** for BLIK)  
+3. Public fill URL over **HTTPS** (required for wallets)  
+4. Register your domain for **Apple Pay** in the Stripe Dashboard  
+5. Test with Stripe test cards / test BLIK codes before switching to Live  
+
+Flex Forms does not hard-code a method list — Stripe’s Payment Element decides relevance from Dashboard + currency + respondent context.
+
+---
+
+## Fill runtime
+
+1. Stripe.js loads only on fill/embed when the form includes the Payment block.
+2. Respondents see fixed amount, product choice cards, and/or a custom amount field — depending on Payment type.
+3. Payment Element mounts in **accordion** layout (radios always visible) with your publishable key.
+4. On submit (when **Required** is on), Stripe confirms the PaymentIntent.
+5. When **Required** is off, submit can succeed without a payment.
+6. Flex Forms verifies amount, currency, form metadata, and mode — then saves the submission and writes the **[Transactions](/features/transactions/overview)** ledger.
+7. The submit button stays disabled with a sending label until the AJAX request finishes (no full page reload).
+
+Card numbers never touch Flex Forms storage.
+
+### Preview vs published
+
+| Mode | Submissions saved | Stripe confirmed | Transactions row |
+|---|---|---|---|
+| **Preview** (signed Studio preview) | No | No | No |
+| **Published** fill / embed | Yes | Yes (when Required / paid) | Yes |
+
+---
+
+## Transactions hub
+
+Open **[Transactions](/features/transactions/overview)** in the Flex Forms left rail (next to Contacts). You’ll see cursor-paginated payments with provider, status, amount, payer, and form.
+
+From the hub you can:
+
+- **Export** CSV (respects filters)  
+- **Refund** (full remaining balance) or **Partial…** refund for Stripe payments that are succeeded or partially refunded  
+
+Hub refunds call Stripe immediately and update the ledger; webhooks may also sync `charge.refunded` events (including refunds started in the Stripe Dashboard).
+
+Permissions (optional Spatie): `viewTransactions`, `exportTransactions`, `refundTransactions` — see [Studio permissions](/developers/studio-permissions).
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Form shows thank-you but no payment / empty Transactions">
+    Most often the form is still a **draft** or you opened **Preview**. Publish the form, use the public fill URL, and confirm Stripe mode (Test vs Live) matches the keys you pasted.
+  </Accordion>
+  <Accordion title="Payment Element does not mount">
+    Stripe must be **Ready** in Integrations, the Payment block must be on the form, and the fill page must load over HTTPS in production. Check the browser console for Stripe.js errors and that the publishable key matches the mode.
+  </Accordion>
+  <Accordion title="Webhook signature errors">
+    Paste the exact `whsec_…` for that endpoint. Test and Live secrets differ. Endpoint path must be `/flex-forms/integrations/stripe/webhook` on the same host that serves Flex Forms.
+  </Accordion>
+  <Accordion title="Refund button missing">
+    Your role needs `refundTransactions` (or the mapped Spatie name). Confirm the row is a Stripe payment in a refundable status.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Credit card block vs Stripe Payment
+
+The **[Credit card](/features/blocks/credit-card)** input block is not a gateway. For live charges use **Integrations → Stripe** + the **[Stripe Payment](/features/blocks/stripe-payment)** block.

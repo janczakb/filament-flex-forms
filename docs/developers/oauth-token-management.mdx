@@ -1,0 +1,116 @@
+---
+title: "OAuth token management"
+description: "OAuth redirect and callback routes, OAuthTokenManager lifecycle, refresh, and encrypted credential storage."
+icon: "shield"
+keywords: ["oauth token", "OAuthTokenManager", "redirect", "callback", "encrypted", "refresh token"]
+---
+
+Flex Forms owns the OAuth **redirect/callback** loop so your driver code stays focused on API calls. Tokens are stored encrypted on `flex_form_integration_connections` and refreshed automatically before dispatch when possible.
+
+## Routes
+
+| Method | Path | Name | Purpose |
+|--------|------|------|---------|
+| GET | `/flex-forms/connections/oauth/redirect/{connection}` | `flex-forms.connections.oauth.redirect` | Start authorize flow for a connection |
+| GET | `/flex-forms/connections/oauth/callback` | `flex-forms.connections.oauth.callback` | Provider redirects here with `code` |
+
+Both routes use the `web` + `auth` middleware stack — only logged-in Filament users can connect accounts.
+
+### Redirect
+
+`{connection}` is the `FlexFormIntegrationConnection` ID (draft or reconnect). The controller:
+
+1. Loads the connection's `driver_key` and resolves the driver
+2. Builds the provider authorize URL (scopes, encrypted OAuth state with one-time nonce, **PKCE S256** `code_challenge` when the driver enables PKCE — default on for `GenericOAuthIntegrationDriver`)
+3. Redirects the admin browser to the provider
+
+Register the callback URL in your OAuth app exactly as:
+
+```
+https://your-app.test/flex-forms/connections/oauth/callback
+```
+
+Use your real production hostname in the provider console — wildcards are rarely accepted.
+
+### Callback
+
+The callback route:
+
+1. Validates encrypted `state` + one-time nonce (and initiating user id)
+2. Exchanges `code` for tokens — includes `code_verifier` when PKCE was used on redirect
+3. Persists tokens via `OAuthTokenManager`
+4. Sets connection `status` to `connected`, clears `last_error`
+5. Redirects back to **Integrations → Connections** (`?tab=connections` — fixed admin URL, never an open redirect)
+
+Errors (denied consent, invalid code, missing PKCE verifier) mark the connection `needs_reauth` with `last_error` text admins can read in Studio.
+
+### PKCE
+
+`GenericOAuthIntegrationDriver` enables PKCE by default (`usesPkce(): true`):
+
+- Redirect stores a high-entropy `code_verifier` in cache with the OAuth nonce
+- Authorize URL includes `code_challenge` + `code_challenge_method=S256`
+- Token exchange posts `code_verifier`
+
+Override `usesPkce(): false` only for legacy providers that reject PKCE.
+
+## OAuthTokenManager
+
+Central service for token lifecycle:
+
+```php
+use Bjanczak\FilamentFlexForms\Integrations\OAuth\OAuthTokenManager;
+use Bjanczak\FilamentFlexForms\Models\FlexFormIntegrationConnection;
+
+$manager = app(OAuthTokenManager::class);
+
+// Read (auto-refresh if expired within skew window)
+$accessToken = $manager->accessToken($connection);
+
+// After callback
+$manager->storeTokens($connection, [
+    'access_token' => '…',
+    'refresh_token' => '…',
+    'expires_at' => now()->addHour(),
+]);
+
+// Force refresh (dispatch retry, admin "Test connection")
+$manager->refresh($connection);
+```
+
+Design rules:
+
+- **Never** log raw tokens
+- Refresh uses the driver's `oauthConfig()` token URL and client credentials from global integration config
+- Missing refresh token → connection marked `reconnect_required`; admin must run redirect again
+
+## Encrypted storage
+
+`FlexFormIntegrationConnection` casts `credentials` as `encrypted:array`. At rest you store:
+
+```json
+{
+  "access_token": "…",
+  "refresh_token": "…",
+  "expires_at": "2026-08-12T10:00:00+00:00",
+  "scope": "read write"
+}
+```
+
+Laravel uses your app `APP_KEY` — rotating `APP_KEY` without re-encrypting breaks stored credentials. Plan key rotation with a maintenance window and force reconnect.
+
+Non-secret `meta` (account ID, hub ID, workspace name) lives in the plain `meta` JSON column for Studio labels.
+
+## Health and testing
+
+- **Test connection** on a Connection row calls `OAuthTokenManager::accessToken()` then the driver's `testConnection()` with resolved auth.
+- Failed refresh surfaces in `last_error` and blocks dispatch until reconnect.
+- Queue workers use the same manager — no separate token cache that could desync.
+
+<Warning>
+  Treat OAuth client secrets like production database passwords. Store them in global integration config (encrypted settings row) or env — not in form feed JSON.
+</Warning>
+
+<Panel>
+**Next:** [OAuth integrations](/developers/oauth-integrations) · [Custom integrations](/developers/custom-integrations) · [Config & env](/developers/config-env)
+</Panel>

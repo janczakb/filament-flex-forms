@@ -1,0 +1,59 @@
+---
+title: "Integration SDK helpers"
+description: "GraphQL, device-code OAuth, and SAML helpers for custom Flex Forms drivers — not shipped ACS/IdP or product SSO."
+icon: "wrench"
+keywords: ["GraphQL", "device code", "SAML", "SDK", "helpers", "custom drivers"]
+---
+
+# Integration SDK helpers
+
+These classes are **helpers for custom integration drivers** you register yourself. They are not a shipped ACS, IdP, or product SSO stack, and no first-party catalog driver uses them out of the box for device-code or SAML login.
+
+Use them when you implement a driver that needs GraphQL HTTP, RFC 8628 device-code OAuth, or SAML assertion claim extraction for a Connection.
+
+## GraphQL
+
+```php
+use Bjanczak\FilamentFlexForms\Integrations\Support\Http\GraphQlClient;
+
+$client = new GraphQlClient('https://api.example.com/graphql');
+$data = $client->dataOrFail(
+    query: 'query ($id: ID!) { node(id: $id) { id } }',
+    variables: ['id' => '1'],
+    bearerToken: $accessToken,
+);
+```
+
+Endpoint URLs are SSRF-hardened: **HTTPS public hosts only** (no private/link-local/metadata ranges). The helper uses the shared outbound HTTP client (timeouts, no open redirects).
+
+## Device-code OAuth
+
+No first-party driver ships device-code yet. The Studio **Authorize device** button appears only when your driver implements `SupportsDeviceCodeOAuth`.
+
+```php
+use Bjanczak\FilamentFlexForms\Integrations\Support\OAuth\DeviceCodeOAuthFlow;
+
+$flow = new DeviceCodeOAuthFlow($driver);
+$start = $flow->start('https://provider.example/device/code');
+// Show $start['user_code'] + $start['verification_uri'] in Studio Connections
+$token = $flow->poll($start['device_code']); // throws authorization_pending until approved
+```
+
+Device and token endpoint URLs follow the same SSRF rules (HTTPS public only). Authorization-code + PKCE remains the default via `GenericOAuthIntegrationDriver`.
+
+## SAML assertion helper
+
+`SamlAssertionConsumer` is for custom Connection auth in a driver — **not** Filament panel SSO. Keep host IdP login outside Flex Forms.
+
+**Requirements:** you must pass the IdP signing certificate PEM. The consumer verifies XML digital signatures (XML-DSig) against that PEM, then checks Audience / Recipient (and related) claims.
+
+```php
+use Bjanczak\FilamentFlexForms\Integrations\Support\Saml\SamlAssertionConsumer;
+
+$claims = (new SamlAssertionConsumer)->consume(
+    $assertionXml,
+    audiences: ['https://your-app.example'],
+    recipient: 'https://your-app.example/acs',
+    idpCertificatePem: $pem, // required — signature verified against this IdP PEM
+);
+```

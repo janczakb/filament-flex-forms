@@ -1,0 +1,163 @@
+---
+title: "Branch & field conditions"
+description: "Per-answer Branch, Otherwise, and advanced Add condition When → Then on a canvas field."
+icon: "git-branch-plus"
+keywords: ["branch", "add condition", "field logic", "otherwise", "show other", "tutorial"]
+boost: 2
+---
+
+**Branch** and **Add condition** mean: this *question* owns follow-up behavior.
+
+You do **not** drag an If / Else card from the Logic sidebar. Stay on a normal field (Select, Multiple choice, …) and either:
+
+- use **Branch** (choice answers → show follow-ups / go to page), or  
+- use **Add condition** (or **Edit as When → Then**) for the full When → Then editor **under the same field**
+
+For the big picture (Branch vs Rules vs Calculated), see [How logic works](/features/studio/logic/overview).
+
+---
+
+## When to use Branch vs Rules
+
+| Use Branch / Add condition | Use something else |
+|----------------------------|--------------------|
+| Show “Please specify” when choice is **Other** | [Rules](/features/studio/logic-board) for hide Submit / complex gates |
+| Per-answer **Go to page** + **Otherwise** default | [Calculated](/features/studio/calculated-fields) for live math / scores |
+| Require phone only when “Call me” is checked | Same — Branch or Add condition on the parent |
+
+Prefer **Branch** for ~90% of “if they pick X, show Y / jump” cases.
+
+### Non-choice fields (Show if)
+
+**Branch** is for choice / select / radio answers. On **text, number, email**, and other non-choice fields, use **Show this field if…** on the **target** field:
+
+1. Select the field that should appear conditionally.  
+2. In the field chrome, click the workflow icon (**Show if…**).  
+3. Pick the **source** field, operator, and value.  
+4. Studio compiles a **Show blocks** rule (inverted attachment — logic lives as a Rules entry that reveals this field).
+
+Need full **When → Then** under the same field? Click the icon again for **Edit as When → Then**, or use the link under the card. Switch back with **Use Show if…**.
+
+Selecting a field alone does **not** open logic — only the chrome workflow icon does.
+
+> **When** Company **is not empty** → **Show blocks** Invoice address  
+> **When** Budget **greater than or equal** `1000` → **Show** + **Require** Phone
+
+Same engine as Branch — only the Studio chrome differs.
+
+---
+
+## Branch on a choice field
+
+<Steps>
+  <Step title="Select the choice field">
+    Click the Multiple choice / Select / Radio that should own the branches.
+  </Step>
+  <Step title="Open Branch">
+    Hover the field, then click the chrome workflow icon (**Branch**). Selecting the field alone does not open Branch.
+  </Step>
+  <Step title="Configure each answer">
+    For each option: **Show follow-up** (pick fields) and/or **Go to page**.
+  </Step>
+  <Step title="Set Otherwise">
+    **Otherwise** is the default path when no answer branch matches — continue to the next page, or jump elsewhere.
+  </Step>
+  <Step title="Test">
+    Preview or use **Logic → Simulator**. Confirm follow-ups show/hide and jumps land correctly.
+  </Step>
+</Steps>
+
+If the recipe is too complex for Branch, Studio shows the When → Then editor under the field automatically. On a Branch field you can still switch: **Edit as When → Then** (or the field chrome workflow icon — tooltip says **Edit as When → Then** while Branch is open), then **Use Branch** to go back.
+
+The same chrome icon is **context-aware** and is the only way to open under-field logic:
+
+| Field type | Tooltip (hover) | Click |
+|------------|-----------------|-------|
+| Choice with Branch | **Branch** → **Edit as When → Then** → close | Opens Branch, then When → Then, then closes |
+| Text / number / email | **Show if…** → **Edit as When → Then** → close | Opens Show if, then When → Then, then closes |
+| Other | **Open Rules** | Opens Workflow → Rules |
+
+---
+
+## Advanced: When → Then under the field
+
+<Steps>
+  <Step title="Select the parent field">
+    Click the field that should *own* the rule.
+  </Step>
+  <Step title="Open When → Then under the field">
+    On a Branch field: chrome workflow icon (tooltip **Edit as When → Then** while Branch is open), or the **Edit as When → Then** link under Branch. On Show-if fields: the same icon toggles **Show if…** ↔ **When → Then**. On other fields: tooltip **Open Rules** opens Workflow → Rules.
+  </Step>
+  <Step title="Build When">
+    Source field + [operator](/features/studio/logic/operators/overview) + value; **All** / **Any** groups as needed.
+  </Step>
+  <Step title="Build Then">
+    Common stacks: **Show** + **Require** on a follow-up; **Hide** when not needed; **Make optional** when a required field should relax.
+  </Step>
+  <Step title="Reorder and test">
+    Multiple rules can live on one field. They run in evaluation order with all other Rules. Preview: pick Other → follow-up shows; pick a normal option → follow-up hides and clears.
+  </Step>
+</Steps>
+
+---
+
+## Compared to Rules and Calculated
+
+| | Branch / Add condition | Workflow → Rules | Calculated |
+|--|------------------------|--------------|------------|
+| Lives on | A real question | Top **Logic** panel | Its own canvas field |
+| Best for | Follow-ups / per-answer jumps | Form-wide gates, hide Submit, complex When | Live totals / scores |
+| Engine | Same When → Then store | Same | Always → Calculate |
+
+---
+
+## Operator & action tips
+
+- Open the [field-type → operator matrix](/features/studio/logic/operators/overview) when an operator is missing.  
+- Blank parent answers do **not** trigger **equals** or **not equals** — use [Is empty](/features/studio/logic/operators/empty).  
+- [Hide blocks](/features/studio/logic/actions/hide-blocks) **clears** answers.  
+- Conflict chips appear when rules fight — fix before publish.  
+- Deleting a follow-up field **scrubs** Branch / Rules references automatically.
+
+---
+
+## Worked recipes
+
+### Other → specify (classic)
+
+1. Multiple choice includes option `Other`.  
+2. Short text “Please specify”.  
+3. On the choice: **Branch** → Other → **Show follow-up** “Please specify”.  
+4. Optional: in **Rules**, Require that field when Other is selected.
+
+### Checkbox unlocks phone
+
+> **When** “Call me back” **equals** `Yes` → **Show** + **Require** Phone  
+> (Add condition or Rules — same engine)
+
+### Empty company hides invoice block
+
+> **When** Company **is empty** → **Hide** Invoice address
+
+---
+
+## Common mistakes
+
+<AccordionGroup>
+  <Accordion title="Follow-up never appears">
+    Check Branch row for the right option, When value spelling, whether the parent is answered, and whether a later Hide overrides Show.
+  </Accordion>
+  <Accordion title="Follow-up appears but Submit still fails">
+    Did you also **Require** it? Is another visible required field on the visited path empty?
+  </Accordion>
+  <Accordion title="Old answer resurfaces after hide">
+    Hide clears answers. If you see old data, inspect Submissions after a clean fill.
+  </Accordion>
+  <Accordion title="I put this only in Rules by mistake">
+    Fine for testing, but move local follow-ups to **Branch** so Rules stays readable for routing.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [How logic works](/features/studio/logic/overview) · [Operators](/features/studio/logic/operators/overview) · [Actions](/features/studio/logic/actions/overview) · [Workflow → Rules](/features/studio/logic-board)
+</Panel>

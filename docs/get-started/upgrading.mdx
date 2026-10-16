@@ -1,0 +1,146 @@
+---
+title: "Upgrading"
+description: "Update Flex Forms safely: composer update, migrate, flex-forms:upgrade, CI notes, dry-run, and troubleshooting missing tables."
+icon: "arrow-up-circle"
+keywords: ["upgrade", "update", "composer update", "migrate", "flex-forms:upgrade", "dry-run", "ci"]
+boost: 2
+---
+
+When a new Flex Forms release ships, upgrade your Laravel app in three layers: **Composer** (package code), **database** (migrations), and **upgrade tasks** (one-off data fixes the package tracks between versions).
+
+<Banner>
+  License keys (`pk_forms_…`) and Composer tokens (`cmp_…`) do **not** need a database upgrade — they live in the License Portal and your env/CI secrets. Upgrading the package does not invalidate them unless you regenerate tokens yourself.
+</Banner>
+
+## Standard upgrade path
+
+<Steps>
+  <Step title="Update the package">
+    From your Laravel project root, with Composer authenticated to the private registry ([Installation](/get-started/installation)):
+
+    ```bash
+    composer update janczakb/filament-flex-forms
+    ```
+  </Step>
+
+  <Step title="Run migrations">
+    Apply any new tables or columns:
+
+    ```bash
+    php artisan migrate
+    ```
+
+    In production, use your normal deploy flow (`--force` when non-interactive).
+  </Step>
+
+  <Step title="Run the upgrade command">
+    Flex Forms bundles migrations **and** idempotent upgrade tasks (backfills, reindexes, health checks):
+
+    ```bash
+    php artisan flex-forms:upgrade
+    ```
+
+    This runs `migrate --force`, executes pending upgrade tasks, and prints a health check for core tables.
+  </Step>
+
+  <Step title="Republish assets when needed">
+    After releases that touch Studio, fill, or embed JS/CSS, republish and refresh Filament assets:
+
+    ```bash
+    php artisan flex-forms:upgrade --assets
+    ```
+
+    Or manually:
+
+    ```bash
+    php artisan vendor:publish --tag=filament-flex-forms-assets --force
+    php artisan filament:assets
+    ```
+  </Step>
+
+  <Step title="Clear caches">
+    After config or env changes:
+
+    ```bash
+    php artisan optimize:clear
+    ```
+  </Step>
+</Steps>
+
+## CI / CD
+
+Add the same steps to your deploy pipeline **after** `composer install`:
+
+```yaml
+- name: Upgrade Flex Forms
+  run: |
+    php artisan migrate --force --no-interaction
+    php artisan flex-forms:upgrade --no-interaction
+```
+
+<Info>
+  In CI, pass `--skip-migrate` to `flex-forms:upgrade` only when you already ran `migrate` in an earlier step — the upgrade command calls migrate by default.
+</Info>
+
+Store `cmp_…` in CI secrets exactly as on [Installation](/get-started/installation). Regenerating a Composer token in the portal requires updating every secret in the same change window.
+
+## Upgrade tasks
+
+`flex-forms:upgrade` may run package-owned data tasks after migrate. Recent tasks include backfilling **Integration Connections** from legacy Google Sheets / Salesforce global credentials when a Connection does not exist yet (global credentials remain as a fallback). Applied tasks are recorded in `flex_forms_upgrade_tasks` so they are durable across cache clears. Use `--dry-run` to preview pending task ids before applying them.
+
+## Dry run (preview tasks)
+
+See what upgrade tasks would run **without** executing them:
+
+```bash
+php artisan flex-forms:upgrade --dry-run --skip-migrate
+```
+
+Output lists pending task IDs and descriptions. Remove `--skip-migrate` when you are ready to apply everything.
+
+Useful flags:
+
+| Flag | Effect |
+|------|--------|
+| `--dry-run` | List pending upgrade tasks only |
+| `--skip-migrate` | Skip the migrate step (when you ran it separately) |
+| `--assets` | Republish `filament-flex-forms-assets` and run `filament:assets` |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Health check shows ✗ flex_forms or ✗ flex_form_submissions">
+    Core tables are missing. Run:
+
+    ```bash
+    php artisan migrate --force
+    php artisan flex-forms:upgrade
+    ```
+
+    Confirm the database user can create tables. Read the failing migration name in the error output.
+  </Accordion>
+
+  <Accordion title="Studio loads but looks broken after upgrade">
+    Republish assets (`php artisan flex-forms:upgrade --assets`), hard-refresh the browser, and clear opcache if you use it in production.
+  </Accordion>
+
+  <Accordion title="Upgrade task failed mid-run">
+    Fix the underlying issue (permissions, disk space, missing column), then re-run `php artisan flex-forms:upgrade`. Tasks are idempotent — completed tasks are skipped on the next run.
+  </Accordion>
+
+  <Accordion title="Do I need to re-enter my license key?">
+    No. Your Public API key (`pk_forms_…`) in **Global Settings → License** is unchanged by package upgrades. Re-register domains only when you add new hostnames.
+  </Accordion>
+
+  <Accordion title="401 from composer.bjanczak.com during update">
+    Composer token missing or revoked. Re-copy **Install via Composer** from the [License Portal](https://license.bjanczak.com/flex-forms/panel) and update CI/server `auth.json`.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Do not skip migrations permanently. Studio, submissions, Insights, and integrations depend on the full schema.
+</Warning>
+
+<Panel>
+**Related:** [Installation](/get-started/installation) · [Configuration](/get-started/configuration) · [Changelog](/resources/whats-new)
+</Panel>

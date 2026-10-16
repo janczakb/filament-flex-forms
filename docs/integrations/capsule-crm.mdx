@@ -1,0 +1,335 @@
+---
+title: "Capsule CRM Integration"
+description: "A comprehensive, enterprise-grade guide to instantly syncing Flex Forms submissions to Capsule CRM as People, Organizations, and Opportunities."
+icon: "address-book"
+keywords: ["capsule", "crm", "contacts", "sales", "opportunities", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand the data payloads and available object relationships, please read the [Official Capsule REST API Documentation](https://developer.capsulecrm.com/v2/overview/reading-from-the-api).
+</Banner>
+
+The **Capsule CRM** integration is an enterprise-grade pipeline designed to seamlessly route form submissions into your sales ecosystem. Instead of manually downloading CSVs and importing them into your CRM, this integration allows Flex Forms to automatically generate structured `Person` records, link them to `Organizations`, and even initiate sales `Opportunities` the exact second a user clicks submit.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Automated Sales Pipeline Entry" icon="arrow-right-to-bracket">
+    When a high-value prospect fills out a "Request a Demo" form on your website, Flex Forms instantly creates a new "Person" record in Capsule CRM. It simultaneously attaches an "Opportunity" to their profile, automatically placing them into your SDR's active pipeline for immediate follow-up.
+  </Card>
+  <Card title="Client Onboarding & Intake" icon="handshake">
+    During a complex B2B onboarding process, you can collect vast amounts of client intake data (e.g., company size, industry, budget). Flex Forms intelligently maps this data directly to your predefined Custom Fields on the Person or Organization record in Capsule.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+To establish a secure, authenticated connection between Flex Forms and your Capsule CRM environment, you must generate a **Personal Access Token (PAT)**. Follow these exact, step-by-step instructions carefully to ensure a successful integration.
+
+<Steps>
+  <Step title="Step 1: Log into your Capsule Dashboard">
+    Open your web browser and navigate to your specific Capsule CRM login URL (this usually looks like `https://[your-company].capsulecrm.com`). Enter your administrator email and password to log in. 
+    
+    *Note: You must have administrator or developer privileges in Capsule to generate API tokens.*
+  </Step>
+  
+  <Step title="Step 2: Locate the Profile Menu">
+    Once you are logged into the main dashboard, look at the absolute **top right corner** of your screen. You will see your name and your profile picture (or a placeholder avatar). Click on your profile picture to open the dropdown menu.
+  </Step>
+  
+  <Step title="Step 3: Access 'My Preferences'">
+    In the dropdown menu that appears, locate and click on the option labeled **My Preferences**. This will take you to your personal account settings page.
+  </Step>
+  
+  <Step title="Step 4: Navigate to the API Tokens Section">
+    On the "My Preferences" page, look at the **left-hand sidebar menu**. Scroll down the list until you find the section related to development and integrations. Click exactly on the link labeled **API Personal Access Tokens**.
+  </Step>
+  
+  <Step title="Step 5: Initiate Token Generation">
+    You are now on the API Tokens management page. In the top right area of the main content window, click the prominent button labeled **Add New Token**. This will open a configuration modal.
+  </Step>
+  
+  <Step title="Step 6: Configure the Token Parameters">
+    In the modal, you must provide a **Description**. Type exactly: `Flex Forms Production Integration`. This ensures that if you review your security logs months from now, you know exactly what this token is used for.
+    
+    *Optional:* You will see a field for "Allowed IPs". Unless your Flex Forms server is hosted on a strict, dedicated static IP address, leave this field completely blank.
+  </Step>
+  
+  <Step title="Step 7: Generate and Secure the Token">
+    Click the **Generate Token** button at the bottom of the modal. 
+    
+    <Callout type="critical">
+      **CRITICAL WARNING:** Capsule will now display a long string of alphanumeric characters on your screen. **You must copy this string immediately.** Capsule will *never* show you this exact token again for security reasons. If you lose it, you must revoke it and start over at Step 5.
+    </Callout>
+    
+    Highlight the entire string, right-click, and select **Copy** (or press `Ctrl+C` / `Cmd+C`).
+  </Step>
+  
+  <Step title="Step 8: Inject the Token into Flex Forms">
+    Leave Capsule open and switch to your Flex Forms administrative dashboard in a new tab.
+    1. Open **Integrations** in the Flex Forms left rail (separate from Global Settings).
+    2. Find the **Capsule CRM** card.
+    3. Paste the token into the API key field.
+    4. Save to finalize the connection.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: Mapping Data Payloads
+
+Establishing the connection is only half the battle. Now, you must instruct Flex Forms on exactly how to translate your form fields into Capsule CRM's specific database architecture.
+
+Capsule CRM segregates standard, built-in fields (like first name, last name, and job title) from Custom Fields that you define yourself.
+
+<Tabs>
+  <Tab title="Standard Field Mapping">
+    Standard fields must be mapped using Capsule's exact internal JSON keys. You define these mappings on the form hub **Integrations** tab.
+    
+    The format is always: `capsule_internal_key=flex_forms_block_name`
+    
+    Here are the most common standard Capsule keys you will use:
+    - `firstName` (The person's first name)
+    - `lastName` (The person's last name)
+    - `jobTitle` (Their role at the company)
+    - `organizationName` (The company they work for)
+    - `about` (A long text description or biography)
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    If you have a Short Text block named `first_name_input` and a Long Text block named `user_biography`, your mapping configuration would look exactly like this:
+    
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      firstName=first_name_input
+      lastName=last_name_input
+      jobTitle=job_title_dropdown
+      about=user_biography
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How Custom Fields Work in Capsule
+
+If you map a key that is *not* a standard Capsule field (for example, if you map `industry_type=industry_dropdown`), Flex Forms intelligently recognizes this. 
+
+Instead of throwing an error, Flex Forms will automatically package that data and attempt to save it as a **Custom Field** attached to the newly created Person record in Capsule.
+
+<Tree>
+  <Tree.Folder name="Data Routing Architecture" defaultOpen>
+    <Tree.File name="Match: 'firstName' -> Saved to Standard Schema" />
+    <Tree.File name="Match: 'lastName' -> Saved to Standard Schema" />
+    <Tree.File name="No Match: 'industry_type' -> Routed to Custom Fields Array" />
+  </Tree.Folder>
+</Tree>
+
+<Callout type="warning">
+  **The Custom Field Trap:** While Flex Forms will route unknown keys to the Custom Fields array, **the Custom Field must already exist in Capsule CRM**. If you try to send `industry_type`, but you haven't manually created a Custom Field named exactly `industry_type` in your Capsule settings, the Capsule API will reject the entire payload and the integration will fail. Always build your Capsule Custom Fields *before* you map them in Flex Forms.
+</Callout>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+Even with a perfect setup, enterprise environments can experience edge cases. Here is how to diagnose and resolve them.
+
+<AccordionGroup>
+  <Accordion title="API Error: 403 Forbidden">
+    **The Problem:** The form submission failed, and the server logs show a `403 Forbidden` error returned by Capsule.
+    
+    **The Solution:** This almost always means your Personal Access Token is invalid. This can happen for three reasons:
+    1. The token was accidentally deleted or revoked in the Capsule dashboard.
+    2. The employee who generated the token left the company, and their Capsule user account was disabled.
+    3. The token has expired. 
+    
+    To fix this, you must log in with an active Administrator account and repeat Steps 4-8 in the setup guide above to generate and apply a brand new token.
+  </Accordion>
+  <Accordion title="Duplicate Contact Management">
+    **The Problem:** You are worried that if the same person fills out the form twice, it will create two messy duplicate records in Capsule.
+    
+    **The Solution:** You don't need to worry. Flex Forms handles this natively. When a submission is processed, Flex Forms uses the email address to perform a pre-flight search via the Capsule API. If it finds an existing Person with that exact email address, it switches from a `POST` (create) request to a `PUT` (update) request, safely appending the new data to their existing profile without creating a duplicate.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="auth_token" type="password" required>
+  **Personal access token**
+  Capsule → My Preferences → API Authentication Tokens.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+<ParamField path="create_person" type="select" default="1" >
+  **Create person**
+  
+  **Options:**
+  - `1`: Yes
+  - `0`: No
+</ParamField>
+
+<ParamField path="create_case" type="select" default="0" >
+  **Create case**
+  
+  **Options:**
+  - `1`: Yes
+  - `0`: No
+</ParamField>
+
+<ParamField path="create_opportunity" type="select" default="0" >
+  **Create opportunity**
+  
+  **Options:**
+  - `1`: Yes
+  - `0`: No
+</ParamField>
+
+<ParamField path="create_task" type="select" default="0" >
+  **Create task**
+  
+  **Options:**
+  - `1`: Yes
+  - `0`: No
+</ParamField>
+
+<ParamField path="email_field" type="select" >
+  **Email field**
+</ParamField>
+
+<ParamField path="first_name_field" type="select" >
+  **First name field**
+</ParamField>
+
+<ParamField path="last_name_field" type="select" >
+  **Last name field**
+</ParamField>
+
+<ParamField path="person_about" type="textarea" >
+  **Person about**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="person_title_field" type="select" >
+  **Job title field**
+</ParamField>
+
+<ParamField path="person_org_field" type="select" >
+  **Organization field**
+</ParamField>
+
+<ParamField path="person_phone_field" type="select" >
+  **Phone field (legacy Work)**
+  Legacy single Work phone. Prefer Contact details map below for typed emails/phones/addresses/websites.
+</ParamField>
+
+<ParamField path="person_contact_map" type="typed_field_map" >
+  **Contact details**
+  Left labels are fixed Capsule contact types. Right side picks your form field by its current name — rename the field anytime and remapping stays valid as long as you pick it here again if needed.
+</ParamField>
+
+<ParamField path="update_person" type="select" default="0" >
+  **Update existing person by email**
+  
+  **Options:**
+  - `1`: Yes
+  - `0`: No
+</ParamField>
+
+<ParamField path="update_person_mode" type="select" default="replace" >
+  **Update person mode**
+  
+  **Options:**
+  - `replace`: Replace contact details
+  - `append`: Append contact details
+</ParamField>
+
+<ParamField path="case_name" type="text" >
+  **Case name**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="case_description" type="textarea" >
+  **Case description**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="case_status" type="select" default="OPEN" >
+  **Case status**
+  
+  **Options:**
+  - `OPEN`: Open
+  - `CLOSED`: Closed
+</ParamField>
+
+<ParamField path="case_owner" type="remote_select" >
+  **Case owner**
+</ParamField>
+
+<ParamField path="opportunity_name" type="text" >
+  **Opportunity name**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="opportunity_description" type="textarea" >
+  **Opportunity description**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="opportunity_milestone" type="remote_select" >
+  **Opportunity milestone**
+</ParamField>
+
+<ParamField path="opportunity_owner" type="remote_select" >
+  **Opportunity owner**
+</ParamField>
+
+<ParamField path="task_description" type="text" >
+  **Task description**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="task_detail" type="textarea" >
+  **Task detail**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="task_days_until_due" type="text" default="0" >
+  **Task due in (days)**
+</ParamField>
+
+<ParamField path="task_status" type="select" default="OPEN" >
+  **Task status**
+  
+  **Options:**
+  - `OPEN`: Open
+  - `COMPLETED`: Completed
+</ParamField>
+
+<ParamField path="task_category" type="remote_select" >
+  **Task category**
+</ParamField>
+
+<ParamField path="task_owner" type="remote_select" >
+  **Task owner**
+</ParamField>
+
+<ParamField path="assign_task" type="select" default="none" >
+  **Assign task to**
+  
+  **Options:**
+  - `none`: None
+  - `person`: Created person
+  - `case`: Created case
+  - `opportunity`: Created opportunity
+</ParamField>
+

@@ -1,0 +1,155 @@
+---
+title: "Always"
+description: "When clause operator: The rule matches on every recalculation (Calculated fields)."
+icon: "infinity"
+keywords: ["logic", "operator", "always", "condition", "when"]
+---
+
+**Always** makes the **When** clause pass on **every** logic recalculation — no field test, no comparison value.
+
+You will not pick this in normal branching rules. It ships on **Calculated** blocks as **When Always → Calculate** so formulas run whenever answers change.
+
+---
+
+## When to choose this
+
+| Goal | Use **Always** | Use something else instead |
+|------|----------------|----------------------------|
+| Run Calculate on every answer change | ✓ | — |
+| Conditional formula | ✗ | Real **When** clauses on same rule |
+| Show/hide without condition | ✗ | Default visibility or proper **When** |
+| Run once at submit | ✗ | Calculated fields update live on fill |
+
+<Warning>
+  **Always** is not offered in the standard When operator picker for field rules. It appears on **Calculated** block logic and similar always-on formula wiring.
+</Warning>
+
+---
+
+## Exact behavior
+
+- Returns true immediately — no field, no value check.
+- Ignores blank answers elsewhere in the same rule’s **When** only if **When** is solely **Always** (single always clause).
+- If nested in **All** groups with other clauses, those siblings still must pass.
+- Powers live [Calculate](/features/studio/logic/actions/calculate) updates on Calculated blocks.
+
+---
+
+## Which field types
+
+| Context | Available |
+|---------|-----------|
+| Calculated block logic | ✓ (built-in) |
+| Normal field When picker | — (not shown) |
+| Logic Board / If-Else manual | Rare — prefer real conditions |
+
+**Always** is operator-level, not field-type gated — but Studio restricts where you can set it.
+
+---
+
+## Blank / unanswered answers
+
+Not applicable — **Always** does not read answers to decide if **When** passes. Formula tokens inside **Calculate** still treat blanks according to [Calculate](/features/studio/logic/actions/calculate) rules.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Add a Calculated block">
+    From the block palette, insert **Calculated** and pick a target field (or create one).
+  </Step>
+  <Step title="Open the block’s logic">
+    Calculated blocks include a pre-wired rule: **When Always**.
+  </Step>
+  <Step title="Set Then → Calculate">
+    Build expression with `{token}` inserter — numbers or text mode per target settings.
+  </Step>
+  <Step title="Leave Always in place">
+    Unless you need conditional formulas — then replace with specific **When** clauses.
+  </Step>
+  <Step title="Preview on Fill">
+    Change source fields — target should update live.
+  </Step>
+  <Step title="Optional downstream rules">
+    Add separate rules: **When Score ≥ 70** reading the calculated target.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Live order total
+
+> **When Always** → **Calculate** `{quantity} * {unit_price}` into **Order total**
+
+Recalculates whenever qty or price changes.
+
+### Greeting line (text mode)
+
+> **When Always** → **Calculate** `Hello, {first_name}!` into **Personalized heading**
+
+Blank `{first_name}` becomes empty string in text mode.
+
+### Score from answers
+
+> **When Always** → **Calculate** `{q1} + {q2} + {q3}` into **Quiz score**
+
+Downstream: **When Quiz score greater than or equal** `70` → jump to Pass page.
+
+### Conditional override (replace Always)
+
+> **When** Plan **equals** `Pro` → **Calculate** `{base} * 1.2` into **Price**
+
+Remove **Always** when formula should run only sometimes.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Open Fill">
+    Calculated target visible (unless hidden by other rules).
+  </Step>
+  <Step title="Change source fields">
+    Target updates without toggling any When condition manually.
+  </Step>
+  <Step title="Clear a numeric token">
+    Number result should empty — not silently treat blank as zero in expression.
+  </Step>
+  <Step title="Downstream When on calculated field">
+    Branch fires when computed value crosses threshold.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Deleting **Always** from Calculated block without adding another trigger — formula stops updating.
+- Putting **Always** in **All** group with unrelated clauses — siblings still gate the rule.
+- Expecting **Always** in Logic Board When dropdown — use Calculate action with real conditions instead.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Calculated field stopped updating">
+    Restore **When Always → Calculate** or add explicit Calculate on matching rules.
+  </Accordion>
+  <Accordion title="Formula wrong not When wrong">
+    Check `{blockId}` tokens and number vs text result type — see [Calculated fields](/features/studio/calculated-fields).
+  </Accordion>
+  <Accordion title="Need conditional calculate">
+    Replace **Always** with specific operators; keep separate Calculated block per formula if clearer.
+  </Accordion>
+  <Accordion title="Calculate runs but Show rule does not">
+    Calculated value feeds forward same pass — order rules so When on total comes after Calculate in board order.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Calculate action](/features/studio/logic/actions/calculate) · [Calculated fields](/features/studio/calculated-fields) · [How logic works](/features/studio/logic/overview)
+</Panel>

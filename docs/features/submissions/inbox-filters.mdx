@@ -1,0 +1,61 @@
+---
+title: "Inbox Filters & Status"
+description: "Segment your data instantly. Differentiate between successful conversions and abandoned partial submissions."
+icon: "list-filter"
+keywords: ["completed", "partial submissions", "filters", "inbox", "status"]
+boost: 2
+---
+
+Understanding the state of your data is critical for accurate reporting. The Submissions Inbox uses a tabbed filtering system to instantly segment your entries based on their completion status.
+
+## Completed vs. Partial Data
+
+If you have enabled [Partial Submissions](/features/settings/general) in your Form Settings, Flex Forms will silently save data as the respondent types. This means the Inbox contains two distinct types of data:
+
+<CardGroup cols={2}>
+  <Card title="Completed" icon="circle-check">
+    The respondent successfully reached the end of the form and clicked the final Submit button. This is a converted lead.
+  </Card>
+  <Card title="Partial (Abandoned)" icon="clock-rotate-left">
+    The respondent filled out a few fields but closed their browser before finishing. This is an abandoned lead.
+  </Card>
+</CardGroup>
+
+---
+
+## Navigating the Filter Tabs
+
+The top of the Inbox features three quick-access tabs that control exactly what data is displayed.
+
+<Steps>
+  <Step title="All">
+    Displays the raw, unfiltered firehose of data. This includes both Completed and Partial rows, giving you a complete view of all interaction.
+  </Step>
+  <Step title="Completed">
+    The most important tab. This filters out all abandoned attempts, leaving only verified, finished conversions. **You should always use this tab before exporting data to a CRM.**
+  </Step>
+  <Step title="Partial">
+    Filters down to *only* abandoned sessions. This is a goldmine for UX research—you can look at these rows to see exactly which question caused respondents to give up.
+  </Step>
+</Steps>
+
+<Callout type="warning">
+  **Integration Safety:** Third-party integrations (like Zapier, Webhooks, or Email Notifications) **only** trigger on Completed submissions. You never have to worry about an unfinished Partial row triggering a welcome email prematurely.
+</Callout>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can a Partial submission become Completed later?">
+    **Yes.** If a respondent closes their laptop, but returns later (within the same browser session) and finishes the form, Flex Forms intelligently upgrades their existing Partial row to Completed, preventing duplicate entries.
+  </Accordion>
+  <Accordion title="Should I export Partial submissions?">
+    Usually, no. If you export Partial rows into your sales CRM, your sales team will waste time calling leads that have missing data. Always click the **Completed** tab before generating a CSV export for external systems.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Exporting to CSV](/features/submissions/export-csv) · [Analyzing Drop-offs in Insights](/features/insights/answers-visits-dropoffs)
+</Panel>

@@ -1,0 +1,115 @@
+---
+title: "Date, Time & Duration"
+description: "Three catalog blocks — Date, Time, and Duration — with Mode settings for datetime, month, year, and ranges."
+icon: "calendar-days"
+keywords: ["date", "time", "calendar", "range", "booking", "duration", "month", "year"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **UX Tip:** Prefer the **Date** block and set **Mode** instead of hunting for separate Month / Year / Date range tiles.
+</Banner>
+
+Date & time in Studio is three catalog tiles:
+
+| Block | Modes |
+|---|---|
+| **Date** | Date · Date & time · Month · Year · Date range |
+| **Time** | Time · Time range |
+| **Duration** | Length (`HH:MM:SS`), not a clock time |
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Appointment Booking" icon="calendar-check">
+    Use **Date** with Mode **Date & time**, set a minimum of today.
+  </Card>
+  <Card title="Date of Birth" icon="cake-candles">
+    Use **Date** Mode **Date** with a maximum of today.
+  </Card>
+  <Card title="Stay length" icon="hourglass">
+    Use **Duration** when you need how long something lasts, not what time it starts.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Pick the tile">
+    Drag **Date**, **Time**, or **Duration** onto the Canvas.
+  </Step>
+  <Step title="Choose Mode">
+    On Date / Time, open settings and set **Mode** (e.g. Date range, Date & time, Time range).
+  </Step>
+  <Step title="Bounds & appearance">
+    Set Minimum / Maximum, size, variant, and time options (hour cycle, seconds) when the mode includes time.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Date">
+    <ParamField path="mode" type="string" default="date">
+      `date` · `date_time` · `month` · `year` · `date_range`
+    </ParamField>
+    <ParamField path="size" type="string" default="md">
+      `sm` · `md` · `lg`
+    </ParamField>
+    <ParamField path="variant" type="string" default="primary">
+      Visual shell variant.
+    </ParamField>
+    <ParamField path="min_value" type="string">
+      Earliest allowed value (ISO-style string).
+    </ParamField>
+    <ParamField path="max_value" type="string">
+      Latest allowed value.
+    </ParamField>
+    <ParamField path="hour_cycle" type="string" default="24">
+      Shown for Date & time: `12` or `24`.
+    </ParamField>
+    <ParamField path="month_display" type="string" default="numeric">
+      `numeric` · `short` · `long`
+    </ParamField>
+  </Tab>
+
+  <Tab title="Time">
+    <ParamField path="mode" type="string" default="time">
+      `time` · `time_range`
+    </ParamField>
+    <ParamField path="time_picker" type="string" default="segmented">
+      `segmented` · `dropdown`
+    </ParamField>
+    <ParamField path="hour_cycle" type="string" default="24">
+      `12` or `24`
+    </ParamField>
+    <ParamField path="minute_step" type="number" default="15">
+      Minute snap interval for dropdown / segments.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Duration">
+    <ParamField path="show_seconds" type="boolean" default="false">
+      Include seconds in the duration segments.
+    </ParamField>
+    <ParamField path="min_value" type="string">
+      Minimum duration.
+    </ParamField>
+    <ParamField path="max_value" type="string">
+      Maximum duration.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload
+
+Single modes store a string. Range modes store `{ "start": "…", "end": "…" }`.
+
+<Panel>
+  **Next Steps:** [Field settings](/features/studio/field-settings) · [Logic](/features/studio/logic-board)
+</Panel>

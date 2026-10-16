@@ -1,0 +1,170 @@
+---
+title: "Calculate"
+description: "Then action: Write a formula result into a target field."
+icon: "calculator"
+keywords: ["logic", "action", "calculate", "then"]
+---
+
+**Calculate** evaluates a **formula** and writes the result into a target field — live totals, quiz scores, formatted labels, or concatenated text.
+
+Use on **Calculated** blocks (**When [Always](/features/studio/logic/operators/always) → Calculate**) or conditional rules when formulas should run only sometimes.
+
+---
+
+## When to choose this
+
+| Goal | Use **Calculate** | Use something else instead |
+|------|-------------------|----------------------------|
+| Live numeric total or score | ✓ | — |
+| Text template from answers | ✓ (text result mode / Formula) | — |
+| Show/hide UI | ✗ | **[Show blocks](/features/studio/logic/actions/show-blocks)** |
+| Copy or nudge a number without typing a full formula | ✓ (Assign / Add / Subtract / …) | — |
+| Run only on submit | ✗ | Calculate updates on every fill recalc |
+
+---
+
+## Exact behavior
+
+- Target receives computed value on **every logic recompute** when parent **When** matches.
+- Result feeds **later rules in the same pass** — calculate Score, then **When Score ≥ 80** can match immediately after.
+- **Number mode:** arithmetic with `+ - * / %`, parentheses, `{blockId}` tokens, and whitelist functions **`min()`**, **`max()`**, **`round()`**, **`concat()`**. Blank or non-numeric tokens make the **whole numeric result empty** — `{qty} + 1` does **not** become `1` when qty is unanswered. Unknown functions fail closed (empty result).
+- **Text mode:** string interpolation — tokens replaced; use `+` between tokens/literals **or** `concat({first}, " ", {last})` to assemble labels.
+- Invalid expression characters or divide-by-zero → empty result, no crash.
+- Target must exist on canvas; unknown target ignored.
+
+<Warning>
+  Field tokens are **block IDs** (`{blockId}`), not display labels. Use the **Value** field picker or the Formula inserter so IDs stay correct.
+</Warning>
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| Source token blank (number mode) | Whole result empty |
+| Source token blank (text mode) | Token becomes empty string |
+| Target hidden | Formula may still update; display hidden |
+| **When** false | Calculate does not run for that rule — prior value may persist until another Calculate runs |
+| Calculated block default | **Always → Calculate** keeps updating |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Add or pick target field">
+    Integer, currency, rating, Calculated block, etc. — set **result type** (number vs text) in block settings when relevant.
+  </Step>
+  <Step title="Add Calculated block OR Then → Calculate">
+    Calculated blocks ship with **When Always → Calculate**; other rules add Calculate manually.
+  </Step>
+  <Step title="Select target">
+    Pick from the list of **Calculated** (Σ) and number fields on the form — you do not type a field name. Add a Calculated block first if the list is empty.
+  </Step>
+  <Step title="Choose an operation">
+    **Add**, **Subtract**, **Multiply**, **Divide**, **Assign**, or **Formula**.
+    - **Assign** — set the target to a number or another field’s answer.
+    - **Add / Subtract / Multiply / Divide** — apply that op using a number **or** another field (same **Value** control).
+    - **Formula** — opens **Edit formula**. Type math, click `+ − × ÷ ( )`, or type **`@`** to mention only **supported** fields (numbers, ratings, choices, calculated).
+  </Step>
+  <Step title="Set Value">
+    One control: **type a literal** or open the dropdown and pick an **input field**. No separate “Answer of…” / “Insert field…” for simple ops.
+  </Step>
+  <Step title="Choose number vs text on target">
+    Number mode evaluates math; text mode concatenates only (use **Formula** for templates).
+  </Step>
+  <Step title="Add downstream When (optional)">
+    Separate rule reading calculated field — e.g. **When Total greater than** `1000`.
+  </Step>
+  <Step title="Test on Fill">
+    Change inputs — watch target update live.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Order total (Formula)
+
+> **When Always** → **Calculate** **Order total** **Formula** `{quantity} * {unit_price}`
+
+### Add a surcharge
+
+> **When** Plan **equals** `Pro` → **Calculate** **Final price** **Multiply** `1.2`  
+> (or **Formula** `{base_price} * 1.2`)
+
+### Assign from another field
+
+> **When** Use company address **checked** → **Calculate** **Shipping city** **Assign** *(pick)* **Billing city**
+
+### Quiz score (Add points)
+
+> Calculated **Σ Score** = `0` on the canvas.  
+> **When** Q1 **is** *(correct)* → **Calculate** **Σ Score** **Add** `10`  
+> **When** Q2 **is** *(correct)* → **Calculate** **Σ Score** **Add** `10`  
+> Then: **When Score ≥** `70` → [Jump to page](/features/studio/logic/actions/jump-to-page) `Pass`.
+
+### Quiz score (Formula sum)
+
+> **When Always** → **Calculate** **Score** **Formula** `{q1} + {q2} + {q3}`  
+> (when each question already stores a numeric point value)
+
+### Personalized greeting (Formula, text)
+
+> **When Always** → **Calculate** **Heading** **Formula** `Thanks, {first_name}!`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Fill all numeric tokens">
+    Target shows expected result.
+  </Step>
+  <Step title="Clear one token">
+    Number result empties — not partial math with zero substitution.
+  </Step>
+  <Step title="Text mode with missing name">
+    Template shows with blank where token was.
+  </Step>
+  <Step title="Downstream When on calculated field">
+    Fires in same recalc pass after Calculate runs (rule order matters on board).
+  </Step>
+  <Step title="Conditional Calculate">
+    Formula updates only when **When** true for that rule.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Typing field labels instead of picking fields or inserting `{blockId}` tokens.
+- Expecting math in **text** result type.
+- Referencing later-page fields before answered — blank tokens empty numeric result.
+- Removing **Always** from Calculated block without replacement trigger.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Result always empty">
+    Wrong token ids, blank inputs in number mode, or invalid characters in expression.
+  </Accordion>
+  <Accordion title="Result wrong but non-empty">
+    Check operator precedence — use parentheses in **Formula**. Verify Value points to the intended field.
+  </Accordion>
+  <Accordion title="Downstream rule does not see new value">
+    Place Calculate rule **before** When-on-target in Logic Board order.
+  </Accordion>
+  <Accordion title="Text shows {token} literally">
+    Target in text mode but tokens malformed — pick fields from Value / Formula inserter, not hand-typed braces with labels.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Calculated fields](/features/studio/calculated-fields) · [Always operator](/features/studio/logic/operators/always) · [How logic works](/features/studio/logic/overview)
+</Panel>

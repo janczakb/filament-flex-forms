@@ -1,0 +1,148 @@
+---
+title: "Country Selector Block"
+description: "A fast, optimized country selection dropdown with native flag support and internationalization options."
+icon: "globe"
+keywords: ["country", "nation", "flag", "international", "location"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **UX Tip:** Enable `browser_locale_sort_first` to magically float the user's home country to the top of the list!
+</Banner>
+
+The **Country** block is a specialized dropdown that automatically handles the list of 195+ global countries. It eliminates the need for you to manually build a massive list of options, and provides built-in search, flags, and international dialing codes out of the box.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="E-commerce Shipping" icon="box">
+    Determine which country the user wants an item shipped to, restricting access to unsupported regions.
+  </Card>
+  <Card title="Demographic Surveys" icon="chart-pie">
+    Collect clean, standardized nationality data for your analytics dashboards.
+  </Card>
+  <Card title="Legal Compliance" icon="scale-balanced">
+    Determine if a user resides in the EU to automatically trigger GDPR compliance flows.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Country** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Set a Default">
+    If most of your users are from a specific region, configure the **Default Country** (e.g., `US` or `GB`) so they don't have to scroll to find themselves.
+  </Step>
+  <Step title="Enable Search">
+    Scrolling through 195 items is tedious on mobile. Always toggle the **Searchable** switch on so users can just type "Canada".
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the country dropdown. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="variant" type="string" default="primary">
+      The visual style variant of the field.
+    </ParamField>
+    
+    <ParamField path="show_country_code" type="boolean" default="false">
+      Displays the 2-letter ISO country code (e.g., "US") next to the country name in the dropdown list.
+    </ParamField>
+    
+    <ParamField path="show_dial_code" type="boolean" default="false">
+      Displays the international dialing prefix (e.g., "+1") next to the country name in the dropdown list.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Behavioral Features">
+    <ParamField path="searchable" type="boolean" default="false">
+      If enabled, users can search for a country by typing its name in a search bar within the dropdown list.
+    </ParamField>
+    
+    <ParamField path="browser_locale_default" type="boolean" default="false">
+      Attempts to automatically select the default country based on the user's browser language or geolocation settings.
+    </ParamField>
+    
+    <ParamField path="browser_locale_sort_first" type="boolean" default="false">
+      Pins the country corresponding to the user's browser locale to the very top of the dropdown list for easy access.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Geographic Restrictions">
+    <ParamField path="default_country" type="string" default="PL">
+      The ISO 3166-1 alpha-2 country code (e.g., `US`, `GB`) selected by default.
+    </ParamField>
+    
+    <ParamField path="countries" type="array">
+      An array of allowed country codes. When provided, the dropdown will only show these specific countries (whitelist).
+    </ParamField>
+    
+    <ParamField path="except_countries" type="array">
+      An array of country codes to hide from the dropdown (blacklist).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+The Country block guarantees that no matter what the user sees on their screen (in their local language), your database receives the exact, pristine **ISO 3166-1 alpha-2** code.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_332",
+    "data": {
+      "shipping_country": "US",
+      "nationality": "PL"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'shipping_country' => 'US',
+      'nationality' => 'PL',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Data Standardization
+
+Why don't we just use a regular Dropdown and let users type their country? 
+
+If you let users type, they will write "United States", "USA", "U.S.A", and "America". When you try to sync this data to HubSpot or another CRM, the integration can fail because those systems expect exactly `US`. 
+
+<Callout type="info">
+  **Integration Ready:** By outputting standardized ISO codes, the Country block maps cleanly into CRM and marketing tools that expect `US`, `PL`, `DE`, and similar codes.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Restricting Shipping Regions">
+    If you are building an order form but only ship to North America, use the **Countries** array to whitelist just `US`, `CA`, and `MX`. This physically prevents users from other regions from submitting an order you cannot fulfill.
+  </Accordion>
+  <Accordion title="Why is my flag missing?">
+    Flags are rendered natively by the operating system using standard emoji tables. If a flag appears as letters (like `US` instead of 🇺🇸), it means the user's operating system (like some versions of Windows) does not support flag emojis natively.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Map & Address Block](/features/blocks/map)
+</Panel>

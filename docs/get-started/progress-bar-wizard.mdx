@@ -1,0 +1,49 @@
+---
+title: "Wizard Stepper"
+description: "Guide respondents through multi-page forms with tiles or a progress bar — configured once in Form Settings."
+icon: "rocket"
+keywords: ["stepper", "wizard", "multi-page", "progress bar"]
+boost: 1
+---
+
+Long forms can cause drop-offs if users don't know how much is left. Flex Forms shows a **wizard stepper** on multi-page forms — either numbered tiles or a continuous progress bar.
+
+## Branching forms (path-aware progress)
+
+When your form uses **Jump to page** (or auto-jump funnels), progress follows the **visited path** — the pages the respondent actually opened — not every page in the Studio schema.
+
+- **Progress bar:** fills from the visited path (so skipped branch pages do not inflate “steps left”).
+- **Tiles:** pages on other branches stay **hidden** until the respondent visits them; completed path steps stay marked complete.
+
+Linear forms without jumps keep classic step-of-N indexing.
+
+## Enabling the Stepper
+
+<Steps>
+  <Step title="Add more than one page">
+    In Studio, split your form into pages. The stepper only appears when there are **two or more** pages.
+  </Step>
+  <Step title="Open General Settings">
+    Open **Studio → Form settings (gear) → General**.
+  </Step>
+  <Step title="Choose a style">
+    Set **Wizard stepper** to **Tiles**, **Progress bar only**, or **None**. Optionally set the stepper accent color to match your brand.
+  </Step>
+</Steps>
+
+---
+
+## Best Practices for High Conversion
+
+<CardGroup cols={2}>
+  <Card title="Keep Titles Concise" icon="text-size">
+    Page titles render directly inside the stepper UI. Keep them short (e.g., "Personal Info" instead of "Tell us about your personal background").
+  </Card>
+  <Card title="Front-Load Complexity" icon="weight-hanging">
+    Place harder, required questions early in the flow. This ensures the progress bar feels honest and momentum carries the user to the end.
+  </Card>
+</CardGroup>
+
+<Panel>
+  **Deep Dive:** Combine this with [Multi-Page Routing](/guides/multi-page-stepper) to build complex, branching application flows.
+</Panel>

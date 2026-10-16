@@ -1,0 +1,243 @@
+---
+title: "Capsule CRM"
+description: "Automatically create or update People, Cases, Opportunities, and Tasks in your Capsule CRM directly from form submissions."
+icon: "capsules"
+keywords: ["capsule", "crm", "contacts", "cases", "opportunities", "tasks"]
+boost: 3
+---
+
+The **Capsule CRM** integration transforms Flex Forms into a full-featured lead capture and ticketing system. The engine can autonomously build rich Contact Profiles (People), attach them to Organizations, and automatically open new Cases, Opportunities, or Tasks based on the submitted data.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Support Ticketing" icon="ticket">
+    Automatically generate a new Support Case in Capsule, linked to the respondent's profile, whenever a help form is submitted.
+  </Card>
+  <Card title="Sales Pipeline" icon="funnel-dollar">
+    Push high-value leads directly into your Sales Pipeline by automatically generating an Opportunity for your sales team to work on.
+  </Card>
+  <Card title="Data Enrichment" icon="address-book">
+    Use the `typed_field_map` to accurately categorize multiple phone numbers (Mobile, Work, Home) and websites (LinkedIn, Twitter) into strict Capsule CRM schemas.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to Capsule, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your Auth Token">
+    Log into your Capsule CRM dashboard. Navigate to **My Preferences → API Authentication Tokens**. 
+    Generate and copy your **Personal Access Token**.
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **Capsule CRM** card and enter your Auth Token.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.capsulecrm.com/api/v2` endpoint to ensure the credentials are valid and that it can read your CRM schema.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### Action Toggles
+
+First, instruct the engine on which Capsule CRM entities it should generate when this form is submitted.
+
+<ParamField path="create_person" type="select" default="1">
+  **Create person**
+  Set to `Yes` to generate a Person entity (Contact) from the submission. *Note: Cases and Opportunities require a Person to be created first.*
+</ParamField>
+
+<ParamField path="create_case" type="select" default="0">
+  **Create case**
+  Set to `Yes` to generate a Case entity attached to the Person.
+</ParamField>
+
+<ParamField path="create_opportunity" type="select" default="0">
+  **Create opportunity**
+  Set to `Yes` to generate an Opportunity entity attached to the Person.
+</ParamField>
+
+<ParamField path="create_task" type="select" default="0">
+  **Create task**
+  Set to `Yes` to generate a Task entity.
+</ParamField>
+
+---
+
+### Person Mapping (Contact Profiles)
+
+Configure how form blocks map to a Capsule CRM Person.
+
+<ParamField path="email_field" type="select">
+  **Email field**
+  Select the block that collects the respondent's primary email. Used as the unique identifier for Upsert operations.
+</ParamField>
+
+<ParamField path="first_name_field" type="select">
+  **First name field**
+</ParamField>
+
+<ParamField path="last_name_field" type="select">
+  **Last name field**
+</ParamField>
+
+<ParamField path="person_about" type="textarea">
+  **Person about**
+  A description of the person. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="person_title_field" type="select">
+  **Job title field**
+</ParamField>
+
+<ParamField path="person_org_field" type="select">
+  **Organization field**
+</ParamField>
+
+<ParamField path="person_phone_field" type="select">
+  **Phone field (legacy Work)**
+  Legacy single Work phone. *Best Practice: Prefer the Contact details map below for strongly typed emails/phones/addresses/websites.*
+</ParamField>
+
+<ParamField path="person_contact_map" type="typed_field_map">
+  **Contact details (Strict Mapping)**
+  Left labels are fixed Capsule contact types (e.g., `Phone · Mobile`, `Address · Office`, `Website · LinkedIn`). Right side picks your form field by its current name. This ensures data is perfectly formatted in the CRM UI.
+</ParamField>
+
+<ParamField path="update_person" type="select" default="0">
+  **Update existing person by email**
+  If `Yes`, the engine searches for an existing Person with the submitted email.
+</ParamField>
+
+<ParamField path="update_person_mode" type="select" default="replace">
+  **Update person mode**
+  If updating, choose whether to `replace` existing contact details with the newly submitted data, or `append` the new data to their existing profile.
+</ParamField>
+
+---
+
+### Case Mapping
+
+Configure the Case entity if `create_case` is enabled.
+
+<ParamField path="case_name" type="text">
+  **Case name**
+  The title of the Case. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="case_description" type="textarea">
+  **Case description**
+  The body of the Case. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="case_status" type="select" default="OPEN">
+  **Case status**
+  Choose between `Open` or `Closed`.
+</ParamField>
+
+<ParamField path="case_owner" type="remote_select">
+  **Case owner**
+  Loaded live from your Capsule account (Users).
+</ParamField>
+
+---
+
+### Opportunity Mapping
+
+Configure the Opportunity entity if `create_opportunity` is enabled.
+
+<ParamField path="opportunity_name" type="text">
+  **Opportunity name**
+  The title of the Opportunity. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="opportunity_description" type="textarea">
+  **Opportunity description**
+  Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="opportunity_milestone" type="remote_select">
+  **Opportunity milestone**
+  Loaded live from your Capsule account (Milestones).
+</ParamField>
+
+<ParamField path="opportunity_owner" type="remote_select">
+  **Opportunity owner**
+  Loaded live from your Capsule account (Users).
+</ParamField>
+
+---
+
+### Task Mapping
+
+Configure the Task entity if `create_task` is enabled.
+
+<ParamField path="task_description" type="text">
+  **Task description**
+  The short summary of the task. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="task_detail" type="textarea">
+  **Task detail**
+  The long-form description of the task. Supports `{{field_name}}` merge tags.
+</ParamField>
+
+<ParamField path="task_days_until_due" type="text" default="0">
+  **Task due in (days)**
+  Number of days from the submission date until the task is marked as due (e.g., `3`).
+</ParamField>
+
+<ParamField path="task_status" type="select" default="OPEN">
+  **Task status**
+  Choose between `Open` or `Completed`.
+</ParamField>
+
+<ParamField path="task_category" type="remote_select">
+  **Task category**
+  Loaded live from your Capsule account (Categories).
+</ParamField>
+
+<ParamField path="task_owner" type="remote_select">
+  **Task owner**
+  Loaded live from your Capsule account (Users).
+</ParamField>
+
+<ParamField path="assign_task" type="select" default="none">
+  **Assign task to**
+  Determine which entity this Task should be attached to within Capsule CRM. Options:
+  - `None` (Standalone task)
+  - `Created person`
+  - `Created case`
+  - `Created opportunity`
+</ParamField>
+
+---
+
+## Configuration Reference
+
+### Global Settings
+<ParamField path="auth_token" type="password" required>
+  **Personal Access Token**
+  Your Capsule CRM authentication token. Generate this in Capsule CRM under **My Preferences → API Authentication Tokens**.
+</ParamField>
+
+## Technical Resources & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Why was my Case or Opportunity skipped?">
+    In the Capsule CRM architecture, a Case or Opportunity *must* be attached to a Person or Organization. If the engine fails to create the Person (e.g., due to a missing required Email), the system will intentionally abort the Case creation to prevent orphaned data in your CRM. Check your Submissions Inbox for diagnostic logs.
+  </Accordion>
+  <Accordion title="Official Documentation Reference">
+    For advanced architectural questions regarding data models and party management, refer to the official [Capsule CRM v2 API Documentation](https://developer.capsulecrm.com/v2/overview/reading-from-the-api).
+  </Accordion>
+</AccordionGroup>

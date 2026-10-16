@@ -1,0 +1,144 @@
+---
+title: "Flex Radiolist Block"
+description: "Single-choice radio list — Studio catalog label: Flex radiolist (`flex_radiolist`)."
+icon: "list-tree"
+keywords: ["radio", "flex radiolist", "multiple choice", "single choice", "options"]
+---
+
+<Banner type="info" dismissible={true}>
+  In Studio this block is **Flex radiolist**. Prefer it over Select when you have roughly five or fewer options.
+</Banner>
+
+The **Flex radiolist** block (`flex_radiolist`) shows every option at once for mutually exclusive answers.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Pricing Tiers" icon="money-bill">
+    "Which plan would you like?" (e.g., Basic, Pro, Enterprise) where all options need to be compared simultaneously.
+  </Card>
+  <Card title="Simple Yes/No" icon="thumbs-up">
+    "Are you currently a student?" (Yes / No).
+  </Card>
+  <Card title="NPS Alternatives" icon="face-smile">
+    "How was your experience?" (Good / Neutral / Bad) using custom icons for each choice.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Multiple Choice** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Build the List">
+    Add your options. Remember, users can only select exactly one of these choices.
+  </Step>
+  <Step title="Enhance with Context">
+    Use the Inspector to assign **Icons** or sub-text **Descriptions** to individual options to make them easier to understand.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & Style">
+    <ParamField path="size" type="string" default="md">
+      The size of the radio buttons and accompanying text. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="variant" type="string">
+      Changes the visual style of the radio list. For example, rendering them as standard circles or bordered pill buttons.
+    </ParamField>
+    
+    <ParamField path="color" type="string">
+      The accent color used when a radio button is selected (active state).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Context & Enhancements">
+    <ParamField path="icons" type="array">
+      An associative array mapping option keys to Heroicon names. This renders a beautiful icon next to the corresponding radio option.
+    </ParamField>
+    
+    <ParamField path="descriptions" type="array">
+      An associative array mapping option keys to a secondary description string. This allows you to add smaller, muted explanatory text below specific choices.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Data & Validation">
+    <ParamField path="options" type="array" required>
+      The list of radio options, defined as key-value pairs (Value and Label).
+    </ParamField>
+    
+    <ParamField path="disabled_options" type="array">
+      An array of option keys that should be rendered as disabled (grayed out and unclickable). Useful for indicating out-of-stock items or unavailable timeslots.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Because radio buttons restrict the user to a single choice, the output payload is a simple, flat string containing the selected Value (key).
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_551",
+    "data": {
+      "subscription_tier": "tier_pro",
+      "is_student": "yes"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'subscription_tier' => 'tier_pro',
+      'is_student' => 'yes',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: The Power of Context
+
+Radio buttons are often used for pricing plans or critical tier selections. A simple word like "Pro" might not be enough context for a user to make a decision.
+
+By utilizing the **Descriptions** and **Icons** parameters, you can transform a boring list of radio circles into a rich feature comparison. 
+
+<Tree>
+  <Tree.Folder name="Visual Hierarchy Structure" defaultOpen>
+    <Tree.File name="Main Label: 'Pro Plan'" />
+    <Tree.File name="Icon: 'rocket-launch'" />
+    <Tree.File name="Description: 'Best for growing teams up to 50 users.'" />
+  </Tree.Folder>
+</Tree>
+
+<Callout type="info">
+  **UX Rule:** Radio buttons inherently require the user to evaluate all options before clicking. Adding icons and descriptions drastically reduces the cognitive load required to make that choice.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="When to switch to a Dropdown">
+    If your Multiple Choice list exceeds 5 or 6 items, it takes up too much vertical screen real estate, especially on mobile. At that point, you should switch to a [Dropdown Block](/features/blocks/dropdown) to save space.
+  </Accordion>
+  <Accordion title="Using Disabled Options">
+    If you offer a seminar on 3 different dates, and one date sells out, do not delete the option! Add its key to `disabled_options`. This creates scarcity and shows future users that your events are highly sought after.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Dropdown Block](/features/blocks/dropdown) · [Checkboxes Block](/features/blocks/checkbox)
+</Panel>

@@ -1,0 +1,144 @@
+---
+title: "Textarea Block"
+description: "Multi-line text — Studio catalog label: Textarea (`flex_textarea`)."
+icon: "align-left"
+keywords: ["textarea", "long text", "flex_textarea", "feedback", "autosize", "paragraph"]
+---
+
+<Banner type="info" dismissible={true}>
+  In Studio this block is **Textarea** (not “Long Text”). Enable autosize to avoid inner scrollbars.
+</Banner>
+
+The **Textarea** block collects open-ended paragraphs — reviews, bug reports, biographies. For formatted HTML answers use [Rich text](/features/blocks/rich-text); for static instructions use [Plain text](/features/blocks/plain-text).
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Customer Feedback" icon="comments">
+    Collect rich, qualitative reviews and testimonials from users about your service.
+  </Card>
+  <Card title="Support Tickets" icon="ticket">
+    Provide a large canvas for users to describe the steps required to reproduce a technical bug.
+  </Card>
+  <Card title="Job Applications" icon="briefcase">
+    Ask candidates open-ended questions like "Why do you want to work here?" and enforce minimum word counts.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Long Text** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Configure the Prompt">
+    Define the prompt in the **Label**. For long text, a good **Placeholder** (e.g., *"Describe the issue in detail..."*) is highly recommended to set expectations.
+  </Step>
+  <Step title="Enable Autosize (Recommended)">
+    Toggle **Animated Autosize** in the Inspector to ensure the field grows seamlessly as the user types.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+Fine-tune the textarea experience using these settings in the Inspector.
+
+<Tabs>
+  <Tab title="Visuals & Sizing">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the textarea. Available options: `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="rows" type="integer">
+      The initial number of rows (height) of the textarea before the user starts typing.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Behavioral Features">
+    <ParamField path="animated_autosize" type="boolean" default="false">
+      When enabled, the textarea automatically and smoothly expands its height as the user types multiple lines.
+    </ParamField>
+    
+    <ParamField path="max_height" type="string">
+      The maximum height of the textarea when `animated_autosize` is enabled (e.g., `300px`). After reaching this height, the field will start scrolling.
+    </ParamField>
+    
+    <ParamField path="speech_dictation" type="boolean" default="false">
+      Adds a dictation microphone button to the textarea, enabling speech-to-text.
+    </ParamField>
+    
+    <ParamField path="emoji_picker" type="boolean" default="false">
+      Embeds a native emoji picker button within the textarea interface.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Validation Rules">
+    <ParamField path="character_counter" type="boolean" default="false">
+      Displays a live character count below the textarea.
+    </ParamField>
+    
+    <ParamField path="min_length" type="integer">
+      The minimum number of characters required for a valid submission.
+    </ParamField>
+    
+    <ParamField path="max_length" type="integer">
+      The maximum number of characters allowed.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Long text submissions maintain their formatting via invisible newline characters (`\n`). When passing this data to other systems, ensure they support multiline strings.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_881",
+    "data": {
+      "bug_description": "When I click the save button, nothing happens.\n\nI have tried restarting my browser."
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'bug_description' => "When I click the save button, nothing happens.\n\nI have tried restarting my browser.",
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Managing Constraints
+
+When asking for open-ended feedback, users can sometimes write entirely too much, or conversely, give a useless one-word answer like "good."
+
+You can forcefully curate the quality of your responses using the **Minimum Length** and **Maximum Length** settings combined with the **Character Counter**. 
+
+<Callout type="info">
+  **UX Tip:** If you set a Minimum Length of 100 characters, *always* enable the Character Counter. Users need visual feedback on how close they are to satisfying the requirement.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Psychology of Initial Rows">
+    If you expect a long story, set the `rows` parameter to `5` or `6`. A larger empty box psychologically encourages the user to write more. A small box implies you only want a quick sentence.
+  </Accordion>
+  <Accordion title="When to use Rich Text Instead">
+    If you need the user to submit text with bolding, italics, or bullet points, use the [Rich Content Block](/features/blocks/content) instead of Long Text.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Rich Content Block](/features/blocks/content)
+</Panel>

@@ -1,0 +1,128 @@
+---
+title: "The Inspector (Field Settings)"
+description: "Fine-tune your data collection. Configure labels, validation masks, default values, and structural metadata for every block."
+icon: "sliders-horizontal"
+keywords: ["field settings", "validation", "placeholder", "required", "mask", "affix", "inspector"]
+boost: 2
+---
+
+Clicking any block on the Canvas instantly opens the **Inspector Panel** on the left, temporarily replacing the Component Catalog. This panel provides granular control over the selected block's behavior, validation, and data structure.
+
+## Core Identity & Naming
+
+At the top of the Inspector is the most critical setting: the Field Name.
+
+<ParamField path="label" type="string" required>
+  **The Label (Public)**
+  Edited directly in the settings list. This is the human-readable question the respondent sees (e.g., *"What is your email?"*).
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  **The Name (System Key)**
+  Click the pencil icon in the toolbar above the field settings. This is the immutable internal key (e.g., `primary_email`) used for CSV column headers, Webhook payloads, Logic evaluations, and API integration mapping. 
+  
+  *Note: Spaces are strictly converted to underscores (`_`) to maintain programming compatibility.*
+</ParamField>
+
+<Warning>
+  **Data Integrity Warning:** Changing a field's internal **Name** after you have begun collecting live submissions will fragment your data. Historical CSV exports and Submissions will retain the old key, while new submissions will use the new key. **Only change the Name during the initial Draft phase.**
+</Warning>
+
+---
+
+## Universal Configuration Options
+
+While specific controls depend on the block type, almost every field offers these foundational settings:
+
+<ParamField path="required" type="toggle" default="false">
+  **Required Enforcement**
+  Toggle this to prevent form submission until the field contains a valid answer. Required fields are visually flagged with a red asterisk (`*`) on the Canvas.
+</ParamField>
+
+<ParamField path="hidden_label" type="toggle" default="false">
+  **Hide Label**
+  Removes the public-facing question text while keeping the field completely functional. Excellent for ultra-minimalist landing pages relying purely on placeholders.
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  **Placeholder Text**
+  Faded hint text residing *inside* the empty input box (e.g., `john@doe.com`). It vanishes the moment the user types their first character.
+</ParamField>
+
+<ParamField path="help_text" type="string">
+  **Help Text**
+  Instructional micro-copy rendered permanently *below* the input. Use this to explain *why* you are asking for data (e.g., *"We will never spam you."*).
+</ParamField>
+
+<ParamField path="default_value" type="string|array">
+  **Default Value Injection**
+  Pre-fills the field for every respondent. On choice blocks (Select, Radio, Checklists, …) you pick from the option **labels** — Flex Forms stores the matching option values automatically.
+  *(Note: To pre-fill dynamically per user via the URL instead of statically, see [Query Parameter Prefilling](/features/share/query-params)).*
+</ParamField>
+
+<ParamField path="character_limits" type="integer">
+  **Min/Max Character Constraints**
+  Available on text blocks. Define strict character limits. Enabling **Character Counter** provides the respondent with a real-time `X / Y` visual counter as they type.
+</ParamField>
+
+---
+
+## Advanced Type-Specific Controls
+
+Flex Forms intelligently adapts the Inspector to expose controls relevant only to the selected block architecture.
+
+<Tabs>
+  <Tab title="Input Masks (Formatting)">
+    <ParamField path="mask_preset" type="select">
+      Enforce strict data formatting on text inputs. 
+      Select a preset (Date `99/99/9999`, Phone `(999) 999-9999`, Credit Card).
+    </ParamField>
+    <ParamField path="custom_mask" type="string">
+      Select **Custom** to inject your own regex-style mask pattern (e.g., `AAAA-9999`) to ensure pristine data hygiene.
+    </ParamField>
+  </Tab>
+  <Tab title="Affixes (Prefix/Suffix)">
+    <ParamField path="prefix" type="string">
+      Attach visual or functional text to the *beginning* of an input (e.g., `https://`).
+    </ParamField>
+    <ParamField path="suffix" type="string">
+      Attach functional text to the *end* of an input (e.g., `.com`, `kg`, `USD`). You can also inject SVG icons directly into these slots.
+    </ParamField>
+  </Tab>
+  <Tab title="Speech Dictation">
+    <ParamField path="enable_speech" type="toggle">
+      Enable native browser microphone APIs on Text and Textarea blocks. Allows respondents to dictate complex answers.
+    </ParamField>
+    <ParamField path="language" type="select" default="Auto-detect">
+      You can strictly force a recognition language (e.g., `en-US`) or leave it set to auto-detect.
+    </ParamField>
+  </Tab>
+  <Tab title="Primary Email Routing">
+    <ParamField path="is_primary" type="toggle" default="true (for first block)">
+      If your form contains multiple email fields, you must designate one as the **Primary**. Flex Forms uses this specific field to trigger Respondent Notification emails, run CRM duplication checks, and populate integration feeds.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Block Action Utilities
+
+At the absolute bottom of the Inspector (or via keyboard shortcuts), you have access to rapid utility actions:
+
+<Steps>
+  <Step title="Duplicate Block">
+    Click the **Duplicate** icon. This instantly clones the block directly underneath itself. 
+    
+    *Crucial Detail: It also clones any Field-Level Logic rules attached to the block, saving you massive amounts of time when building repetitive arrays.*
+  </Step>
+  <Step title="Remove (Delete) Block">
+    Click the red **Trash** icon to purge the block from the Canvas. 
+    
+    *Warning: If this block was targeted by Logic rules elsewhere in the form, those rules will automatically flag themselves with a "Missing Target" error.*
+  </Step>
+</Steps>
+
+<Panel>
+  **Next Steps:** [Logic Board Routing](/features/studio/logic-board) · [Explore all Component Blocks](/features/blocks/overview)
+</Panel>

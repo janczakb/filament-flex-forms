@@ -1,0 +1,108 @@
+---
+title: "Hide submit"
+description: "Then action: Legacy eligibility flag. Fill always keeps Next/Submit visible."
+icon: "ban"
+keywords: ["logic", "action", "hide-submit", "then"]
+---
+
+**Hide submit** sets a form-level eligibility flag while **When** matches. On public Fill, **Next** and **Submit** stay **visible** — progress is blocked only by **required** answers on the current step (validation on click).
+
+Prefer **[Require answer](/features/studio/logic/actions/require-answer)** for missing fields, a warning **[Show blocks](/features/studio/logic/actions/show-blocks)** message, or **[Jump to page](/features/studio/logic/actions/jump-to-page)** to a clear ending — not removing navigation.
+
+---
+
+## When to choose this
+
+| Goal | Prefer instead |
+|------|----------------|
+| Missing required answer | **[Require answer](/features/studio/logic/actions/require-answer)** |
+| Explain low eligibility | **[Show blocks](/features/studio/logic/actions/show-blocks)** with a message |
+| Send ineligible users elsewhere | **[Jump to page](/features/studio/logic/actions/jump-to-page)** |
+| Legacy “hide the button” flows | Keep existing rules; Fill no longer hides Next/Submit |
+
+---
+
+## Exact behavior
+
+- Sets form-level `hide_submit: true` while the matching rule’s action value is true (default true).
+- Studio Rules simulator can still show that the flag matched.
+- Fill **does not** hide or hard-block Next/Submit based on this flag.
+- Empty **required** fields on the current page still fail validation when the respondent clicks Next or Submit.
+- Does not clear answers or hide fields by itself.
+
+<Warning>
+  Do not rely on Hide submit to trap respondents. Use required fields, messaging, or a jump to a terminal page.
+</Warning>
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| Hide submit matches | Next/Submit remain visible and clickable |
+| Required field empty on this step | Next/Submit stay visible; click shows validation errors |
+| No required fields on this step | Next/Submit proceed |
+| Jump to a terminal page | That page shows Submit (not Next) |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Prefer Require / Show / Jump">
+    For new forms, gate with required answers or route ineligible people with Jump + copy.
+  </Step>
+  <Step title="If you already use Hide submit">
+    Keep explanation blocks so respondents understand eligibility — navigation buttons will still appear.
+  </Step>
+  <Step title="Test on Fill">
+    Confirm Next/Submit always render; only missing required answers block progress.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Unsigned waiver (prefer Require)
+
+> **When** Liability waiver **is not signed** → **Require answer** on the waiver (or keep the field required)
+
+Canvas copy: “Sign the waiver above to submit.”
+
+### Age ineligible (prefer Jump)
+
+> **When** Age **less than** `18` → **Jump to page** `Not eligible` with a clear message
+
+### Failed quiz threshold
+
+> **When** Score **less than** `50` → **Jump to page** `Retake` with instructions
+
+---
+
+## Common mistakes
+
+- Expecting Hide submit to remove the button — Fill always keeps Next/Submit.
+- Using Hide submit instead of **Require** for a single missing field.
+- Jumping to a non-terminal page and wondering why Next appears instead of Submit — mark ending pages as terminal.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Submit still visible when Hide submit matches">
+    Expected. Fill keeps Next/Submit visible; use Require or Jump for real gates.
+  </Accordion>
+  <Accordion title="Cannot continue on a step">
+    Check required fields on that page (including logic **Require answer**).
+  </Accordion>
+  <Accordion title="Next instead of Submit on an ending">
+    Mark the page as terminal in Studio, or ensure the path lands on a terminal page.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Require answer](/features/studio/logic/actions/require-answer) · [Jump to page](/features/studio/logic/actions/jump-to-page) · [How logic works](/features/studio/logic/overview)
+</Panel>

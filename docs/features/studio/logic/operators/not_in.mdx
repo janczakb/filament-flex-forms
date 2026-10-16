@@ -1,0 +1,144 @@
+---
+title: "Is none of"
+description: "When clause operator: The answer is not any of these values."
+icon: "list-x"
+keywords: ["logic", "operator", "not_in", "condition", "when"]
+---
+
+**Is none of** checks that the answer is **not equal to any** value in your block-list — exclusion routing for regions, plans, or forbidden roles.
+
+Requires a **non-blank answer** on choice fields. Blank never matches.
+
+---
+
+## When to choose this
+
+| Goal | Use **Is none of** | Use something else instead |
+|------|-------------------|----------------------------|
+| Forbid several specific choices | ✓ | Multiple **Not equals** in **All** group |
+| Allow-list | ✗ | **[Is any of](/features/studio/logic/operators/in)** |
+| Blank / skipped | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Multi-select missing all listed | ✗ | Different semantics — test on Fill; often **Does not contain** per option |
+
+---
+
+## Exact behavior
+
+- **Choice fields only.**
+- Non-empty block-list required.
+- Requires non-blank source answer — fail-closed like [Not equals](/features/studio/logic/operators/neq).
+- **Single-select:** true when the selected value is not in your list.
+- **Multi-select:** true when **none** of the selected options appear in your list. If they pick any forbidden chip, the clause fails.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Choice | ✓ |
+| Text, number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.**
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick choice field">
+  </Step>
+  <Step title="Choose Is none of">
+  </Step>
+  <Step title="Add forbidden option chips">
+    Values that should **not** trigger this branch’s inverse — i.e. rule fires when answer is outside list.
+  </Step>
+  <Step title="Add Then actions">
+    e.g. international shipping when country **is none of** `US, CA`.
+  </Step>
+  <Step title="Test listed vs unlisted vs blank on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### International shipping
+
+> **When** Country **is none of** `US, CA` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `International shipping`
+
+US or CA does not match; blank does not match either.
+
+### Non-enterprise plans
+
+> **When** Plan **is none of** `Enterprise` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `SSO configuration`
+
+Requires Plan answered and not Enterprise.
+
+### Restricted roles blocked
+
+> **When** Role **is none of** `Guest, Viewer` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Edit permissions`
+
+### Tag exclusion
+
+> **When** Tags **is none of** `Internal, Staff` → **Then** public survey path
+
+On multi-select: fires when **none** of selected tags are Internal or Staff.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Pick forbidden value">
+    Rule off.
+  </Step>
+  <Step title="Pick allowed value">
+    Rule on.
+  </Step>
+  <Step title="Multi-select: one forbidden tag">
+    Rule off.
+  </Step>
+  <Step title="Blank">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting blank to route internationally — add **Is empty** rule.
+- Confusing with **Not equals** single value — **Is none of** is the multi-value block-list.
+- Empty chip list — never matches.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Blank should show international block">
+    Add parallel **Is empty → Show** or **Require Country** first.
+  </Accordion>
+  <Accordion title="Multi-select partial forbidden">
+    Selecting one forbidden option blocks match — intended block-list semantics.
+  </Accordion>
+  <Accordion title="Opposite of Is any of">
+    **Is none of** `{A,B}` is not exactly negation of **Is any of** `{A,B}` for blank — blank fails both.
+  </Accordion>
+  <Accordion title="Value mismatch">
+    Confirm chip values match option storage, not display labels only.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Is any of](/features/studio/logic/operators/in) · [Not equals](/features/studio/logic/operators/neq) · [Is empty](/features/studio/logic/operators/empty) · [How logic works](/features/studio/logic/overview)
+</Panel>

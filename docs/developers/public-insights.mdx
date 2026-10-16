@@ -1,0 +1,97 @@
+---
+title: "Public Insights URLs"
+description: "The share-token routes behind Share Insights — request shape, password auth, and the JSON response."
+icon: "globe"
+keywords: ["public insights", "share token", "json", "insights api"]
+---
+
+Every [Share Insights](/guides/share-insights) link resolves to a token-scoped route that renders an HTML report by default, or JSON with `?format=json` / an `Accept: application/json` header.
+
+## Routes
+
+<Table>
+  <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>GET</td><td><code>/flex-forms/insights/share/{token}</code></td><td>Render the shared report (HTML or JSON)</td></tr>
+    <tr><td>POST</td><td><code>/flex-forms/insights/share/{token}/unlock</code></td><td>Submit a password to unlock a protected share for the current session</td></tr>
+  </tbody>
+</Table>
+
+Both routes are rate-limited (60 requests/minute) and public — no auth token or cookie is required beyond the share token itself and, if set, the password.
+
+<CodeGroup>
+```bash title="Fetch a JSON payload"
+curl "https://your-app.test/flex-forms/insights/share/TOKEN?format=json&range=30d"
+```
+
+```bash title="Unlock a password-protected share"
+curl -X POST "https://your-app.test/flex-forms/insights/share/TOKEN/unlock" \
+  -H "Content-Type: application/json" \
+  -d '{"password": "the-password"}'
+```
+
+```bash title="Or pass the password directly on a JSON GET"
+curl "https://your-app.test/flex-forms/insights/share/TOKEN?format=json" \
+  -H "X-Insights-Password: the-password"
+```
+</CodeGroup>
+
+<ParamField query="range" type="string" default="7d">
+  A preset range key (e.g. `7d`, `30d`) or use with `from`/`to` for a custom range.
+</ParamField>
+<ParamField query="from" type="string">
+  Custom range start (ISO date), used together with `to`.
+</ParamField>
+<ParamField query="to" type="string">
+  Custom range end (ISO date).
+</ParamField>
+<ParamField query="filters" type="object">
+  The same Insights filter shape used in the Filament panel (device, country, referrer, UTM, …).
+</ParamField>
+
+<ResponseField name="share" type="object">
+  `token`, `allowed_tabs` (subset of `answers`/`visits`/`dropoffs`), `expires_at`, `password_protected`.
+</ResponseField>
+<ResponseField name="form" type="object">
+  `id` and `name` of the source form.
+</ResponseField>
+<ResponseField name="kpis" type="object">
+  Only the KPIs relevant to `allowed_tabs` are populated — everything else is zeroed/emptied server-side, not just hidden client-side.
+</ResponseField>
+
+<Expandable title="Example JSON response (answers-only share)">
+```json
+{
+  "kpis": { "visits": 0, "starts": 0, "submissions": 128, "conversion_rate": 0 },
+  "answers": [
+    { "field_key": "plan", "label": "Which plan?", "kind": "choice", "answers_count": 128 }
+  ],
+  "series": [],
+  "breakdowns": { "devices": [], "browsers": [], "countries": [] },
+  "funnel": [],
+  "share": { "token": "TOKEN", "allowed_tabs": ["answers"], "expires_at": null, "password_protected": false },
+  "form": { "id": 42, "name": "Customer feedback" }
+}
+```
+</Expandable>
+
+<Warning>
+Passwords are never accepted via the query string — only a JSON/form body field, the `X-Insights-Password` header, or an `Authorization: Bearer` header. Failed attempts are rate-limited per token + IP and return `429` once exceeded.
+</Warning>
+
+<Note>
+An invalid or expired token always returns `404` — Flex Forms does not distinguish "wrong token" from "expired token" in the response, to avoid leaking which is the case.
+</Note>
+
+<AccordionGroup>
+  <Accordion title="Does unlocking persist across requests?">
+    Yes, for the browser session that unlocked it (cookie-based). A fresh `curl` request or a different session must supply the password again.
+  </Accordion>
+  <Accordion title="Can I build my own dashboard against this?">
+    Yes — the JSON shape is stable per allowed tab; poll it on an interval or fetch it server-side and cache it yourself.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+**Next:** [Share Insights](/guides/share-insights) · [Reading Insights](/guides/reading-insights) · [OpenAPI beacon](/developers/openapi-beacon)
+</Panel>

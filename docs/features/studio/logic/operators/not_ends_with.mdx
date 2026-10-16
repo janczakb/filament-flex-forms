@@ -1,0 +1,135 @@
+---
+title: "Does not end with"
+description: "When clause operator: The text does not finish with this suffix."
+icon: "text-quote"
+keywords: ["logic", "operator", "not_ends_with", "condition", "when"]
+---
+
+**Does not end with** checks that text **does not finish with** your suffix — block alternate domains, extensions, or regional codes.
+
+Requires a **non-blank text answer**.
+
+---
+
+## When to choose this
+
+| Goal | Use **Does not end with** | Use something else instead |
+|------|--------------------------|----------------------------|
+| Text lacks suffix | ✓ | **Not equals** for whole string |
+| Blank field | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Has suffix | ✗ | **[Ends with](/features/studio/logic/operators/ends_with)** |
+| Substring absent anywhere | ✗ | **[Does not contain](/features/studio/logic/operators/not_contains)** |
+
+---
+
+## Exact behavior
+
+- Text only; non-blank source required.
+- Non-empty expected suffix required.
+- Case-insensitive suffix negation.
+- Blank source → never matches.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| All other families | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.**
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select text field">
+  </Step>
+  <Step title="Choose Does not end with">
+  </Step>
+  <Step title="Enter excluded suffix">
+    e.g. `.tmp`, `@gmail.com`
+  </Step>
+  <Step title="Add Then actions">
+  </Step>
+  <Step title="Test on Fill">
+    Answered non-match vs blank vs matching suffix.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Require work email (not consumer)
+
+> **When** Email **does not end with** `@gmail.com` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Company verification`
+
+Add separate validation if blank should fail — **Does not end with** ignores blank.
+
+### Block temporary extension
+
+> **When** Filename **does not end with** `.tmp` → **Then** allow submit path
+
+### Non-EU product codes
+
+> **When** SKU **does not end with** `-EU` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `EU compliance`
+
+### Partner exclusion
+
+> **When** Referral code **does not end with** `-INTERNAL` → **Then** public rewards flow
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Matching suffix">
+    Rule off.
+  </Step>
+  <Step title="Other suffix or none">
+    Rule on when answered.
+  </Step>
+  <Step title="Blank">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using for “not a gmail OR blank” without **Is empty** clause.
+- Suffix typos (`.PDF` vs `.pdf`) — case-insensitive but extension must match characters.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Consumer email still passes">
+    Subdomain emails may not end with `@gmail.com` — add **Contains** clauses or validation message.
+  </Accordion>
+  <Accordion title="Blank skips rule">
+    Add **Is empty → Hide** or **Require** as needed.
+  </Accordion>
+  <Accordion title="Multiple banned suffixes">
+    **Any** group with multiple clauses or custom validation copy on canvas.
+  </Accordion>
+  <Accordion title="Rich text trailing tags">
+    HTML may alter perceived suffix — test Fill output.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Ends with](/features/studio/logic/operators/ends_with) · [Does not contain](/features/studio/logic/operators/not_contains) · [How logic works](/features/studio/logic/overview)
+</Panel>

@@ -1,0 +1,162 @@
+---
+title: "Not equals (is not)"
+description: "When clause operator: The answer is anything except this value."
+icon: "equal-not"
+keywords: ["logic", "operator", "neq", "condition", "when"]
+---
+
+**Not equals** checks whether the respondent’s answer **differs** from the value you provide — any other choice, number, text, or yes/no state counts as a match.
+
+Use it for exclusion branches: “Plan is not Free”, “Country is not US”, “They did not pick Other”. It requires an **actual answer** — blank fields never match.
+
+---
+
+## When to choose this
+
+| Goal | Use **Not equals** | Use something else instead |
+|------|-------------------|----------------------------|
+| Any answer except one specific value | ✓ | — |
+| Field left blank / skipped | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Block-list of several values | ✗ | **[Is none of](/features/studio/logic/operators/not_in)** |
+| Exact multi-select “not this exact set” | ✗ | **[Not equals set](/features/studio/logic/operators/neq_set)** |
+| Text does not include substring | ✗ | **[Does not contain](/features/studio/logic/operators/not_contains)** |
+| Number below a threshold | ✗ | **[Less than](/features/studio/logic/operators/lt)** |
+
+<Note>
+  Older forms may label this operator **Is not** — behavior is identical to **Not equals**.
+</Note>
+
+---
+
+## Exact behavior
+
+- Requires a **non-blank answer** on the source field — null, `""`, and `[]` **never match** (fail-closed, same as **Equals**).
+- Uses the same flexible matching as [Equals](/features/studio/logic/operators/eq): string normalization, yes/no aliases, multi-select set comparison.
+- If your comparison value is blank or missing, the clause **never matches**.
+- **Multi-select:** matches when the selected set is **not exactly** the expected set (order ignored).
+
+---
+
+## Which field types
+
+| Family | Available | Notes |
+|--------|-----------|-------|
+| Text | ✓ | Any text except exact match |
+| Number | ✓ | Any number except the threshold |
+| Date & time | ✓ | Any date except the one specified |
+| Choice (single or multi) | ✓ | |
+| Yes / no (toggle, checkbox) | ✓ | e.g. **Not equals** `Yes` when unchecked |
+| Presence (uploads, signature, …) | — | Use empty / not empty operators |
+| Default fallback | ✓ | |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** This surprises many builders: **Not equals Free** does **not** fire when the Plan field is blank — the engine treats unanswered fields as “no comparison yet”, not “anything except Free”.
+
+Always pair exclusion logic with a separate **Is empty** rule if you need a third path for skipped fields.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    Open **Logic** → **Rules**, or **Branch** / **Add condition** on a field — expand **When**.
+  </Step>
+  <Step title="Pick the source field">
+    Select the field to test (e.g. **Plan**, **Country**).
+  </Step>
+  <Step title="Choose Not equals">
+    Select **Not equals** (or **Is not**) from the operator list.
+  </Step>
+  <Step title="Enter the excluded value">
+    Type or pick the one value that should **not** trigger this branch.
+  </Step>
+  <Step title="Add Then actions">
+    Common pairings: [Hide blocks](/features/studio/logic/actions/hide-blocks) for irrelevant sections, [Jump to page](/features/studio/logic/actions/jump-to-page) for alternate flows.
+  </Step>
+  <Step title="Preview on Fill">
+    Test with the excluded value, a different value, and a blank field.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Hide enterprise-only section
+
+> **When** Plan **is not** `Enterprise` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `SSO details, Audit log`
+
+Fires for Starter and Pro — but **not** when Plan is still blank on first load.
+
+### International shipping path
+
+> **When** Country **is not** `US` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `International shipping`
+
+Combine with **When Country is empty → Hide international shipping** if you want three distinct paths.
+
+### “Other” follow-up cleanup
+
+> **When** Industry **is not** `Other` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Please specify industry`
+
+Hides the free-text follow-up whenever they pick a preset industry.
+
+### Toggle off path
+
+> **When** “Subscribe to newsletter” **is not** `Yes` → **Then** [Make optional](/features/studio/logic/actions/make-optional) `Email preferences`
+
+Yes/no fields work well with **Not equals** for the unchecked state.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Pick the excluded value">
+    Select exactly the value in your rule — **Then** should **not** run.
+  </Step>
+  <Step title="Pick any other valid value">
+    **Then** should activate.
+  </Step>
+  <Step title="Leave the field blank">
+    Confirm **Then** does **not** run — add **Is empty** if you need blank handling.
+  </Step>
+  <Step title="Change answers back and forth">
+    Visibility and requirements should update live without stale state.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting **Not equals X** to mean “empty or anything but X” — blank never matches; add **Is empty**.
+- Using **Not equals** for a list of forbidden values — use **Is none of** with multiple chips.
+- Hiding a follow-up with **Not equals Other** but forgetting to **Show** it when they **do** pick Other (use paired rules in **Rules** or **Branch**).
+- Comparing against the wrong option value (label vs stored value).
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires on blank — I wanted it to">
+    By design. Add **When field is empty → Then …** as a sibling rule or use **Any** match mode across two clauses.
+  </Accordion>
+  <Accordion title="Rule fires on blank in Fill">
+    Unlikely with **Not equals** — check you did not mean **Is not empty** or another operator. Inspect whether a default value pre-fills the field.
+  </Accordion>
+  <Accordion title="Multi-select not behaving">
+    **Not equals** compares full sets. For “does not include option X”, use **Does not contain** on choice fields.
+  </Accordion>
+  <Accordion title="Two rules fight (Show vs Hide)">
+    Last matching rule wins. Reorder Logic Board rules or narrow **When** clauses so only one applies per answer state.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Equals](/features/studio/logic/operators/eq) · [Is none of](/features/studio/logic/operators/not_in) · [Is empty](/features/studio/logic/operators/empty) · [How logic works](/features/studio/logic/overview)
+</Panel>

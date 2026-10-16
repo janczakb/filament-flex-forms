@@ -1,0 +1,312 @@
+---
+title: "HubSpot CRM Integration"
+description: "A comprehensive, enterprise-grade guide to instantly syncing Flex Forms submissions to HubSpot as Contacts, Companies, and Deals."
+icon: "hubspot"
+keywords: ["hubspot", "crm", "contacts", "marketing", "leads", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand the data payloads and available object relationships, please read the [Official HubSpot Forms API Documentation](https://developers.hubspot.com/docs/api/marketing/forms).
+</Banner>
+
+The **HubSpot** integration is an enterprise-grade pipeline designed to seamlessly route form submissions into your marketing ecosystem. Instead of relying on fragile Zapier connections, this integration allows Flex Forms to automatically generate structured `Contact` records, update their properties, and trigger advanced Marketing Hub workflows the exact second a user clicks submit.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Automated Lead Generation" icon="funnel-dollar">
+    When a prospect fills out a "Contact Sales" form on your website, Flex Forms instantly creates a new Contact in HubSpot. You can simultaneously map hidden UTM parameters so your marketing team knows exactly which ad campaign generated the lead, triggering your sales outreach SLA.
+  </Card>
+  <Card title="Marketing Workflow Triggers" icon="robot">
+    By mapping specific dropdown selections (e.g., "Company Size") directly to HubSpot Contact Properties, you can trigger highly complex, conditional email drip campaigns in HubSpot the moment the data arrives.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+To establish a secure, authenticated connection between Flex Forms and your HubSpot environment, you must generate a **Private App Access Token**. Follow these exact, step-by-step instructions carefully to ensure a successful integration. (HubSpot deprecated legacy API keys in 2022).
+
+<Steps>
+  <Step title="Step 1: Log into your HubSpot Dashboard">
+    Open your web browser and navigate to your HubSpot portal (e.g., `https://app.hubspot.com`). Enter your credentials to log in. 
+    
+    *Note: You must have Super Admin privileges in HubSpot to create Private Apps.*
+  </Step>
+  
+  <Step title="Step 2: Locate the Settings Gear">
+    Once you are logged into the main dashboard, look at the absolute **top right corner** of your screen, right next to your profile picture. You will see a **gear icon** (Settings). Click it.
+  </Step>
+  
+  <Step title="Step 3: Navigate to Private Apps">
+    On the Settings page, look at the **left-hand sidebar menu**. Scroll down until you find the **Integrations** section. Expand it, and click exactly on the link labeled **Private Apps**.
+  </Step>
+  
+  <Step title="Step 4: Initiate App Creation">
+    You are now on the Private Apps management page. In the top right area, click the prominent orange button labeled **Create a private app**. This will open a configuration screen.
+  </Step>
+  
+  <Step title="Step 5: Configure Basic Info">
+    In the "Basic Info" tab, you must provide a **Name**. Type exactly: `Flex Forms Production Integration`. You can also upload the Flex Forms logo here so your team knows what this app is for.
+  </Step>
+
+  <Step title="Step 6: Grant Scopes (Crucial Step)">
+    Click on the **Scopes** tab at the top. You MUST search for and check the boxes for the following permissions:
+    - `crm.objects.contacts.write`
+    - `crm.objects.contacts.read`
+    
+    <Callout type="critical">
+      **CRITICAL WARNING:** Without these exact scopes, Flex Forms will not have permission to create or read contacts, and the API will return a 401 Unauthorized error.
+    </Callout>
+  </Step>
+  
+  <Step title="Step 7: Generate and Secure the Token">
+    Click the **Create app** button in the top right. A warning modal will appear; click **Continue creating**. Finally, click **Show token**.
+    
+    Highlight the entire long string of text, right-click, and select **Copy** (or press `Ctrl+C` / `Cmd+C`). Keep this safe, as HubSpot will only show it to you once.
+  </Step>
+  
+  <Step title="Step 8: Create a Connection (recommended)">
+    Leave HubSpot open and switch to Flex Forms → **Integrations** → **Connections**.
+    1. Create a **HubSpot** connection and label it (for example `Production portal`).
+    2. Paste the Private App token into the connection credentials.
+    3. Connect so the status shows **Connected**.
+  </Step>
+
+  <Step title="Step 9: Optional Catalog fallback">
+    For a single shared portal only, open Integrations → Catalog → **HubSpot**, paste the token, and save. Prefer Connections when you may add another portal later.
+  </Step>
+</Steps>
+
+### Wire the form feed
+
+1. Open the form in Studio → hub **Integrations** → **HubSpot**.
+2. Enable the feed and pick your **Connection**.
+3. Map fields / forms as needed, then save.
+
+### Inbound (CRM → Flex Forms)
+
+HubSpot can call Flex Forms when a contact changes. Configure the inbound webhook secret on the same Connection or Catalog credentials, then point HubSpot at:
+
+`POST /flex-forms/integrations/hubspot/webhook`
+
+Matching contacts update name fields and last-seen timestamps in Flex Forms Contacts (not a full CRM mirror).
+
+---
+
+## Masterclass: Mapping Data Payloads
+
+Establishing the connection is only half the battle. Now, you must instruct Flex Forms on exactly how to translate your form fields into HubSpot's specific database architecture.
+
+By default, Flex Forms will automatically map your primary `Email Block` to HubSpot's core `email` property. Everything else must be explicitly mapped using HubSpot's **Internal Names**.
+
+<Tabs>
+  <Tab title="Standard Field Mapping">
+    You define these mappings on the form hub **Integrations** tab.
+    
+    The format is always: `hubspot_internal_name=flex_forms_block_name`
+    
+    Here are the most common standard HubSpot keys you will use:
+    - `firstname` (The person's first name)
+    - `lastname` (The person's last name)
+    - `phone` (Their mobile number)
+    - `company` (The company they work for)
+    - `website` (Their company URL)
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    If you have a Short Text block named `first_name_input` and a Phone block named `user_phone`, your mapping configuration would look exactly like this:
+    
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      firstname=first_name_input
+      lastname=last_name_input
+      phone=user_phone
+      company=company_name
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How Custom Properties Work in HubSpot
+
+If you created a custom property in HubSpot (e.g., "Favorite Color"), you must map to its exact Internal Name.
+
+<Tree>
+  <Tree.Folder name="Finding HubSpot Internal Names" defaultOpen>
+    <Tree.File name="1. Go to HubSpot Settings > Properties" />
+    <Tree.File name="2. Click on your custom property (e.g., 'Favorite Color')" />
+    <Tree.File name="3. Look for the '<> button' (Source code icon) next to the name" />
+    <Tree.File name="4. Copy the Internal Name (e.g., 'favorite_color_custom')" />
+    <Tree.File name="5. Map it: favorite_color_custom=favorite_color_field" />
+  </Tree.Folder>
+</Tree>
+
+<Callout type="warning">
+  **The Label Trap:** Never use the human-readable Label from HubSpot. If your HubSpot property is labeled "Job Title", its internal name is actually `jobtitle`. If you try to map `Job Title=job_title`, the API will instantly reject the payload.
+</Callout>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+Even with a perfect setup, enterprise environments can experience edge cases. Here is how to diagnose and resolve them.
+
+<AccordionGroup>
+  <Accordion title="API Error: 401 Unauthorized">
+    **The Problem:** The form submission failed, and the server logs show a `401 Unauthorized` error returned by HubSpot.
+    
+    **The Solution:** You likely copied a legacy HubSpot API Key instead of generating a modern Private App Token. HubSpot completely disabled legacy API keys in November 2022. You must go back to Step 3 and create a Private App to get a valid token.
+  </Accordion>
+  <Accordion title="API Error: Property does not exist">
+    **The Problem:** You get a 400 Bad Request error stating that a property does not exist.
+    
+    **The Solution:** You have a typo in your Field Mapping, or you used the human-readable Label instead of the Internal Name. Check your spelling against HubSpot's internal property names (e.g., use `firstname`, not `first_name`).
+  </Accordion>
+  <Accordion title="Duplicate Contact Management">
+    **The Problem:** You are worried that if the same person fills out the form twice, it will create two messy duplicate records in HubSpot.
+    
+    **The Solution:** You don't need to worry. Flex Forms relies on HubSpot's core deduplication logic. HubSpot uses the email address as the primary unique identifier. When a submission is processed, if HubSpot finds an existing Contact with that exact email address, it safely updates their existing properties with the new data instead of creating a duplicate.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="access_token" type="password" required>
+  **Private App access token**
+  The OAuth token used to authenticate with HubSpot. You must generate this from HubSpot → Settings → Integrations → Private Apps.
+  <Callout type="warning">
+    **Required Scopes:** Ensure your token is granted `crm.objects.contacts.write` and `crm.objects.contacts.read` permissions.
+  </Callout>
+</ParamField>
+
+<ParamField path="portal_id" type="text" >
+  **Portal ID (Hub ID)**
+  Optional. Flex Forms automatically detects your Hub ID via the API `account-info` endpoint. You only need to provide this manually if you have multiple nested Portals and the API detects the wrong one.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Form Mapping & Creation
+<ParamField path="form_guid" type="remote_select" >
+  **HubSpot form**
+  Select an existing form directly from your HubSpot account to pipe data into. If left blank, Flex Forms can automatically generate a matching form in HubSpot for you.
+</ParamField>
+
+<ParamField path="auto_create_form" type="select" default="1" >
+  **Auto-create HubSpot form**
+  If enabled and `form_guid` is empty, Flex Forms will use the HubSpot API to dynamically generate a new form inside your HubSpot account the very first time a user submits this Flex Form.
+  
+  **Options:**
+  - `1`: Yes — create when GUID is empty
+  - `0`: No — require selecting an existing form manually
+</ParamField>
+
+<ParamField path="hs_form_name" type="text" >
+  **HubSpot form name**
+  The exact name applied to the auto-created HubSpot form. If left blank, it defaults to the title of your Flex Form.
+</ParamField>
+
+#### Contact Processing
+
+<ParamField path="contact_creation_behavior" type="select" default="default" >
+  **Always create contact for new email**
+  Determines how HubSpot's backend processes the submission.
+  
+  **Options:**
+  - `default`: Relies on your global HubSpot account deduplication settings.
+  - `enabled`: Forces the creation of a brand new contact record, bypassing deduplication.
+  - `disabled`: Updates an existing contact if found, but drops the payload if the contact does not already exist.
+</ParamField>
+
+<ParamField path="email_field" type="select" required>
+  **Email field**
+  Select the block that collects the respondent's primary email. Required for HubSpot deduplication.
+</ParamField>
+
+<ParamField path="firstname_field" type="select">
+  **First name field**
+</ParamField>
+
+<ParamField path="lastname_field" type="select">
+  **Last name field**
+</ParamField>
+
+<ParamField path="phone_field" type="select">
+  **Phone field**
+</ParamField>
+
+<ParamField path="company_field" type="select">
+  **Company field**
+</ParamField>
+
+<ParamField path="lifecycle_stage_field" type="select" >
+  **Lifecycle stage field**
+  Map a specific form block (e.g. a dropdown) directly to HubSpot's internal `lifecyclestage` property (e.g., `subscriber`, `lead`, `marketingqualifiedlead`, `customer`).
+</ParamField>
+
+<ParamField path="field_map" type="textarea" >
+  **Additional contact properties**
+  The core mapping engine for custom properties. You must use exact internal HubSpot property names.
+  *Format: One per line as `hubspot_internal_name=flex_forms_block_name`.*
+</ParamField>
+
+<ParamField path="property_catalog" type="remote_select" >
+  **Available properties (reference)**
+  Loaded live from your HubSpot account. Use this dropdown to find the correct internal property names to use in the `field_map` above.
+</ParamField>
+
+#### Advanced Owner Routing
+<ParamField path="owner_mode" type="select" default="none" >
+  **Contact owner mode**
+  Allows you to automatically assign a HubSpot user (Owner) to the newly created contact, bypassing the need for complex HubSpot workflows.
+  
+  **Options:**
+  - `none`: Do not assign an owner.
+  - `select`: Assign a fixed owner to all submissions from this form.
+  - `conditional`: Use logic rules to assign different owners based on how the user answered the form.
+</ParamField>
+
+<ParamField path="owner_id" type="remote_select" >
+  **Contact owner**
+  Select the specific HubSpot user (e.g., "John Salesman") to assign to all contacts. *Requires `owner_mode` to be set to `select`.*
+</ParamField>
+
+<ParamField path="owner_rules" type="textarea" >
+  **Conditional owner rules**
+  The routing engine for conditional owner assignment. Provide one rule per line using the exact format: `owner_id|field|operator|value`.
+  
+  *Example:* `55|country_dropdown|=|United States` (If they select US, assign to Owner ID 55).
+  
+  Supported operators: `=`, `!=`, `contains`, `>`, `<`
+</ParamField>
+
+#### Telemetry & Tracking
+
+<ParamField path="hutk_field" type="select" >
+  **HUTK field**
+  Map to a form field that stores the HubSpot tracking cookie (`hubspotutk`) if you capture it manually (often a text field with **Hide** enabled so respondents never see it).
+</ParamField>
+
+<ParamField path="disable_cookie_submission" type="select" default="0" >
+  **Exclude hutk cookie**
+  By default, Flex Forms extracts the `hubspotutk` cookie from the user's browser and attaches it to the API payload, allowing HubSpot to tie the submission to their browsing history. Use this setting to disable tracking for strict GDPR compliance.
+</ParamField>
+
+<ParamField path="page_uri" type="text" >
+  **Submission page URI**
+  The URL where the form was submitted. Overrides the automatically detected URL sent to HubSpot analytics.
+</ParamField>
+
+<ParamField path="page_name" type="text" >
+  **Submission page name**
+  The title of the page where the form was submitted. Overrides the automatically detected page title sent to HubSpot analytics.
+</ParamField>

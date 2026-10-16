@@ -1,0 +1,13 @@
+# Public Help Center repo — no Composer package tree.
+# Keep Dependabot + cooldown so Filament package-health checks pass.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 3

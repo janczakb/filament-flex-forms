@@ -1,0 +1,107 @@
+---
+title: "URL Parameter Prefilling"
+description: "Prefill fields from query parameters on Standard embed and Popup routes — not on the plain fill link."
+icon: "link"
+keywords: ["query parameters", "prefill", "url parameters", "hidden fields", "embed"]
+boost: 2
+---
+
+If you already know a respondent's email address or name (because they are clicking a link from your CRM or email newsletter), you should never force them to type it again.
+
+Flex Forms **prefills** inputs automatically when query parameters match a field's internal name — **on embed and popup routes only**. The plain (non-embed) fill link does not read prefill params.
+
+## How Prefilling Works
+
+<Steps>
+  <Step title="Locate the Internal Name">
+    Open the [Field Settings](/features/studio/field-settings) for the block you want to prefill. Look for the **Internal Name** at the very top of the panel (e.g., `email_address`). This is the programmatic key.
+  </Step>
+  <Step title="Use an embed or popup URL">
+    Prefill only runs when the form is loaded as an **embed** or **popup** (not the standalone fill link). Append `?` followed by the Internal Name, an `=`, and the value.
+    *Example:* `https://yoursite.com/forms/contact/embed?email_address=jane@example.com`
+  </Step>
+  <Step title="Chain Multiple Parameters">
+    You can prefill multiple fields simultaneously by separating them with an `&`.
+    *Example:* `...?email_address=jane@example.com&company=AcmeCorp`
+  </Step>
+</Steps>
+
+<Callout type="info">
+  **Validation Still Applies:** Prefilling a field does not bypass security. If you prefill an Email block with the string `"not_an_email"`, the block will still throw a validation error when the user attempts to submit, exactly as if they had typed it manually.
+</Callout>
+
+<Warning>
+  Prefill does **not** run on the plain fill link (`/forms/your-slug`). If you need prefill on a shared URL, use a [Standard embed](/features/share/embed-modes) (or Popup) and put the query string on the embed/popup URL.
+</Warning>
+
+---
+
+## Silent Prefilling
+
+If you want to track UTM parameters (e.g., `?utm_source=twitter`) or internal CRM Account IDs without exposing them to the respondent:
+
+1. Add a text (or other scalar) block whose internal **Name** matches the query key (e.g. `utm_source`).
+2. Open field settings and use **Hide** so the field is hidden from respondents.
+
+Query values still prefill that field and appear in the submission — respondents never see the input.
+
+---
+
+## Reserved System Parameters
+
+Flex Forms uses a few specific Query Parameters internally to control how embedded forms render. **Do not** name any of your blocks with these exact strings, as it will cause conflicts.
+
+<Table>
+  <thead>
+    <tr>
+      <th>Reserved Key</th>
+      <th>System Function</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`hideTitle`</td>
+      <td>Instructs the embed to hide the form's main header.</td>
+    </tr>
+    <tr>
+      <td>`alignLeft`</td>
+      <td>Overrides centering to flush the form to the left margin.</td>
+    </tr>
+    <tr>
+      <td>`transparentBackground`</td>
+      <td>Removes the form's canvas background color.</td>
+    </tr>
+    <tr>
+      <td>`dynamicHeight`</td>
+      <td>Auto-resize the iframe to content height.</td>
+    </tr>
+    <tr>
+      <td>`preview`</td>
+      <td>Request preview mode (requires a valid signed URL or authenticated Studio viewer).</td>
+    </tr>
+    <tr>
+      <td>`popup`</td>
+      <td>Internal popup-routing flag.</td>
+    </tr>
+    <tr>
+      <td>`formEventsForwarding`</td>
+      <td>Forward fill lifecycle events via `postMessage`.</td>
+    </tr>
+  </tbody>
+</Table>
+
+<AccordionGroup>
+  <Accordion title="Why doesn't prefill work on the plain fill link?">
+    Prefill-from-query only runs for the embed and popup routes. If you need prefill on a direct link, wrap it in a Standard embed instead.
+  </Accordion>
+  <Accordion title="Can I prefill complex blocks?">
+    No. Prefilling is designed for standard scalar data (Short Text, Long Text, Numbers, Emails, Phones, Dates, and Choice Blocks). You cannot prefill complex binary arrays like File Uploads, Signatures, or full Matrix Grids via URL parameters.
+  </Accordion>
+  <Accordion title="Does prefilling lock the field?">
+    No. A prefilled field behaves exactly like a typed field. The respondent is free to delete your prefilled value and type something else before submitting. If you want to prevent them from changing it, you must use the [Logic Board](/features/studio/logic-board) to mark the field as **Read-Only**.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Related:** [Developer query params](/developers/query-params) · [Field settings](/features/studio/field-settings) · [Embed modes](/features/share/embed-modes)
+</Panel>

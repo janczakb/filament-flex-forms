@@ -1,0 +1,24 @@
+---
+title: "Harbor Knowledge Quiz recipe"
+description: "Recipe: scored quiz with Calculate, Pass / Fail jumps, and score on thank you."
+icon: "graduation-cap"
+keywords: ["harbor", "quiz", "calculate", "score", "recipe", "thank you"]
+---
+
+**Harbor Knowledge Quiz** is a logic recipe for scored quizzes: five questions, a running score via **Calculate**, jump to Pass or Fail, then show the final score on thank you. Public Fill never shows the Calculated Score field itself.
+
+## What you get
+
+- Multi-page Q&A with radio choices
+- **Calculate** rules that add points into a `score` field
+- Pass / Fail **terminal** pages based on the score threshold
+- Thank-you copy with `{score}` merge tag (e.g. `Final score: {score}/100`)
+
+## How to build it
+
+1. **Create form**, then add quiz pages and a calculated **Score** field (name `score`)
+2. Add **Calculate** rules for points and **Jump to page** for Pass / Fail thresholds
+3. On the thank-you screen, write a message that includes `{score}`
+4. Publish when ready — Insights will track starts and completions like any other form
+
+See also: [Building quizzes](/guides/quiz-recipe) · [Calculate](/features/studio/logic/actions/calculate) · [Jump to page](/features/studio/logic/actions/jump-to-page)

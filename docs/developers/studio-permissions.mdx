@@ -1,0 +1,118 @@
+---
+title: "Studio permissions (RBAC)"
+description: "Optional Spatie / Gate roles for every Studio action — create, edit, publish, export, Insights, Contacts, integrations, and more."
+icon: "shield-check"
+keywords: ["permissions", "roles", "spatie", "RBAC", "authorize", "team access"]
+---
+
+Flex Forms Studio ships with enterprise RBAC. **Spatie Permission is optional** — you never have to install it. Without it (or before you seed permission rows), authenticated panel users keep full Studio access, exactly as before.
+
+Every sensitive action is enforced on the **server** (Livewire, policies, export routes). The UI only hides buttons so teammates never see actions they cannot perform.
+
+---
+
+## What you can gate
+
+| Area | Examples |
+|------|----------|
+| Forms | View list, open Studio, create, rename, duplicate, delete, publish, design uploads |
+| Submissions | View inbox, delete one / bulk, export CSV |
+| Contacts | View directory, delete, export |
+| Transactions | View payment ledger, export CSV, refund |
+| Insights | View analytics, share links, export events |
+| Integrations | Open rail, change configs |
+| Workspace | Global Settings, Support, Global Stats |
+
+Permission names default to Filament Guardian style (`Create:FlexForm`, `Export:FlexFormSubmission`, …). Remap them in config if your Shield / custom roles use different strings.
+
+<Warning>
+  **Multi-admin hosts:** Without Spatie permission rows or an `authorize` callback, every authenticated panel user keeps full Studio access on the **server** (BC default). The Studio UI fails closed for missing permission keys in the bootstrap payload. For teams with more than one admin, configure Spatie / Shield (or `FilamentFlexFormsPlugin::authorizeAbilityUsing`) and consider `FLEX_FORMS_PERMISSIONS_STRICT=true` so missing grants deny instead of allow.
+</Warning>
+
+---
+
+## Three ways to authorize
+
+<Tabs>
+  <Tab title="Optional Spatie">
+    Install [`spatie/laravel-permission`](https://github.com/spatie/laravel-permission) if you want it, seed the mapped permission names, and assign them to roles.
+
+    Flex Forms only enforces a Spatie name **after that permission exists in your database**. Until you seed Flex Forms permissions, nothing locks out your team (safe rollout).
+
+    ```bash
+    # Optional — turn the Spatie path off entirely
+    FLEX_FORMS_PERMISSIONS_SPATIE=false
+    ```
+  </Tab>
+  <Tab title="Plugin callback">
+    Best for multi-tenant apps — decide per user / form without Spatie:
+
+    ```php
+    use Bjanczak\FilamentFlexForms\FilamentFlexFormsPlugin;
+    use Bjanczak\FilamentFlexForms\Support\Permissions\StudioAbility;
+
+    FilamentFlexFormsPlugin::make()
+        ->authorizeAbilityUsing(function (StudioAbility $ability, $user, $form): ?bool {
+            if ($ability === StudioAbility::ManageSettings) {
+                return $user->isAdmin();
+            }
+
+            // null = continue to Spatie / default allow
+            return null;
+        });
+    ```
+  </Tab>
+  <Tab title="Config callback">
+    Same idea via `config/filament-flex-forms.php`:
+
+    ```php
+    'permissions' => [
+        'authorize' => fn ($user, $ability, $form) => /* ?bool */,
+    ],
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Strict mode (SaaS fail-closed)
+
+When you need “deny unless explicitly allowed”:
+
+```bash
+FLEX_FORMS_PERMISSIONS_STRICT=true
+```
+
+Then every ability must pass your authorize callback **or** a registered Spatie/Gate permission. Missing both → deny.
+
+Turn the whole system off (every authenticated user allowed):
+
+```bash
+FLEX_FORMS_PERMISSIONS_ENABLED=false
+```
+
+---
+
+## Resolution order
+
+1. Guest → deny  
+2. `permissions.enabled = false` → allow authenticated  
+3. Plugin / config `authorize` callback (non-null wins)  
+4. Optional Spatie/Gate name **if that permission row exists**  
+5. Default allow — unless `strict`
+
+Bootstrap payloads include a full `permissions` map so Studio React can hide Create, Publish, Export, and rail items in one shot — with request-level memoization so checks stay cheap.
+
+### Transactions (Spatie / Shield names)
+
+| Studio ability | Default Gate / Spatie name |
+|---|---|
+| `viewTransactions` | `ViewAny:FlexFormTransaction` |
+| `exportTransactions` | `Export:FlexFormTransaction` |
+| `refundTransactions` | `Refund:FlexFormTransaction` |
+
+Seed those rows (or remap in `config/filament-flex-forms.php` → `permissions.map`) and assign them to roles. Until they exist in the DB, the optional Spatie path stays open (BC); with `FLEX_FORMS_PERMISSIONS_STRICT=true` missing grants deny.
+
+<Panel>
+  **Also see:** [Config & env](/developers/config-env) · [Access gates (respondent security)](/guides/access-gates) · [Installation](/get-started/installation) · [Stripe](/integrations/stripe)
+</Panel>

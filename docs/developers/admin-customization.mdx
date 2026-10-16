@@ -1,0 +1,102 @@
+---
+title: "Admin customization"
+description: "Customize Filament admin — navigation, Studio branding, forms table columns, and permission overrides via FilamentFlexFormsPlugin."
+icon: "layout-panel-left"
+keywords: ["admin", "FilamentFlexFormsPlugin", "configureFormsTable", "navigation", "customization"]
+---
+
+Flex Forms registers Filament resources for the legacy forms list and submissions inbox. Most hosts customize the **plugin** (navigation + Studio chrome) and optionally the **forms table** for tenant-specific columns.
+
+## FilamentFlexFormsPlugin
+
+Register in your panel provider:
+
+```php
+use Bjanczak\FilamentFlexForms\FilamentFlexFormsPlugin;
+use Bjanczak\FilamentFlexForms\Support\Permissions\StudioAbility;
+
+->plugin(
+    FilamentFlexFormsPlugin::make()
+        ->navigationLabel('Lead capture')
+        ->navigationGroup('Marketing')
+        ->navigationSort(12)
+        ->navigationIcon('heroicon-o-clipboard-document-list')
+        ->brandLogo('/brand/studio-square.svg')
+        ->brandName('Acme Studio')
+        ->authorizeAbilityUsing(function (StudioAbility $ability, $user, $form): ?bool {
+            // Return true/false to decide, or null to fall through to Spatie/Gate
+            return null;
+        })
+)
+```
+
+| Method | Effect |
+|--------|--------|
+| `navigation()` | Show/hide sidebar entry |
+| `navigationLabel()` / `navigationGroup()` / `navigationSort()` / `navigationIcon()` | Sidebar presentation |
+| `brandLogo()` / `brandName()` | Studio left-rail home mark |
+| `authorizeAbilityUsing()` | Override Studio RBAC per ability |
+
+Config/env fallbacks when plugin methods are unset: [Config & env](/developers/config-env) → **Filament navigation** and **Studio branding**.
+
+Hide Flex Forms on a panel:
+
+```php
+FilamentFlexFormsPlugin::make()->navigation(false)
+```
+
+## configureFormsTable
+
+Add columns, filters, and row actions to the Filament **Forms** resource table without forking the package:
+
+```php
+FilamentFlexFormsPlugin::make()
+    ->configureFormsTable(function (\Filament\Tables\Table $table): \Filament\Tables\Table {
+        return $table
+            ->columns([
+                ...$table->getColumns(),
+                \Filament\Tables\Columns\TextColumn::make('team.name')
+                    ->label('Team')
+                    ->toggleable(),
+            ])
+            ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('team_id')
+                    ->relationship('team', 'name'),
+            ]);
+    });
+```
+
+The callback receives the default `Table` configuration — spread existing columns when you only append.
+
+Related hooks (same plugin):
+
+```php
+->configureSubmissionsTable(fn ($table) => $table->…)
+->configureFormForm(fn ($schema) => $schema->…) // rare — Studio is the primary editor
+```
+
+Use `configureFormsTable` for admin-only metadata (`team_id`, `external_id`). Do not duplicate Studio builder fields here.
+
+## Permissions
+
+Full RBAC guide: [Studio permissions](/developers/studio-permissions).
+
+Quick strict mode for SaaS:
+
+```bash
+FLEX_FORMS_PERMISSIONS_STRICT=true
+```
+
+## Multi-panel setups
+
+Register the plugin on every panel that should host Studio. License checks use **hostname**, not panel ID — register each hostname in the [License Portal](https://license.bjanczak.com/flex-forms/panel).
+
+Different panels can use different `navigationGroup()` / `brandLogo()` chains on separate `FilamentFlexFormsPlugin::make()` instances.
+
+<Info>
+  The primary form editor is **Studio** (`/{record}/studio`), not the Filament resource form schema. Keep table customization focused on list/inbox ergonomics.
+</Info>
+
+<Panel>
+**Next:** [Configuration](/get-started/configuration) · [Studio permissions](/developers/studio-permissions) · [Custom models](/developers/custom-models)
+</Panel>

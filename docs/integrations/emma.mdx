@@ -1,0 +1,160 @@
+---
+title: "Emma"
+description: "Automatically sync respondents to your Emma audience groups with dynamic custom field creation and double opt-in controls."
+icon: "envelope-open-text"
+keywords: ["emma", "newsletter", "subscribers", "marketing", "groups", "opt-in"]
+boost: 3
+---
+
+The **Emma** integration allows you to instantly route form respondents directly into your Emma audience groups. It features an intelligent custom field mapping engine that can autonomously generate new fields inside your Emma account on the fly if they don't already exist.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Audience Growth" icon="users">
+    Automatically push new blog readers straight into your primary Emma subscriber group.
+  </Card>
+  <Card title="Compliance" icon="shield-check">
+    Enforce strict double opt-in requirements for new subscribers to maintain pristine deliverability rates.
+  </Card>
+  <Card title="Dynamic Enrichment" icon="database">
+    Map complex demographic data (like company size or industry) and instruct Flex Forms to automatically build those fields in Emma if your marketing team forgot to create them.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to Emma, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your Credentials">
+    Log into your Emma dashboard. Navigate to **Account Settings**. 
+    You will need to locate three distinct pieces of information: Your **Account ID**, your **Public API Key**, and your **Private API Key**.
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **Emma** card and securely enter all three credentials.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.myemma.com/` endpoint to ensure the credentials are valid and that your groups can be fetched.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### The Masterclass: Data Mapping
+
+When mapping data from Flex Forms to Emma, the system fetches your groups via live `remote_select` directly from the API.
+
+<ParamField path="group_id" type="remote_select">
+  **Target Emma Group (Optional)**
+  Loaded live from your Emma account. Submissions will be added to this specific group. If left blank, the subscriber is added to your audience but not assigned to a specific group.
+</ParamField>
+
+<ParamField path="double_optin" type="select" default="0">
+  **Double Opt-In**
+  Control the subscription state of the new contact.
+  
+  - `No`: Uses the `/members/add` endpoint. The contact is added immediately.
+  - `Yes`: Uses the `/members/signup` endpoint. Triggers Emma's automated confirmation email before they are fully subscribed.
+</ParamField>
+
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to Emma Custom Fields using their shortcut names.
+  
+  **Syntax:** `emma_shortcut_name=form_field_name` (One per line).
+  
+  **The "+" Operator:** If you prefix an Emma shortcut name with a `+`, the Flex Forms engine will automatically create that field in your Emma account as a Text field if it doesn't already exist.
+  
+  **Example Mapping:**
+  ```text
+  company=company_dropdown
+  +Industry=industry_input
+  ```
+</ParamField>
+
+<ParamField path="create_fields" type="textarea">
+  **Auto-Create Custom Fields**
+  A list of field shortcut names (one per line). During the sync, if the engine detects that any of these fields are missing from your Emma account, it will autonomously generate them as Text fields before attempting to insert the data.
+</ParamField>
+
+---
+
+## Technical Resources & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Where do I find my Emma Shortcut Names?">
+    The Flex Forms inspector provides a helper dropdown labeled **Available fields (reference)**. This will populate with all valid field shortcut names currently existing in your Emma account. Copy those keys into the `custom_field_map` textarea.
+  </Accordion>
+  <Accordion title="Does this update existing subscribers?">
+    Yes. If a respondent submits the form and their email address already exists, the engine will perform an `update` operation, refreshing their custom fields and adding them to the new group without creating duplicates.
+  </Accordion>
+  <Accordion title="Why is my sync being rejected?">
+    If the sync fails, check your Submissions Inbox. If the error says "Emma member is opted out", it means the user previously unsubscribed from your emails, and Emma's API strictly prohibits re-adding them via API. They must re-subscribe manually through a native Emma form.
+  </Accordion>
+  <Accordion title="Official Documentation Reference">
+    For advanced architectural questions, refer to the official [Emma API Documentation](https://api.myemma.com/).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+### Global Settings
+<ParamField path="account_id" type="text" required>
+  **Account ID**
+  Your Emma Account ID.
+</ParamField>
+
+<ParamField path="public_api_key" type="password" required>
+  **Public API Key**
+  Your Emma Public API Key.
+</ParamField>
+
+<ParamField path="private_api_key" type="password" required>
+  **Private API Key**
+  Your Emma Private API Key.
+</ParamField>
+
+### Form-Level Settings
+
+#### Subscriber Data
+<ParamField path="group_id" type="remote_select">
+  **Emma Group**
+  Optional. Loaded live from your Emma account.
+</ParamField>
+
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  Select the block that collects the respondent's primary email.
+</ParamField>
+
+#### Field Mapping
+<ParamField path="custom_field_map" type="textarea">
+  **Custom fields**
+  One per line: `emma_shortcut_name=form_field_name`. Prefix a key with `+` to create a new text field when missing.
+</ParamField>
+
+<ParamField path="create_fields" type="textarea">
+  **Create new custom fields**
+  One field name per line. Created as text fields in Emma on sync when they do not already exist.
+</ParamField>
+
+<ParamField path="field_catalog" type="remote_select" >
+  **Available fields (reference)**
+  Loaded from Emma. Copy the shortcut name into Custom fields above.
+</ParamField>
+
+#### Advanced Options
+<ParamField path="double_optin" type="select" default="0">
+  **Double opt-in**
+  When enabled, uses `members/signup` instead of `members/add`.
+</ParamField>

@@ -1,0 +1,148 @@
+---
+title: "Show blocks"
+description: "Then action: Make the chosen fields visible again."
+icon: "eye"
+keywords: ["logic", "action", "show-blocks", "then"]
+---
+
+**Show blocks** turns selected fields **on** — they become visible on the fill form while the parent rule’s **When** clause matches.
+
+Use it for follow-up questions, conditional sections, and progressive disclosure paired with [Require answer](/features/studio/logic/actions/require-answer).
+
+---
+
+## When to choose this
+
+| Goal | Use **Show blocks** | Use something else instead |
+|------|---------------------|----------------------------|
+| Reveal hidden follow-up fields | ✓ | — |
+| Hide irrelevant sections | ✗ | **[Hide blocks](/features/studio/logic/actions/hide-blocks)** |
+| Make field mandatory | ✗ | **[Require answer](/features/studio/logic/actions/require-answer)** (often paired) |
+| Skip pages | ✗ | **[Jump to page](/features/studio/logic/actions/jump-to-page)** |
+| Compute a value | ✗ | **[Calculate](/features/studio/logic/actions/calculate)** |
+
+Default visibility comes from each block’s own settings. **Show** overrides a prior **Hide** only if this rule matches **last** among conflicting rules.
+
+---
+
+## Exact behavior
+
+- Target blocks switch to **visible** on fill while **When** is true.
+- Previously hidden answers may reappear **empty** if [Hide blocks](/features/studio/logic/actions/hide-blocks) cleared them earlier — Show does not restore old values.
+- Showing alone does **not** make a field required — add **Require answer** if needed.
+- Fields on **other pages** become visible in schema but only appear when that page is active.
+- Calculated targets can be shown like any other block; formulas keep updating.
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| **When** becomes false | Show effect may revert if no other rule keeps field visible |
+| Later rule **Hide** same target | Hide wins if it evaluates last |
+| **Require** on hidden field | Required cleared until visible (engine invariant) |
+| Block marked hidden in settings | Show sets visible true while rule matches |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** — complete **When** first.
+  </Step>
+  <Step title="Add Then action">
+    Click **Add action** → **Show blocks**.
+  </Step>
+  <Step title="Select target blocks">
+    Pick one or more blocks by canvas label — VAT field, “Please specify”, SSO section, etc.
+  </Step>
+  <Step title="Optional: Require shown fields">
+    Add second action **Require answer** on the same targets in the same rule.
+  </Step>
+  <Step title="Check conflict hints">
+    Resolve Show ↔ Hide warnings on the same target.
+  </Step>
+  <Step title="Preview on Fill">
+    Trigger **When** true/false and confirm visibility toggles live.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Enterprise plan details
+
+> **When** Plan **equals** `Enterprise` → **Show blocks** `SSO details, Audit log`
+
+Pair with **Require** on mandatory enterprise fields.
+
+### “Other” free text
+
+> **When** Industry **equals** `Other` → **Show blocks** `Please specify industry` + **Require answer** `Please specify industry`
+
+### Progressive disclosure
+
+> **When** Company **is not empty** → **Show blocks** `VAT ID, Billing address`
+
+### Quiz feedback section
+
+> **When** Score **greater than or equal** `70` → **Show blocks** `Pass certificate download`
+
+Score may come from a [Calculate](/features/studio/logic/actions/calculate) target.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Before When true">
+    Target blocks hidden (or not yet shown).
+  </Step>
+  <Step title="Satisfy When">
+    Targets appear immediately.
+  </Step>
+  <Step title="Revert When">
+    Targets hide unless another Show rule applies.
+  </Step>
+  <Step title="Required asterisk">
+    Only if **Require answer** added — Show alone does not add it.
+  </Step>
+  <Step title="Re-show after Hide cleared data">
+    Fields visible but empty — user must re-enter.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Showing without **Require** when follow-up is mandatory.
+- Two rules fighting — one Show, one Hide on same target; reorder or narrow **When**.
+- Expecting Show to restore answers cleared by Hide.
+- Showing blocks on a page users never reach — combine with **Jump to page** if needed.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Follow-up never appears">
+    **When** false — check operator, blank source, option value spelling. Later Hide rule may override.
+  </Accordion>
+  <Accordion title="Follow-up appears but submit fails">
+    Add **Require** if needed; check other visible required fields on current page.
+  </Accordion>
+  <Accordion title="Field flashes then hides">
+    Competing rules — last wins. Use exclusive **When** clauses or reorder Logic Board.
+  </Accordion>
+  <Accordion title="Shown field on wrong page">
+    Visibility is global in schema; user must navigate to that page to see it — expected multi-page behavior.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Hide blocks](/features/studio/logic/actions/hide-blocks) · [Require answer](/features/studio/logic/actions/require-answer) · [Field conditions](/features/studio/logic/field-conditions) · [How logic works](/features/studio/logic/overview)
+</Panel>

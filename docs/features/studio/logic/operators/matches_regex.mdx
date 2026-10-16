@@ -1,0 +1,29 @@
+---
+title: "Matches regex"
+description: "When clause operator: The text answer matches a regular expression pattern."
+icon: "code"
+keywords: ["logic", "operator", "regex", "matches_regex", "when"]
+---
+
+**Matches regex** checks whether a text answer matches your pattern (PCRE).
+
+Use it for structured codes, custom ID formats, and advanced text gates that simple Starts with / Contains cannot express.
+
+---
+
+## Exact behavior
+
+- **Text fields only.**
+- Pattern max length **200**; subject is capped at **10 000** characters.
+- Invalid patterns never match (fail-closed).
+- Blank answers never match.
+- Patterns may be written with or without delimiters (`^[A-Z]{3}$` or `/^[A-Z]{3}$/`).
+
+---
+
+## Related
+
+- Opposite: [Does not match regex](/features/studio/logic/operators/not_matches_regex)
+- Simpler text: [Contains](/features/studio/logic/operators/contains) · [Starts with](/features/studio/logic/operators/starts_with)
+
+  [All operators](/features/studio/logic/operators/overview) · [How logic works](/features/studio/logic/overview)

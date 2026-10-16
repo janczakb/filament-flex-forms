@@ -1,0 +1,51 @@
+---
+title: "Privacy"
+description: "What Flex Forms processes on your behalf, what stays in your database, and what you control as the data controller."
+icon: "shield"
+keywords: ["privacy", "gdpr", "data retention", "personal data"]
+---
+
+Flex Forms runs **inside your own Laravel application and database** — respondent submissions, Contacts, and Insights events are rows in your database, not data sent to a third-party SaaS. You are the data controller for anything your forms collect; Flex Forms is the software you use to collect and process it.
+
+<Columns cols={2}>
+  <Card title="Stays in your database" icon="database">
+    Submissions, Contacts, Insights events, uploaded files, and Insights share tokens.
+  </Card>
+  <Card title="Leaves your app only when you configure it to" icon="arrow-up-right">
+    Email notifications, [webhooks](/developers/webhooks), and any [integration](/integrations/overview) feed you explicitly enable.
+  </Card>
+</Columns>
+
+<Table>
+  <thead><tr><th>Data category</th><th>Where it lives</th><th>Your controls</th></tr></thead>
+  <tbody>
+    <tr><td>Submission answers</td><td>Your database (optionally encrypted at rest)</td><td>[Encrypt answers](/features/settings/general), [Data retention](/guides/access-gates), manual deletion</td></tr>
+    <tr><td>Analytics beacon events (device, country, UTM)</td><td>Your database</td><td>Bot filtering is automatic; raw event retention is configurable via <code>insights.raw_retention_days</code></td></tr>
+    <tr><td>Contacts (name, email)</td><td>Your database</td><td>Derived from submissions — delete the source submission to remove a contact's entries</td></tr>
+    <tr><td>Uploaded files</td><td>Your configured disk (public for design assets, private for submissions)</td><td>See [Upload disks](/developers/upload-disks)</td></tr>
+    <tr><td>License validation calls</td><td>Sent to the license server (domain + public key only)</td><td>Required for the plugin to function; no submission data is included</td></tr>
+  </tbody>
+</Table>
+
+<Steps>
+  <Step title="Set data retention per form">
+    Turn on **Data retention** in Form settings and choose a value/unit (days/weeks/months/years) to automatically age out old submissions.
+  </Step>
+  <Step title="Review what you export">
+    CSV / Excel exports (Submissions, [Contacts](/guides/contacts-workflow)) and [webhook](/developers/webhooks) payloads are exactly what you configure them to send — audit field selection before wiring a feed to a third party. Encrypted forms still export decrypted values to authorized Studio users.
+  </Step>
+  <Step title="Restrict access to raw files">
+    Submission uploads are private and signed by default — see [Upload disks](/developers/upload-disks) and the [Multi-tenancy](/developers/multi-tenancy) recipe for `uploads.authorize`.
+  </Step>
+  <Step title="Honor deletion requests">
+    Since data lives in your own database, fulfilling a respondent's deletion request is a normal delete against your `flex_form_submissions` / Contacts rows — no separate vendor process required.
+  </Step>
+</Steps>
+
+<Note>
+Flex Forms itself only calls out to the license server to validate your domain/plan. It does not transmit form submissions, contacts, or files to any third-party service unless you explicitly configure an [integration](/integrations/overview) or [webhook](/developers/webhooks) to do so.
+</Note>
+
+<Panel>
+**Also see:** [Access gates](/guides/access-gates) · [Upload disks](/developers/upload-disks) · [Terms](/resources/terms)
+</Panel>

@@ -1,0 +1,38 @@
+---
+title: "Is between"
+description: "When clause operator: The number or date falls inside an inclusive min–max range."
+icon: "arrows-left-right"
+keywords: ["logic", "operator", "between", "range", "when"]
+---
+
+**Is between** matches when the answer is **inside** an inclusive range — at or above **Min** and at or below **Max**.
+
+Use it for age bands, score brackets, and date windows (e.g. stay dates inside a season).
+
+---
+
+## Exact behavior
+
+- **Numbers** and **dates** only.
+- Range is inclusive on both ends.
+- Value shape: `[min, max]` or `{ min, max }` (Studio uses two value fields).
+- Blank answers never match. Incomplete ranges (missing min or max) never match.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Number | ✓ |
+| Date & time | ✓ |
+| Text, choice, yes/no, presence | — |
+
+---
+
+## Related
+
+- Opposite: [Is not between](/features/studio/logic/operators/not_between)
+- Single bound: [Greater than or equal](/features/studio/logic/operators/gte) / [Less than or equal](/features/studio/logic/operators/lte)
+
+  [All operators](/features/studio/logic/operators/overview) · [How logic works](/features/studio/logic/overview)

@@ -1,0 +1,158 @@
+---
+title: "Breeze Integration"
+description: "A comprehensive guide to instantly converting form submissions into actionable Tasks and Projects inside Breeze PM."
+icon: "wind"
+keywords: ["breeze", "project management", "tasks", "boards", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API structures Projects, Lists, and Tasks, please read the [Official Breeze API Documentation](https://www.breeze.pm/api).
+</Banner>
+
+The **Breeze** integration turns your website forms into an automated project management engine. Instead of manually copying client intake data from emails, Flex Forms connects directly to the Breeze API to instantly generate structured Tasks in specific Lists on specific Projects the moment a form is submitted.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Automated Client Intake" icon="clipboard-list">
+    When a new client completes a massive 50-question onboarding form, Flex Forms instantly generates a master Task containing all their answers and places it directly in the "Awaiting Review" list for your project managers in Breeze.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Breeze requires generating a highly secure **API Token**. Follow these exact instructions.
+
+<Steps>
+  <Step title="Step 1: Log into Breeze">
+    Open your web browser and navigate to the Breeze login portal (`app.breeze.pm`). Enter your credentials to access the main dashboard.
+  </Step>
+  
+  <Step title="Step 2: Access the Personal Settings Menu">
+    Once logged in, look at the absolute **top right corner** of your screen. Click on your profile picture (or your initials) to open the main account dropdown menu.
+  </Step>
+  
+  <Step title="Step 3: Navigate to Personal Settings">
+    In the dropdown menu that appears, click exactly on the link labeled **Personal Settings**.
+  </Step>
+  
+  <Step title="Step 4: Navigate to the API Section">
+    You are now viewing your personal profile settings. Look at the **left-hand sidebar menu**. Click exactly on the link labeled **API**.
+  </Step>
+  
+  <Step title="Step 5: Copy the API Token">
+    On the API page, you will see a section prominently displaying your **API Token**. It is a long string of alphanumeric characters.
+    
+    Highlight the entire string, right-click, and select **Copy** (or press `Ctrl+C` / `Cmd+C`). Make absolutely sure you do not highlight any blank spaces before or after the token.
+  </Step>
+  
+  <Step title="Step 6: Inject the Token into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Breeze.
+    2. Click inside the **API Token** input field.
+    3. Right-click and select **Paste** (or press `Ctrl+V` / `Cmd+V`) to inject the token.
+    4. Click the **Save Settings** button to finalize the secure connection.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: Routing to Specific Projects
+
+Establishing the connection allows data to flow, but you must instruct Flex Forms exactly where to place the new Tasks within Breeze's architecture.
+
+<Callout type="info">
+  **Project ID Requirement:** You must provide the specific **Project ID** in the form's integration settings. 
+  
+  **How to find it:** Open your specific Project board in Breeze. Look at the URL in your browser. It will look like `app.breeze.pm/projects/1234567/boards`. The numeric ID (`1234567`) is your Project ID. Copy that number.
+</Callout>
+
+### Field Mapping Architecture
+
+Breeze is highly unstructured compared to a CRM. Every Task essentially has a Name and a Description.
+
+By default, Flex Forms intelligently compiles every single answer the user provided into a clean, HTML-formatted list and injects it directly into the **Task Description**. 
+
+<Tabs>
+  <Tab title="Task Name Mapping">
+    You can map a specific form field to act as the primary **Name** of the Breeze Task.
+    
+    The format is always: `name=flex_forms_block_name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      name=subject_dropdown
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+If you do not map the `name` field, Flex Forms will generate a generic task name (e.g., "New Form Submission - [Date]").
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: 401 Unauthorized">
+    **The Problem:** The server logs show a `401 Unauthorized` error when attempting to create a Task.
+    
+    **The Solution:** This almost always means the API Token you pasted in Step 6 is incorrect, or contains a trailing space. Ensure you copied the entire token perfectly. If the user who generated the token is deleted from Breeze, the token will expire.
+  </Accordion>
+  <Accordion title="API Error: 404 Project Not Found">
+    **The Problem:** The server logs show a `404 Not Found` error regarding the Project.
+    
+    **The Solution:** The Project ID you pasted into the form settings is incorrect. Ensure you extracted the numeric `id` of the actual Project, NOT a specific Task ID.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_token" type="password" required>
+  **API token**
+  From Breeze → Profile → API. Used as the Basic auth username (password is empty).
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+<ParamField path="stage" type="remote_select" required>
+  **Project stage**
+  Project › stage where the new card will be created.
+</ParamField>
+
+<ParamField path="card_name" type="text" >
+  **Card title**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="card_description" type="textarea" >
+  **Card description**
+  Optional. Leave blank to send all fields as key: value lines. Supports {{field_name}}.
+</ParamField>
+
+<ParamField path="due_field" type="select" >
+  **Due date field**
+  Optional. Value should parse as a date.
+</ParamField>
+
+<ParamField path="due_days" type="text" >
+  **Due in (days)**
+  Optional fallback when the due date field is empty — days from today.
+</ParamField>
+
+<ParamField path="invitees" type="remote_checkboxes" >
+  **Invitees**
+  Breeze project users loaded from your workspace. Selected emails are invited to the card.
+</ParamField>
+

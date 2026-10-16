@@ -1,0 +1,26 @@
+# Public Help Center + community GitHub repo (Mintlify source)
+
+# OS / IDE
+.DS_Store
+**/.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local Mintlify / Node (if previewing docs locally)
+node_modules/
+.mintlify/
+dist/
+.next/
+.cache/
+*.log
+.env
+.env.*
+!.env.example
+
+# Secrets
+auth.json
+*.pem
+*.key

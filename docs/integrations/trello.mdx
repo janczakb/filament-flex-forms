@@ -1,0 +1,199 @@
+---
+title: "Trello Integration"
+description: "A comprehensive guide to instantly converting form submissions into highly detailed Trello Cards."
+icon: "trello"
+keywords: ["trello", "cards", "boards", "project management", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how Trello handles API Keys and secure authorization Tokens, please read the [Official Trello REST API Documentation](https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/).
+</Banner>
+
+The **Trello** integration turns your forms into an automated project management engine. Instead of manually copying data from emails, Flex Forms can instantly generate structured Trello Cards in specific columns (Lists) on specific Boards the moment a form is submitted.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Automated Support Queues" icon="ticket">
+    Route bug reports or feature requests directly into an "Inbox" List on your engineering team's Trello Board, complete with the user's uploaded screenshots.
+  </Card>
+  <Card title="Task Generation" icon="list-check">
+    When a new client completes an onboarding questionnaire, instantly generate a master Trello Card containing all their answers and place it in the "To Do" column for your project managers.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Trello requires generating both an **API Key** and an **Authorization Token**. Trello's security model requires you to generate these separately. Follow these exact instructions.
+
+<Steps>
+  <Step title="Step 1: Log into Trello">
+    Open your web browser and navigate to Trello. Enter your credentials and ensure you are logged into the account that has edit access to the Board you want to use.
+  </Step>
+  
+  <Step title="Step 2: Access the Power-Ups Admin Portal">
+    Open a new tab in your browser and navigate directly to this exact URL: `https://trello.com/power-ups/admin`. This is the developer portal where you generate API credentials.
+  </Step>
+  
+  <Step title="Step 3: Create a New Integration">
+    On the Power-Ups Admin page, click the blue button labeled **New**. 
+    
+    A form will appear. Fill it out with the following exact details:
+    - **Name:** `Flex Forms Website Integration`
+    - **Workspace:** Select your company's Trello Workspace from the dropdown.
+    - **Email:** Your administrator email address.
+    - **Support Contact:** Your email address again.
+    - **Author:** Your company name.
+    
+    Click the **Create** button.
+  </Step>
+  
+  <Step title="Step 4: Copy the API Key">
+    You will be redirected to the API Keys page for your new integration. 
+    
+    At the top, you will see a long string of alphanumeric characters labeled **API Key**. Highlight it, right-click, and select **Copy**.
+  </Step>
+  
+  <Step title="Step 5: Inject the API Key into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Trello.
+    2. Paste the string you copied in Step 4 into the **API Key** input field.
+  </Step>
+  
+  <Step title="Step 6: Generate the Authorization Token">
+    Switch back to the Trello tab. Look immediately to the right of your API Key. You will see a small text link that says **Token** (usually written as "generate a Token"). Click exactly on this link.
+  </Step>
+  
+  <Step title="Step 7: Grant Access and Copy Token">
+    A new window will open asking you to grant "Flex Forms Website Integration" access to your Trello account. Scroll to the bottom and click the green **Allow** button.
+    
+    Trello will now display a blank white page with a single, very long string of characters. This is your Authorization Token. Highlight the entire string and **Copy** it.
+  </Step>
+  
+  <Step title="Step 8: Inject Token and Save">
+    Switch back to Flex Forms. Paste this long string into the **API Token** input field. Click the **Save Settings** button to finalize the secure connection.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: Routing Cards to Boards
+
+Now that the connection is active, you must instruct Flex Forms exactly where to place the new Cards.
+
+<Callout type="info">
+  **List ID Requirement:** You must provide the specific **List ID** in the form's integration settings. A "List" is the vertical column (e.g., "To Do", "Doing") on a Trello Board. 
+  
+  **How to find the List ID:**
+  1. Open your Trello Board in a browser.
+  2. Add `.json` to the end of the URL (e.g., `trello.com/b/xyz/my-board.json`) and press Enter.
+  3. Search the massive text wall (Ctrl+F) for the name of your List (e.g., "To Do").
+  4. Look for the `"id": "xxxxxxxxxxxxx"` string immediately preceding the name of the list. Copy that alphanumeric ID.
+</Callout>
+
+### Field Mapping Architecture
+
+Trello is highly unstructured compared to a CRM. Every Card essentially has a Title and a Description.
+
+By default, Flex Forms intelligently compiles every single answer the user provided into a clean, markdown-formatted list and injects it into the **Card Description**. 
+
+<Tabs>
+  <Tab title="Card Title Mapping">
+    You can map a specific form field to act as the primary **Name** (Title) of the Trello Card.
+    
+    The format is always: `name=flex_forms_block_name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      name=subject_dropdown
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+If you do not map the `name` field, Flex Forms will generate a generic title (e.g., "New Form Submission - [Date]").
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: 401 invalid token">
+    **The Problem:** The server logs show a `401 invalid token` error when attempting to create a Card.
+    
+    **The Solution:** The Token you pasted in Step 8 has expired or was revoked. Trello sometimes requires you to re-authorize apps. Go back to Step 6, generate a brand new Token, and update Flex Forms.
+  </Accordion>
+  <Accordion title="API Error: 400 invalid idList">
+    **The Problem:** The server logs show a `400 invalid idList` error.
+    
+    **The Solution:** The List ID you pasted into the form settings is incorrect. Ensure you extracted the `id` of the actual List (column), NOT the `id` of the entire Board or the `id` of an individual Card.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_key" type="password" required>
+  **Trello API Key**
+  From https://trello.com/power-ups/admin
+</ParamField>
+
+<ParamField path="token" type="password" required>
+  **Trello Token**
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+<ParamField path="list_id" type="remote_select" required>
+  **Destination list**
+  Board › list from boards you can access.
+</ParamField>
+
+<ParamField path="card_name_field" type="select" >
+  **Card title field**
+  Optional. Overrides the default title when the field has a value.
+</ParamField>
+
+<ParamField path="card_name" type="text" >
+  **Default card title**
+  Supports {{field_name}} merge tags.
+</ParamField>
+
+<ParamField path="card_desc_template" type="textarea" >
+  **Card description template**
+  Optional. Leave blank to send all fields as key: value lines. Supports {{field_name}}.
+</ParamField>
+
+<ParamField path="label_ids" type="text" >
+  **Label IDs**
+  Optional Trello label IDs for the new card.
+</ParamField>
+
+<ParamField path="member_ids" type="text" >
+  **Member IDs**
+  Optional assignees.
+</ParamField>
+
+<ParamField path="due_field" type="select" >
+  **Due date field**
+  Optional. Value should parse as a date/time.
+</ParamField>
+
+<ParamField path="position" type="select" default="top" >
+  **Card position**
+  
+  **Options:**
+  - `top`: Top of list
+  - `bottom`: Bottom of list
+</ParamField>
+

@@ -1,0 +1,173 @@
+---
+title: "Google Analytics 4 (GA4) Integration"
+description: "A comprehensive guide to securely routing form conversion events directly into Google Analytics 4 via the Measurement Protocol API."
+icon: "chart-line"
+keywords: ["google analytics", "ga4", "tracking", "conversions", "events", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API bypasses ad-blockers using server-side event tracking, please read the [Official Google Analytics 4 Measurement Protocol API Documentation](https://developers.google.com/analytics/devguides/collection/protocol/ga4).
+</Banner>
+
+The **Google Analytics 4 (GA4)** integration provides absolute enterprise-grade conversion tracking. Instead of relying on fragile frontend JavaScript pixels (which are frequently blocked by ad-blockers or iOS privacy features), Flex Forms connects directly to the GA4 Measurement Protocol API. This ensures that every single form submission is securely tracked as a server-side conversion event in your GA4 property with 100% accuracy.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Bulletproof Conversion Tracking" icon="bullseye">
+    Frontend ad-blockers can cause you to lose up to 30% of your conversion data, ruining your marketing attribution models. Server-side tracking via the GA4 API guarantees that every lead is recorded, regardless of the user's browser privacy settings.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to GA4 requires generating an **API Secret** and finding your **Measurement ID**. Follow these exact instructions to ensure the integration is properly authenticated.
+
+<Steps>
+  <Step title="Step 1: Log into Google Analytics">
+    Open your web browser and navigate to `analytics.google.com`. Ensure you are logged into the Google Account that has Administrator access to the specific GA4 Property you want to track.
+  </Step>
+  
+  <Step title="Step 2: Access the Admin Panel">
+    Look at the absolute **bottom left corner** of your screen. Click the **gear icon** labeled **Admin**. 
+  </Step>
+  
+  <Step title="Step 3: Navigate to Data Streams">
+    In the Admin panel, under the **Property settings** column, locate and click exactly on the link labeled **Data Streams**.
+  </Step>
+  
+  <Step title="Step 4: Select Your Web Stream">
+    You will see a list of data streams (usually just one called "Web"). Click on the specific Web Stream you want to track conversions for. A detailed settings panel will slide open.
+  </Step>
+  
+  <Step title="Step 5: Copy the Measurement ID">
+    At the top right of this panel, you will see a string labeled **Measurement ID** (it always starts with `G-`, for example, `G-XXXXXXXXXX`). 
+    
+    Click the small copy icon next to it. In Flex Forms, open **Integrations** → **Google Analytics** and paste this into the **Measurement ID** field.
+  </Step>
+  
+  <Step title="Step 6: Navigate to API Secrets">
+    Switch back to the Google Analytics tab. Scroll down the Data Stream settings panel until you find the section labeled **Events**. Under that, click exactly on **Measurement Protocol API secrets**.
+  </Step>
+  
+  <Step title="Step 7: Create a New Secret">
+    Click the blue **Create** button. 
+    
+    Google will ask you for a nickname. Type exactly: `Flex Forms Server Integration`. Click **Create**.
+  </Step>
+  
+  <Step title="Step 8: Copy the Secret Value">
+    You will now see your new secret listed in the table. Copy the long string of characters in the **Secret value** column.
+    
+    Switch back to Flex Forms, paste this into the **API Secret** field, and click **Save Settings** to finalize the secure server-side connection.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+Once authenticated, Flex Forms automatically begins tracking. There is no field mapping required. 
+
+Every time a user submits a form, Flex Forms silently fires a server-side `generate_lead` event directly into your GA4 property.
+
+### The Client ID Architecture
+
+To correctly attribute the conversion to the user's previous website browsing behavior (e.g., tracking that they clicked a Google Ad three days ago before submitting the form today), GA4 requires a `client_id`.
+
+<Tree>
+  <Tree.Folder name="How Flex Forms Handles Client IDs" defaultOpen>
+    <Tree.File name="1. The user visits your website." />
+    <Tree.File name="2. The standard GA4 JavaScript snippet generates a cookie named '_ga'." />
+    <Tree.File name="3. The user submits the Flex Form." />
+    <Tree.File name="4. Flex Forms intelligently intercepts the submission, extracts the exact '_ga' cookie value from their browser, and packages it into the server-side API payload." />
+    <Tree.File name="5. GA4 receives the payload and perfectly links the conversion to their historical session data." />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="Where is the data in GA4?">
+    **The Problem:** I submitted a test form, but I don't see the conversion in my main GA4 reports.
+    
+    **The Solution:** GA4 takes 24-48 hours to process data into standard reports. To verify the integration is working immediately, go to GA4 > Reports > Realtime. Submit a test form, and you should see the `generate_lead` event appear in the Realtime Events table within 60 seconds.
+  </Accordion>
+  <Accordion title="API Error: Missing Client ID">
+    **The Problem:** The server-side event fired, but GA4 didn't link it to the user's session.
+    
+    **The Solution:** This happens if the user has strict anti-tracking extensions installed that block the initial `_ga` cookie from being created. In this scenario, Flex Forms will generate a fallback, randomized Client ID to ensure the conversion is still tracked, but it cannot retroactively link to session data that was blocked from existing in the first place.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="measurement_id" type="text" required>
+  **Measurement ID**
+  Your core Google Analytics 4 tracking ID. You can find this in GA4 by navigating to Admin → Data streams → Measurement ID. It usually starts with `G-`.
+</ParamField>
+
+<ParamField path="api_secret" type="password" required>
+  **Measurement Protocol API secret**
+  **Highly Recommended:** This secret key allows Flex Forms to bypass ad-blockers and send conversion events directly from the Laravel server to Google Analytics via the Measurement Protocol. Find this in GA4: Data stream → Measurement Protocol API secrets.
+</ParamField>
+
+<ParamField path="install_gtag" type="select" required>
+  **Install gtag.js on public forms**
+  Determines if Flex Forms should automatically inject the `<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXX">` tracking code into your form pages.
+  
+  **Options:**
+  - `1`: Yes (recommended if the form is standalone).
+  - `0`: Off (choose this if you embed the form on a website that *already* has Google Analytics or GTM installed, to prevent double-firing).
+</ParamField>
+
+<ParamField path="send_page_view" type="select" default="0">
+  **Send page_view with gtag config**
+  If `install_gtag` is enabled, this setting controls whether a standard `page_view` event fires immediately when the form loads.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Event Tracking Rules
+<ParamField path="track_submissions" type="toggle" default="true" >
+  **Track successful submissions**
+  The master switch for this form. If enabled, Flex Forms will fire a conversion event to GA4 the exact moment the respondent successfully completes the form without validation errors.
+</ParamField>
+
+<ParamField path="event_name" type="text" >
+  **Event name**
+  The specific name of the event that appears in your GA4 reports. Default is `flex_form_submission`. 
+  *Tip: Use snake_case (e.g., `generate_lead` or `contact_sales`).*
+</ParamField>
+
+#### Delivery Methods
+<ParamField path="send_measurement_protocol" type="toggle" default="true" >
+  **Send via Measurement Protocol (server)**
+  **Enterprise Grade:** Sends the event directly from your server to Google's servers. This guarantees 100% conversion tracking accuracy because it is completely immune to browser privacy blockers (Brave, Safari ITP, uBlock Origin) and network failures. *Requires `api_secret` under left-rail **Integrations** → Google Analytics.*
+</ParamField>
+
+<ParamField path="send_client_event" type="toggle" default="true" >
+  **Send client gtag event**
+  Fires `gtag('event')` in the user's browser on the thank-you screen. Use this alongside Measurement Protocol as a fallback, or if you rely heavily on client-side GTM triggers.
+</ParamField>
+
+#### Custom Dimensions
+<ParamField path="parameter_map" type="textarea" >
+  **Custom parameters**
+  Allows you to push specific form answers directly into GA4 as Custom Event Parameters. Built-in metadata (`form_id`, `form_title`, `form_slug`) and URL UTM parameters (`utm_source`, `utm_campaign`, etc.) are attached automatically and do not need to be mapped here.
+  
+  *Format: One per line as `ga_parameter_name=flex_forms_block_name`.*
+  *(Note: GA4 limits you to 25 custom parameters per event).*
+</ParamField>

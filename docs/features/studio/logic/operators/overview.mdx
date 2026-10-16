@@ -1,0 +1,282 @@
+---
+title: "Operators (When)"
+description: "Index of every When operator — equals, comparisons, contains, sets, empty, always — and which field types can use each one."
+icon: "list-filter"
+keywords: ["operators", "when", "equals", "contains", "empty"]
+boost: 2
+---
+
+Operators are the middle word in **When field _operator_ value**. They decide whether a rule’s **Then** actions should run.
+
+Studio only shows operators that make sense for the field type you picked. If an operator is missing from the dropdown, that field family does not support it — pick a different operator or a different source field.
+
+---
+
+## How to pick an operator in Studio
+
+<Steps>
+  <Step title="Open a rule editor">
+    Open **Logic** → **Rules**, or use **Branch** / **Add condition** on a field. Every rule has a **When** section at the top.
+  </Step>
+  <Step title="Pick the source field">
+    In the first dropdown, select the field whose answer you want to test. Only fields that exist on an earlier or the current page are reliable on first load — later-page answers stay blank until the respondent reaches them.
+  </Step>
+  <Step title="Choose the operator">
+    The middle dropdown lists only operators valid for that field’s type. Labels may change by family (e.g. **After** on dates vs **Greater than** on numbers) — the behavior matches the operator pages linked below.
+  </Step>
+  <Step title="Enter or pick the comparison value">
+    Type a literal, pick option chips, or open the same **Value** control and pick another field’s live answer. Operators like **Is empty** need no value.
+  </Step>
+  <Step title="Set match mode and add Then actions">
+    Use **All** when every clause must pass, **Any** when one is enough. Nest groups for `(A AND B) OR C`. Then add **Then** actions — [show](/features/studio/logic/actions/show-blocks), [hide](/features/studio/logic/actions/hide-blocks), [require](/features/studio/logic/actions/require-answer), [jump](/features/studio/logic/actions/jump-to-page), and more.
+  </Step>
+  <Step title="Preview on Fill">
+    Open **Fill** from Studio and walk through the form. Change answers and confirm rules fire when you expect — especially for blank fields, multi-select, and cross-page references.
+  </Step>
+</Steps>
+
+<Note>
+  Unsure which operator fits? Start with **Equals** for exact matches, **Is empty** / **Is not empty** for skipped vs answered, **Contains** for partial text or “one of these options selected”, and **Is any of** for allow-lists on choices.
+</Note>
+
+---
+
+## How match groups work (ALL vs ANY)
+
+Every **When** row or nested group has a match mode:
+
+| Mode | Meaning | Plain English |
+|------|---------|---------------|
+| **All** (AND) | Every child clause must be true | “Country is PL **and** Age ≥ 18” |
+| **Any** (OR) | At least one child clause must be true | “Plan is Pro **or** Plan is Enterprise” |
+
+You can nest groups inside groups. An empty group (no clauses) never matches.
+
+<Warning>
+  **Fail-closed by design.** If a clause is incomplete (missing field, unknown operator, or empty comparison value where one is required), that clause counts as **false** — the rule does not fire by accident.
+</Warning>
+
+---
+
+## Golden rules for blank answers
+
+| Situation | Result |
+|-----------|--------|
+| Field not answered yet (`null`, `""`, or empty list `[]`) | Most operators **do not match** |
+| You want to react to “they skipped it” | Use **[Is empty](/features/studio/logic/operators/empty)** |
+| You want to react to “they answered something” | Use **[Is not empty](/features/studio/logic/operators/not_empty)** |
+| Equality (`equals`, `not equals`, set operators) | Blank **never** matches — even “not equals X” stays false until they answer |
+| Comparison on a later page | Stays false until the respondent reaches that page and answers |
+
+<Note>
+  **Is empty** and **Is not empty** are the only operators meant for unanswered fields. Everything else assumes there is something to compare.
+</Note>
+
+---
+
+## Field-type → allowed operators
+
+Studio groups block types into families. The table below is the full list of operators each family supports.
+
+### Text fields
+
+Email, phone, URL, textarea, rich text, password, and most other free-text blocks.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+| [Contains](/features/studio/logic/operators/contains) | ✓ |
+| [Does not contain](/features/studio/logic/operators/not_contains) | ✓ |
+| [Starts with](/features/studio/logic/operators/starts_with) | ✓ |
+| [Does not start with](/features/studio/logic/operators/not_starts_with) | ✓ |
+| [Ends with](/features/studio/logic/operators/ends_with) | ✓ |
+| [Does not end with](/features/studio/logic/operators/not_ends_with) | ✓ |
+| [Matches regex](/features/studio/logic/operators/matches_regex) | ✓ |
+| [Does not match regex](/features/studio/logic/operators/not_matches_regex) | ✓ |
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+### Number fields
+
+Integer, number stepper, currency, range slider, flex slider, rating, year, duration, and calculated results stored as numbers.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+| [Greater than](/features/studio/logic/operators/gt) | ✓ |
+| [Greater than or equal](/features/studio/logic/operators/gte) | ✓ |
+| [Less than](/features/studio/logic/operators/lt) | ✓ |
+| [Less than or equal](/features/studio/logic/operators/lte) | ✓ |
+| [Is between](/features/studio/logic/operators/between) | ✓ |
+| [Is not between](/features/studio/logic/operators/not_between) | ✓ |
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+### Date & time fields
+
+Date, time, date-time, and month pickers.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+| [Greater than / after](/features/studio/logic/operators/gt) | ✓ |
+| [Less than / before](/features/studio/logic/operators/lt) | ✓ |
+| [Is between](/features/studio/logic/operators/between) | ✓ |
+| [Is not between](/features/studio/logic/operators/not_between) | ✓ |
+| [Is before (relative)](/features/studio/logic/operators/date_before_relative) | ✓ |
+| [Is after (relative)](/features/studio/logic/operators/date_after_relative) | ✓ |
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+<Note>
+  Date fields do **not** offer “greater than or equal” or “less than or equal” in Studio. Use **after** / **before** with the exact boundary date, or compare a number field instead.
+</Note>
+
+### Choice fields
+
+Select, radio, checkbox list, tags, country, NPS, dual listbox, choice cards, and similar pick-one or pick-many blocks.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+| [Contains](/features/studio/logic/operators/contains) | ✓ |
+| [Does not contain](/features/studio/logic/operators/not_contains) | ✓ |
+| [Is any of](/features/studio/logic/operators/in) | ✓ |
+| [Is none of](/features/studio/logic/operators/not_in) | ✓ |
+| [Equals set](/features/studio/logic/operators/eq_set) | ✓ (multi-select) |
+| [Not equals set](/features/studio/logic/operators/neq_set) | ✓ (multi-select) |
+| [Includes every of](/features/studio/logic/operators/is_every_of) | ✓ (multi-select) |
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+### Yes / no fields
+
+Toggle and single checkbox blocks.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+
+### Presence fields (uploads, signatures, composites)
+
+File, image, video, signature, map picker, repeater, matrix, date range, and other blocks where “answered” means something was provided — not a simple scalar.
+
+| Operator | Supported |
+|----------|-----------|
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+### Default (fallback)
+
+Any block type not listed above gets equality and empty checks only.
+
+| Operator | Supported |
+|----------|-----------|
+| [Equals (is)](/features/studio/logic/operators/eq) | ✓ |
+| [Not equals (is not)](/features/studio/logic/operators/neq) | ✓ |
+| [Is empty](/features/studio/logic/operators/empty) | ✓ |
+| [Is not empty](/features/studio/logic/operators/not_empty) | ✓ |
+
+---
+
+## Operator catalog
+
+### Equality
+
+- [Equals (is)](/features/studio/logic/operators/eq)
+- [Not equals (is not)](/features/studio/logic/operators/neq)
+
+### Numbers & dates
+
+- [Greater than / after](/features/studio/logic/operators/gt)
+- [Greater than or equal](/features/studio/logic/operators/gte) — numbers only
+- [Less than / before](/features/studio/logic/operators/lt)
+- [Less than or equal](/features/studio/logic/operators/lte) — numbers only
+
+### Text & membership
+
+- [Contains](/features/studio/logic/operators/contains)
+- [Does not contain](/features/studio/logic/operators/not_contains)
+- [Starts with](/features/studio/logic/operators/starts_with)
+- [Does not start with](/features/studio/logic/operators/not_starts_with)
+- [Ends with](/features/studio/logic/operators/ends_with)
+- [Does not end with](/features/studio/logic/operators/not_ends_with)
+
+### Choice lists
+
+- [Is any of](/features/studio/logic/operators/in)
+- [Is none of](/features/studio/logic/operators/not_in)
+- [Equals set](/features/studio/logic/operators/eq_set)
+- [Not equals set](/features/studio/logic/operators/neq_set)
+- [Includes every of](/features/studio/logic/operators/is_every_of)
+
+### Empty / filled
+
+- [Is empty](/features/studio/logic/operators/empty)
+- [Is not empty](/features/studio/logic/operators/not_empty)
+
+### Special
+
+- [Always](/features/studio/logic/operators/always) — used by Calculated fields; not in the normal When picker
+
+---
+
+## Compare to another answer
+
+In the **Value** control, type a fixed value or open the dropdown and pick an input field. The clause then compares the source field to **whatever the respondent typed in another field** (live, as they fill).
+
+| Detail | Behavior |
+|--------|----------|
+| What Studio stores | A reference to the other field’s id |
+| When it resolves | On every fill recalculation — uses the **current** answer of the referenced field |
+| If the other field is blank | The comparison value is blank → operators that need a value **fail-closed** (clause false), same as an empty typed value |
+| Typical uses | “Confirm email equals Email”, “End date is after Start date”, “Budget ≥ Minimum” |
+
+You still pick a normal operator (**Equals**, **Greater than**, …). Only the right-hand side is dynamic.
+
+<Warning>
+  Referencing a field on a **later page** stays blank until the respondent reaches that page — so early-page rules that depend on later answers will not match yet.
+</Warning>
+
+---
+
+## Test on fill (quick checklist)
+
+<Steps>
+  <Step title="Open Fill preview">
+    From Studio, launch **Fill** in a new tab so you see the respondent experience.
+  </Step>
+  <Step title="Walk the happy path">
+    Enter values that should make your **When** true. Confirm **Then** actions appear (fields show, require, jump, etc.).
+  </Step>
+  <Step title="Try blank and edge cases">
+    Leave fields empty, pick “wrong” options, and change answers back — rules should turn off when **When** becomes false.
+  </Step>
+  <Step title="Check cross-page references">
+    If you compared to another field or read a later page, navigate page-by-page and confirm timing matches your intent.
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="Operator missing from dropdown">
+    The field type does not support that operator. Check the family tables above or pick a different source field.
+  </Accordion>
+  <Accordion title="Rule never fires">
+    Incomplete clause (empty comparison value), blank source answer, or a later **Hide** / conflicting rule overriding your **Then**.
+  </Accordion>
+  <Accordion title="Rule fires too early">
+    Often a cross-page field reference or a multi-select interpreted with the wrong operator (e.g. **Equals** vs **Equals set**).
+  </Accordion>
+  <Accordion title="Not equals still false on blank">
+    By design — use **Is empty** for the skipped path. **Not equals** requires an actual answer.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [How logic works](/features/studio/logic/overview) · [Actions (Then)](/features/studio/logic/actions/overview) · [Field conditions](/features/studio/logic/field-conditions)
+</Panel>

@@ -1,0 +1,132 @@
+---
+title: "Embed widget API"
+description: "The real data attributes, query flags, and loader script behind every Flex Forms embed."
+icon: "code-xml"
+keywords: ["embed api", "data attributes", "iframe", "loader script", "widget"]
+---
+
+Installation and Composer auth are covered in [Installation](/get-started/installation). This page is the reference for developers wiring embeds into custom platforms, SPAs, or CMS templates beyond copy-pasting the Share snippet.
+
+## Assets
+
+<Tree>
+  <TreeItem label="public/vendor/flex-forms/">
+    <TreeItem label="embed.js" />
+    <TreeItem label="embed-child.js" />
+  </TreeItem>
+</Tree>
+
+`embed.js` runs on the **host page** (your website); `embed-child.js` runs **inside the fill iframe** and reports things like content height back to the parent for auto-resize. Both are registered `loadedOnRequest()` — they never load globally in the Filament admin panel.
+
+## Standard iframe embed
+
+<ResponseField name="data-flex-form-src" type="string" required>
+  The full public fill URL for the form, including the `/embed` suffix and any query flags. This is what `embed.js` reads to lazily set `src` on load.
+</ResponseField>
+
+<CodeGroup>
+```html title="Minimal iframe embed"
+<iframe
+  data-flex-form-src="https://your-app.test/forms/contact-us/embed"
+  loading="lazy"
+  width="100%"
+  height="800"
+  frameborder="0"
+  title="Contact us"
+  allow="fullscreen"
+></iframe>
+<script async src="https://your-app.test/vendor/flex-forms/embed.js"></script>
+```
+
+```js title="Manually (re)scan the page for embeds"
+// Call after injecting new iframes dynamically (e.g. client-side routing)
+window.FlexForms.loadEmbeds();
+```
+</CodeGroup>
+
+## Query flags (iframe src)
+
+<Table>
+  <thead><tr><th>Flag</th><th>Type</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>hideTitle</code></td><td><code>1</code></td><td>Hides the form title inside the fill page</td></tr>
+    <tr><td><code>alignLeft</code></td><td><code>1</code></td><td>Left-aligns content instead of centering</td></tr>
+    <tr><td><code>transparentBackground</code></td><td><code>1</code></td><td>Removes the fill page's background so your page shows through</td></tr>
+    <tr><td><code>dynamicHeight</code></td><td><code>1</code></td><td>Iframe reports content height to the parent for auto-resize (default on for embeds)</td></tr>
+    <tr><td><code>formEventsForwarding</code></td><td><code>1</code></td><td>Forwards fill lifecycle events to the host page via <code>postMessage</code></td></tr>
+  </tbody>
+</Table>
+
+## Popup mode (button or link trigger)
+
+<CodeGroup>
+```html title="Button trigger"
+<script async src="https://your-app.test/vendor/flex-forms/embed.js"></script>
+<button
+  type="button"
+  data-flex-form-open="contact-us"
+  data-flex-form-layout="modal"
+  data-flex-form-width="376"
+  data-flex-form-position="bottom_right"
+>
+  Open form
+</button>
+```
+
+```html title="Link trigger (hash-based)"
+<script async src="https://your-app.test/vendor/flex-forms/embed.js"></script>
+<a href="#flex-form-open=contact-us&flex-form-layout=modal&flex-form-width=376&flex-form-position=bottom_right">
+  Open form
+</a>
+```
+</CodeGroup>
+
+<Table>
+  <thead><tr><th>Attribute (or hash key)</th><th>Values</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-flex-form-open</code></td><td>The form's slug</td></tr>
+    <tr><td><code>data-flex-form-layout</code></td><td><code>modal</code></td></tr>
+    <tr><td><code>data-flex-form-width</code></td><td>200–1200 (pixels)</td></tr>
+    <tr><td><code>data-flex-form-position</code></td><td>e.g. <code>bottom_right</code></td></tr>
+    <tr><td><code>data-flex-form-hide-title</code></td><td><code>1</code></td></tr>
+    <tr><td><code>data-flex-form-align-left</code></td><td><code>1</code></td></tr>
+    <tr><td><code>data-flex-form-overlay</code></td><td><code>1</code> (dim the page behind the popup)</td></tr>
+    <tr><td><code>data-flex-form-auto-close</code></td><td><code>0</code> (disable auto-close on submit)</td></tr>
+    <tr><td><code>data-flex-form-custom-form-url</code></td><td>Override base URL (advanced/self-hosted proxies)</td></tr>
+  </tbody>
+</Table>
+
+<Expandable title="Full-page HTML (self-contained)">
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script async src="https://your-app.test/vendor/flex-forms/embed.js"></script>
+  </head>
+  <body style="margin:0;padding:0;">
+    <iframe
+      data-flex-form-src="https://your-app.test/forms/contact-us/embed"
+      loading="lazy"
+      title="Contact us"
+      frameborder="0"
+      allow="fullscreen"
+      style="width:100%;height:100vh;border:0;display:block;"
+    ></iframe>
+  </body>
+</html>
+```
+</Expandable>
+
+<Warning>
+Always resolve the exact host, slug, and script URL from your own app's Share tab or `FormEmbedBuilder` output — the samples above use placeholder hosts and will 404 as-is.
+</Warning>
+
+<View>
+Content on this page is for developers wiring Flex Forms into custom platforms, SPAs, and CMS templates in production Filament apps.
+</View>
+
+<Panel>
+**Next:** [Query params](/developers/query-params) · [Embed on any platform](/guides/embed-platforms) · [OpenAPI beacon](/developers/openapi-beacon)
+</Panel>

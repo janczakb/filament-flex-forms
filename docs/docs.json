@@ -1,0 +1,618 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Flex Forms",
+  "description": "Help Center for Flex Forms — the enterprise drag-and-drop form builder for Filament. Install with Composer, activate your license, build forms, embed them, and measure results.",
+  "colors": {
+    "primary": "#5E9A12",
+    "light": "#A3E635",
+    "dark": "#3F6B0A"
+  },
+  "logo": {
+    "light": "/logo/flex-forms-logo-black.svg",
+    "dark": "/logo/flex-forms-logo-light.svg",
+    "href": "https://flexforms.bjanczak.com"
+  },
+  "favicon": "/favicon.svg",
+  "appearance": {
+    "default": "system",
+    "strict": false
+  },
+  "fonts": {
+    "heading": {
+      "family": "Sora"
+    },
+    "body": {
+      "family": "IBM Plex Sans"
+    }
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "background": {
+    "decoration": "gradient",
+    "color": {
+      "light": "#F7FBF0",
+      "dark": "#0C1408"
+    }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": {
+      "light": "github-light",
+      "dark": "github-dark"
+    }
+  },
+  "thumbnails": {
+    "appearance": "light"
+  },
+  "seo": {
+    "indexing": "navigable",
+    "metatags": {
+      "og:site_name": "Flex Forms Docs",
+      "og:type": "website",
+      "twitter:card": "summary_large_image",
+      "robots": "index, follow"
+    },
+    "organization": {
+      "id": "https://flexforms.bjanczak.com/#organization",
+      "name": "Flex Forms",
+      "legalName": "Bartłomiej Janczak",
+      "url": "https://flexforms.bjanczak.com",
+      "logo": "https://flexforms.bjanczak.com/logo.png",
+      "sameAs": [
+        "https://github.com/janczakb/filament-flex-forms",
+        "https://license.bjanczak.com/flex-forms/panel"
+      ]
+    }
+  },
+  "search": {
+    "prompt": "Search Flex Forms docs…"
+  },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-3SLLB9XJY4"
+    }
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/janczakb/filament-flex-forms"
+      },
+      {
+        "label": "License portal",
+        "href": "https://license.bjanczak.com/flex-forms/panel"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Buy Flex Forms",
+      "href": "https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/janczakb/filament-flex-forms"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Buy",
+            "href": "https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0"
+          },
+          {
+            "label": "License portal",
+            "href": "https://license.bjanczak.com/flex-forms/panel"
+          },
+          {
+            "label": "Walkthrough",
+            "href": "/resources/product-walkthrough"
+          },
+          {
+            "label": "Changelog",
+            "href": "/resources/whats-new"
+          }
+        ]
+      },
+      {
+        "header": "Support",
+        "items": [
+          {
+            "label": "Report a bug",
+            "href": "https://github.com/janczakb/filament-flex-forms/issues/new?template=bug.yml"
+          },
+          {
+            "label": "Request a feature",
+            "href": "https://github.com/janczakb/filament-flex-forms/issues/new?template=feature.yml"
+          }
+        ]
+      }
+    ]
+  },
+  "banner": {
+    "content": "New: Insights Redis scaling, duration aggregates, and production-grade indexes — see [Insights](/features/insights/overview).",
+    "dismissible": true
+  },
+  "contextual": {
+    "display": "header",
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "cursor",
+      "vscode",
+      "mcp"
+    ]
+  },
+  "interaction": {
+    "drilldown": false
+  },
+  "redirects": [
+    {
+      "source": "/docs",
+      "destination": "/"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/plans/overview"
+    },
+    {
+      "source": "/ask-ai",
+      "destination": "/resources/support"
+    },
+    {
+      "source": "/integrations/capsule",
+      "destination": "/integrations/capsule-crm"
+    },
+    {
+      "source": "/features/blocks/multi-select",
+      "destination": "/features/blocks/dropdown"
+    },
+    {
+      "source": "/features/blocks/text-number",
+      "destination": "/features/blocks/overview"
+    },
+    {
+      "source": "/features/blocks/choice-date",
+      "destination": "/features/blocks/overview"
+    },
+    {
+      "source": "/features/blocks/media-advanced",
+      "destination": "/features/blocks/overview"
+    }
+  ],
+  "errors": {
+    "404": {
+      "redirect": false,
+      "title": "Page not found",
+      "description": "That page is missing. Try search or jump back to Get started."
+    }
+  },
+  "api": {
+    "openapi": "/openapi/flex-forms-public.json",
+    "playground": {
+      "display": "interactive"
+    }
+  },
+  "markdown": {
+    "instructions": [
+      "Write for Filament/Laravel developers buying Flex Forms.",
+      "Be precise: every setting documents what it does and how it works.",
+      "Use Help Center components richly: Steps, Cards, Callouts, Tabs, CodeGroup, Mermaid, Badge for Pro.",
+      "Never invent APIs; match the real Flex Forms package behavior."
+    ]
+  },
+  "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Buy",
+          "icon": "shopping-cart",
+          "href": "https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0"
+        },
+        {
+          "anchor": "License portal",
+          "icon": "key-round",
+          "href": "https://license.bjanczak.com/flex-forms/panel"
+        },
+        {
+          "anchor": "Report a bug",
+          "icon": "bug",
+          "href": "https://github.com/janczakb/filament-flex-forms/issues/new?template=bug.yml"
+        },
+        {
+          "anchor": "Request a feature",
+          "icon": "sparkles",
+          "href": "https://github.com/janczakb/filament-flex-forms/issues/new?template=feature.yml"
+        }
+      ]
+    },
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "icon": "book-open",
+        "pages": [
+          "index",
+          {
+            "group": "Get started",
+            "pages": [
+              "get-started/installation",
+              "get-started/upgrading",
+              "get-started/activate-license",
+              "get-started/setup-wizard",
+              "get-started/first-form",
+              "get-started/open-studio",
+              "get-started/progress-bar-wizard",
+              "get-started/languages-rtl",
+              "get-started/prefill-fields",
+              "get-started/thank-you",
+              "get-started/name-label-fields",
+              "get-started/delete-forms-data-retention",
+              "get-started/publish-and-share",
+              "get-started/embed",
+              "get-started/global-settings",
+              "get-started/configuration"
+            ],
+            "root": "get-started/installation",
+            "expanded": true
+          },
+          {
+            "group": "Forms",
+            "pages": [
+              "features/forms/overview",
+              "features/forms/create-rename-duplicate",
+              "features/forms/fill-link"
+            ],
+            "root": "features/forms/overview",
+            "expanded": true
+          },
+          {
+            "group": "Studio",
+            "pages": [
+              "features/studio/overview",
+              "features/studio/dnd-pages",
+              "features/studio/field-settings",
+              "features/studio/logic/overview",
+              "features/studio/logic/field-conditions",
+              "features/studio/logic/if-else-block",
+              "features/studio/logic-board",
+              "features/studio/logic/recipes/pulsefit",
+              "features/studio/logic/recipes/harbor-quiz",
+              "features/studio/logic/recipes/apex-qualifier",
+              "features/studio/logic/operators/overview",
+              "features/studio/logic/operators/eq",
+              "features/studio/logic/operators/neq",
+              "features/studio/logic/operators/gt",
+              "features/studio/logic/operators/gte",
+              "features/studio/logic/operators/lt",
+              "features/studio/logic/operators/lte",
+              "features/studio/logic/operators/contains",
+              "features/studio/logic/operators/not_contains",
+              "features/studio/logic/operators/in",
+              "features/studio/logic/operators/not_in",
+              "features/studio/logic/operators/eq_set",
+              "features/studio/logic/operators/neq_set",
+              "features/studio/logic/operators/is_every_of",
+              "features/studio/logic/operators/starts_with",
+              "features/studio/logic/operators/not_starts_with",
+              "features/studio/logic/operators/ends_with",
+              "features/studio/logic/operators/not_ends_with",
+              "features/studio/logic/operators/matches_regex",
+              "features/studio/logic/operators/not_matches_regex",
+              "features/studio/logic/operators/between",
+              "features/studio/logic/operators/not_between",
+              "features/studio/logic/operators/date_before_relative",
+              "features/studio/logic/operators/date_after_relative",
+              "features/studio/logic/operators/empty",
+              "features/studio/logic/operators/not_empty",
+              "features/studio/logic/operators/always",
+              "features/studio/logic/actions/overview",
+              "features/studio/logic/actions/show-blocks",
+              "features/studio/logic/actions/hide-blocks",
+              "features/studio/logic/actions/require-answer",
+              "features/studio/logic/actions/make-optional",
+              "features/studio/logic/actions/disable-blocks",
+              "features/studio/logic/actions/enable-blocks",
+              "features/studio/logic/actions/set-value",
+              "features/studio/logic/actions/clear-value",
+              "features/studio/logic/actions/jump-to-page",
+              "features/studio/logic/actions/calculate",
+              "features/studio/logic/actions/hide-submit",
+              "features/studio/calculated-fields",
+              "features/studio/customize",
+              "features/studio/thank-you",
+              "features/studio/preview-publish"
+            ],
+            "root": "features/studio/overview",
+            "expanded": true
+          },
+          {
+            "group": "Form settings",
+            "pages": [
+              "features/settings/overview",
+              "features/settings/general",
+              "features/settings/behavior",
+              "features/settings/access",
+              "features/settings/emails-pdf",
+              "features/settings/integrations"
+            ],
+            "root": "features/settings/overview",
+            "expanded": true
+          },
+          {
+            "group": "Submissions",
+            "pages": [
+              "features/submissions/overview",
+              "features/submissions/inbox-filters",
+              "features/submissions/export-csv"
+            ],
+            "root": "features/submissions/overview",
+            "expanded": true
+          },
+          {
+            "group": "Insights",
+            "pages": [
+              "features/insights/overview",
+              "features/insights/answers-visits-dropoffs",
+              "features/insights/filters-live",
+              "features/insights/public-share",
+              "features/insights/redis-scaling"
+            ],
+            "root": "features/insights/overview",
+            "tag": "NEW",
+            "expanded": true
+          },
+          {
+            "group": "Share & Embed",
+            "pages": [
+              "features/share/overview",
+              "features/share/embed-modes",
+              "features/share/query-params"
+            ],
+            "root": "features/share/overview",
+            "expanded": true
+          },
+          {
+            "group": "Contacts",
+            "pages": [
+              "features/contacts/overview",
+              "features/contacts/search-export"
+            ],
+            "root": "features/contacts/overview",
+            "expanded": true
+          },
+          {
+            "group": "Transactions",
+            "pages": [
+              "features/transactions/overview"
+            ],
+            "root": "features/transactions/overview",
+            "expanded": true
+          },
+          {
+            "group": "Blocks",
+            "pages": [
+              "features/blocks/overview",
+              "features/blocks/name",
+              "features/blocks/email",
+              "features/blocks/phone",
+              "features/blocks/short-text",
+              "features/blocks/long-text",
+              "features/blocks/url",
+              "features/blocks/rich-text",
+              "features/blocks/plain-text",
+              "features/blocks/number",
+              "features/blocks/number-stepper",
+              "features/blocks/currency",
+              "features/blocks/slider",
+              "features/blocks/flex-slider",
+              "features/blocks/price-range",
+              "features/blocks/traffic-split",
+              "features/blocks/country",
+              "features/blocks/timezone",
+              "features/blocks/address-autocomplete",
+              "features/blocks/dropdown",
+              "features/blocks/multiple-choice",
+              "features/blocks/checkbox",
+              "features/blocks/toggle",
+              "features/blocks/segment-control",
+              "features/blocks/choice-cards",
+              "features/blocks/choice-checkbox-cards",
+              "features/blocks/tags",
+              "features/blocks/date-time",
+              "features/blocks/file-upload",
+              "features/blocks/image",
+              "features/blocks/video",
+              "features/blocks/audio",
+              "features/blocks/voice-note",
+              "features/blocks/signature",
+              "features/blocks/credit-card",
+              "features/blocks/stripe-payment",
+              "features/blocks/matrix",
+              "features/blocks/rating-nps",
+              "features/blocks/map",
+              "features/blocks/social-links",
+              "features/blocks/color",
+              "features/blocks/color-picker",
+              "features/blocks/content"
+            ],
+            "root": "features/blocks/overview",
+            "expanded": true
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/conditional-feeds",
+              {
+                "group": "Email & CRM",
+                "pages": [
+                  "integrations/mailchimp",
+                  "integrations/campaign-monitor",
+                  "integrations/getresponse",
+                  "integrations/convertkit",
+                  "integrations/emailoctopus",
+                  "integrations/mailerlite",
+                  "integrations/activecampaign",
+                  "integrations/emma",
+                  "integrations/brevo",
+                  "integrations/sendgrid",
+                  "integrations/mailgun",
+                  "integrations/hubspot",
+                  "integrations/salesforce",
+                  "integrations/capsule-crm"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Automation & ops",
+                "pages": [
+                  "integrations/zapier",
+                  "integrations/webhooks",
+                  "integrations/google-sheets",
+                  "integrations/slack",
+                  "integrations/trello",
+                  "integrations/breeze",
+                  "integrations/helpscout"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Analytics & security",
+                "pages": [
+                  "integrations/google-analytics",
+                  "integrations/meta",
+                  "integrations/mapbox",
+                  "integrations/pexels",
+                  "integrations/recaptcha",
+                  "integrations/turnstile",
+                  "integrations/stripe"
+                ],
+                "expanded": true
+              }
+            ],
+            "root": "integrations/overview",
+            "expanded": true
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              {
+                "group": "Build",
+                "pages": [
+                  "guides/multi-page-stepper",
+                  "guides/logic-and-calculated",
+                  "guides/partials-save-later",
+                  "guides/access-gates",
+                  "guides/emails-and-pdf",
+                  "guides/design-pro"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Ship",
+                "pages": [
+                  "guides/embed-platforms",
+                  "guides/reading-insights",
+                  "guides/share-insights",
+                  "guides/contacts-workflow",
+                  "guides/redis-production",
+                  "guides/quiz-recipe"
+                ],
+                "expanded": true
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "group": "Plans",
+            "pages": [
+              "plans/overview",
+              "plans/standard-pro-enterprise",
+              "plans/hide-branding",
+              "plans/license-portal"
+            ],
+            "root": "plans/overview",
+            "expanded": true
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "icon": "code",
+        "pages": [
+          {
+            "group": "APIs & config",
+            "pages": [
+              "developers/embed-api",
+              "developers/query-params",
+              "developers/public-insights",
+              "developers/webhooks",
+              "developers/config-env",
+              "developers/multi-tenancy",
+              "developers/studio-permissions",
+              "developers/upload-disks",
+              "developers/openapi-beacon"
+            ],
+            "expanded": true
+          },
+          {
+            "group": "Extensibility",
+            "pages": [
+              "developers/extensibility-overview",
+              "developers/PUBLIC_API",
+              "developers/events-hooks",
+              "developers/field-mapping",
+              "developers/custom-integrations",
+              "developers/inbound-webhooks",
+              "developers/integration-sdk-helpers",
+              "developers/oauth-integrations",
+              "developers/oauth-token-management",
+              "developers/post-submit-actions",
+              "developers/custom-models",
+              "developers/admin-customization"
+            ],
+            "expanded": true
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/license-flow",
+              "architecture/insights-pipeline"
+            ],
+            "expanded": true
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "megaphone",
+        "pages": [
+          "resources/whats-new",
+          "resources/roadmap"
+        ]
+      },
+      {
+        "tab": "Resources",
+        "icon": "library",
+        "pages": [
+          "resources/product-walkthrough",
+          "resources/support",
+          "resources/compare",
+          "resources/accessibility",
+          "resources/terms",
+          "resources/privacy"
+        ]
+      }
+    ]
+  }
+}

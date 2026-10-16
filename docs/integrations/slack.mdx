@@ -1,0 +1,198 @@
+---
+title: "Slack Integration"
+description: "A comprehensive guide to sending instant, perfectly formatted notifications and lead summaries directly to specific Slack channels."
+icon: "slack"
+keywords: ["slack", "notifications", "chat", "alerts", "channel", "webhook", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how Flex Forms structures the complex UI payloads, please read about Slack's Block Kit formatting in the [Official Slack API Documentation](https://api.slack.com/messaging/sending).
+</Banner>
+
+The **Slack** integration is the ultimate internal notification tool for modern teams. Whenever a high-value form is submitted, Flex Forms instantly compiles the user's answers into a beautifully formatted Slack Block Kit layout and pushes it directly into a specific Slack channel. This allows your team to discuss, triage, and respond to leads in real-time without ever opening their email.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Instant Sales Alerts" icon="bell">
+    Instantly notify the `#sales-team` channel the exact second a prospect requests an enterprise demo. The Slack message contains their name, company size, and phone number, allowing the first available SDR to claim the lead immediately.
+  </Card>
+  <Card title="Support Ticket Triage" icon="bug">
+    Route bug reports from a technical support form directly into the `#engineering-bugs` channel. Developers can instantly start a threaded conversation on the exact Slack message to discuss the bug without leaving their workflow.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Prefer **Connections** for bot-token workspaces (channel pickers, Block Kit API). Incoming webhooks still work for simple one-channel alerts.
+
+### Recommended: Bot token via Connections
+
+<Steps>
+  <Step title="Step 1: Create a Slack app">
+    Open `https://api.slack.com/apps` → **Create New App** → **From scratch**. Name it `Flex Forms Bot` and pick your workspace.
+  </Step>
+  <Step title="Step 2: Add Bot Token Scopes">
+    Under **OAuth & Permissions**, add scopes such as `chat:write`, `channels:read`, and `users:read` (plus any extras your workspace policy requires).
+  </Step>
+  <Step title="Step 3: Install the app">
+    Install to the workspace and copy the **Bot User OAuth Token** (`xoxb-…`).
+  </Step>
+  <Step title="Step 4: Create a Connection">
+    In Flex Forms → **Integrations** → **Connections**, create a **Slack** connection, paste the bot token, and connect.
+  </Step>
+  <Step title="Step 5: Wire the form feed">
+    Open the form → hub **Integrations** → **Slack**. Enable the feed, choose your **Connection**, set delivery to API, pick a channel, and save.
+  </Step>
+</Steps>
+
+### Alternative: Incoming webhook (single channel)
+
+<Steps>
+  <Step title="Step 1: Enable Incoming Webhooks">
+    In the Slack app settings, open **Incoming Webhooks** and switch it **On**.
+  </Step>
+  <Step title="Step 2: Add a webhook to a channel">
+    Click **Add New Webhook to Workspace**, pick the channel, and copy the `https://hooks.slack.com/services/…` URL.
+  </Step>
+  <Step title="Step 3: Paste on the form feed">
+    Open the form → hub **Integrations** → **Slack**, paste the webhook URL (or store it on a Connection / Catalog credential if you reuse it), and save.
+  </Step>
+</Steps>
+
+### Optional: inbound Slack events
+
+To accept Slack → Flex Forms callbacks (for example URL verification and signed events), add the **Signing Secret** on the Slack Catalog/Connection credentials and point Slack’s Request URL at:
+
+`POST /flex-forms/integrations/slack/webhook`
+
+---
+
+## Configuration & Masterclass Usage
+
+With a Connection (bot token) or webhook URL on the form feed, Flex Forms compiles answers into a readable Slack Block Kit layout and posts to the chosen channel.
+
+### Multi-Channel Routing Strategy
+
+Use one Slack Connection per workspace, then pick different channels per form — or use separate incoming webhooks when you want hard isolation without bot scopes.
+
+<Tree>
+  <Tree.Folder name="Enterprise Routing Example" defaultOpen>
+    <Tree.File name="Form: 'Contact Sales' -> Connection + channel #sales-leads" />
+    <Tree.File name="Form: 'Report a Bug' -> Connection + channel #engineering-triage" />
+    <Tree.File name="Form: 'Partner Application' -> Incoming webhook #biz-dev" />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: 404 channel_not_found">
+    **The Problem:** The server logs show a `404 channel_not_found` error, or the Slack messages simply aren't appearing.
+    
+    **The Solution:** This usually happens if the channel you selected in Step 7 was deleted, or if it was a Private Channel and the Flex Forms Bot was kicked out. To fix this, you must go back to your Slack API dashboard, generate a brand new Webhook URL for an active channel, and paste the new URL into Flex Forms.
+  </Accordion>
+  <Accordion title="API Error: 403 invalid_token">
+    **The Problem:** The server logs show a `403 invalid_token` error.
+    
+    **The Solution:** The Webhook URL you pasted into Flex Forms is incorrect, missing characters, or has been explicitly revoked by a Slack Workspace Administrator. Ensure you copied the entire URL perfectly, starting with `https://hooks.slack.com/services/...`.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="bot_token" type="password" required>
+  **Bot User OAuth Token**
+  **Recommended Method:** This is the primary token (starts with `xoxb-`) that gives Flex Forms deep integration capabilities. It allows the plugin to dynamically fetch your public and private channels, direct message users, and post rich Block Kit messages. 
+  
+  *Requires the following scopes: `chat:write`, `channels:read`, `groups:read`, `users:read`, `im:write`.*
+</ParamField>
+
+<ParamField path="webhook_url" type="password" >
+  **Default Incoming Webhook URL**
+  **Legacy Fallback:** If you do not want to create a Slack App and prefer the old way of doing things, paste a standard Incoming Webhook URL here (`https://hooks.slack.com/services/...`). Note that webhooks are hardcoded to a single channel and cannot dynamically DM users.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Delivery & Targeting
+<ParamField path="delivery" type="select" default="auto" >
+  **Delivery mode**
+  Dictates which API strategy Flex Forms uses to send the message.
+  
+  **Options:**
+  - `auto`: Automatically prefers the robust Bot Token API, but silently falls back to Webhooks if the Bot Token is missing.
+  - `api`: Forces the use of the Bot API (requires a valid `bot_token`).
+  - `webhook`: Forces the use of an Incoming Webhook (bypassing the Bot).
+</ParamField>
+
+<ParamField path="send_to" type="select" default="channel" >
+  **Send to**
+  When using the Bot API (`api` delivery mode), this determines the destination type.
+  
+  **Options:**
+  - `channel`: Posts to a standard public or private channel.
+  - `user`: Sends a 1-on-1 Direct Message to a specific Slack user in your workspace.
+</ParamField>
+
+<ParamField path="channel" type="remote_select" >
+  **Slack channel**
+  A dynamically loaded dropdown of all channels your Bot has access to. Select the specific channel to route these form submissions into (e.g., `#sales-leads`).
+</ParamField>
+
+<ParamField path="user" type="remote_select" >
+  **Slack user**
+  A dynamically loaded dropdown of all users in your workspace. Used when `send_to` is set to `user`. Flex Forms will open a DM with this person.
+</ParamField>
+
+<ParamField path="webhook_url" type="password" >
+  **Webhook URL override**
+  If you are using `webhook` delivery but want *this specific form* to post to a different channel than the Global Default Webhook, paste the unique Webhook URL here.
+</ParamField>
+
+#### Message Customization
+<ParamField path="message" type="textarea" >
+  **Message**
+  The main text block of the Slack notification. If left empty, Flex Forms auto-generates a clean summary of the answers. You can use merge tags to build custom templates.
+  
+  *Example:* `Hey team! New enterprise lead from {{company_name}} just requested a demo.`
+</ParamField>
+
+<ParamField path="title" type="text" >
+  **Notification title**
+  The bold header text appearing at the top of the Slack message.
+</ParamField>
+
+<ParamField path="include_fields" type="toggle" default="true" >
+  **Attach all answer fields**
+  If enabled, Flex Forms will automatically append a well-formatted table (using Slack Block Kit) containing every single question and answer from the form below your main message.
+</ParamField>
+
+<ParamField path="attachment_urls" type="text" >
+  **Image URL fields**
+  If your form asks users to provide a link to an image (e.g., a logo or screenshot), you can type the block names here (comma-separated). Flex Forms will extract those URLs and embed them natively as rich image attachments in the Slack message.
+</ParamField>
+
+#### Webhook Overrides
+<ParamField path="username" type="text" >
+  **Webhook bot username**
+  *Only for Webhook mode.* Overrides the name of the bot posting the message (e.g., `Flex Forms Leads`).
+</ParamField>
+
+<ParamField path="icon_url" type="text" >
+  **Webhook icon URL**
+  *Only for Webhook mode.* Provide a custom HTTPS link to an image (like your company logo) to replace the default Slack bot avatar.
+</ParamField>
+

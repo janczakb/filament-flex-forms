@@ -1,0 +1,40 @@
+---
+title: "If / Else block (deprecated)"
+description: "Deprecated: the Logic catalog If / Else card is removed. Prefer Branch on a field and [Workflow → Rules]."
+icon: "split"
+keywords: ["if else", "logic block", "deprecated", "branch", "rules"]
+boost: 1
+---
+
+<Warning>
+  **Deprecated — removed from the catalog.** The canvas **If / Else** card is no longer insertable. Existing forms still load; Studio migrates those rules into **Rules** (`schema.logic`, no field anchor) automatically. Prefer [Branch & field conditions](/features/studio/logic/field-conditions) and the [Workflow → Rules](/features/studio/logic-board) for all new work.
+</Warning>
+
+## What it was
+
+**If / Else** in the left catalog was **not a question**. Respondents never typed into it. It was a visible canvas card that hosted the same When → Then editor as Rules.
+
+That third entry point is gone. Authoring is now:
+
+1. **Branch** on choice answers (+ **Otherwise**)  
+2. **Workflow → Rules** (plus Flow map + Simulator) for full When → Then  
+3. **Calculated** for live formulas  
+
+## Migration
+
+| Old habit | Do this instead |
+|-----------|-----------------|
+| Drop If / Else for “Other → specify” | [Branch](/features/studio/logic/field-conditions) on the choice field |
+| Drop If / Else for page routing | Branch **Go to page**, or **Rules** → Jump to page |
+| Drop If / Else for hide Submit / complex When | [Workflow → Rules](/features/studio/logic-board) |
+| Live scoreboard | [Calculated](/features/studio/calculated-fields) |
+
+You do not need to rebuild old forms by hand — open Studio once and save; migrated rules appear under **Workflow → Rules**.
+
+## Evaluation (legacy cards still in a schema)
+
+Until migrated, any remaining card rules run with other block-layer logic in canvas order. Later matching rules still win. Prefer opening **Workflow → Rules** and editing there after migration.
+
+<Panel>
+  [How logic works](/features/studio/logic/overview) · [Workflow → Rules](/features/studio/logic-board) · [Branch & field conditions](/features/studio/logic/field-conditions)
+</Panel>

@@ -1,0 +1,73 @@
+---
+title: "Compare"
+description: "When Flex Forms is the right fit versus a custom form stack or an external SaaS form product."
+icon: "scale"
+keywords: ["compare", "filament forms", "alternative", "self-hosted", "saas forms"]
+---
+
+External SaaS form products are strong general tools. Flex Forms targets a narrower job: **your team already runs Filament**, and you want public forms, submissions, and analytics to live in that same application — same login, same policies, same database.
+
+## Two models
+
+<Columns cols={2}>
+  <Card title="External form product" icon="external-link">
+    Separate vendor UI and storage. You connect exports, webhooks, or paid add-ons to bring answers into your systems.
+  </Card>
+  <Card title="Flex Forms" icon="layout-dashboard">
+    Plugin inside your Filament panel. Submissions, Contacts, and Insights are rows you already back up with the rest of the app.
+  </Card>
+</Columns>
+
+## Delivery options
+
+| | Custom engineering | External form SaaS | Flex Forms |
+| --- | --- | --- | --- |
+| **First published form** | Depends on your roadmap | Fast vendor onboarding | Composer install → Studio → publish |
+| **Cost shape** | Engineer time + upkeep | Monthly (often open-ended) | Yearly plans or Lifetime once |
+| **Answer storage** | Your DB | Vendor cloud | Your DB |
+| **Operator UI** | Custom | Vendor app | Filament panel |
+| **Private / restricted networks** | If you build for it | Rarely | Same as your Laravel deploy |
+
+## Operations checklist
+
+| Topic | External SaaS | Flex Forms |
+| --- | --- | --- |
+| Data residency | Vendor regions / terms | Your infrastructure |
+| Who can open the admin | Vendor seats | Existing Filament users & policies |
+| Embeds | Usually their CDN / widget | Served from your app |
+| CRM / webhooks | Often plan-gated | Included — [Integrations](/integrations/overview) |
+| Multi-page, logic, formulas | Varies by vendor | Included — [Logic & calculated](/guides/logic-and-calculated) |
+| Analytics | Vendor dashboards | [Insights](/guides/reading-insights) in-panel |
+| Commercial model | Usage / seat subscriptions | Standard **$99** · Pro **$199** · Enterprise **$799** / year, or Lifetime **$899** — [Plans](/plans/overview) |
+
+## Rough multi-year spend (hosted vs Lifetime)
+
+Use this only as a planning sketch against **public list prices**. Your real SaaS invoice may differ (discounts, taxes, annual billing).
+
+| Option | Rough monthly list | ~60 months | Notes |
+| --- | --- | --- | --- |
+| Hosted form SaaS (entry tier) | ~$29 | ~$1,740 | Vendor-hosted |
+| Hosted form SaaS (business tier) | ~$99 | ~$5,940 | Vendor-hosted |
+| Hosted form SaaS (mid tier) | ~$39 | ~$2,340 | Vendor-hosted |
+| **Flex Forms Lifetime** | — | **$899** | In your Filament app; Pro features; **10** activations; ongoing package updates |
+
+<Info>
+  Illustrative 2026 public tiers — verify on each vendor’s pricing page. Yearly Flex Forms subscriptions remain available if Lifetime is not the right purchase — [Plans & Pricing](/plans/overview).
+</Info>
+
+<Tip>
+  No Filament panel? An external builder is usually simpler. Flex Forms assumes Filament is already your admin layer.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Can I migrate existing forms from another builder?">
+    There is no automated importer today. Recreate the form in Studio and point traffic at the new fill link or embed.
+  </Accordion>
+  <Accordion title="Which field types are included?">
+    Rating, NPS, file upload, currency, voice notes, and the rest of the [Blocks catalog](/features/blocks/overview). Card payments use [Stripe](/integrations/stripe) via the Payment block. PayPal and ranking fields are not included.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next:** [Plans & Pricing](/plans/overview) · [Compare plans](/plans/standard-pro-enterprise) · [Features overview](/features/forms/overview) · [Integrations](/integrations/overview)
+</Panel>

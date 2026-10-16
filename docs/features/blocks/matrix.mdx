@@ -1,0 +1,149 @@
+---
+title: "Matrix Choice Block"
+description: "A powerful grid-based question type for collecting bulk responses or evaluating items on a common scale."
+icon: "table-cells"
+keywords: ["matrix", "grid", "likert", "scale", "survey", "evaluation"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **Mobile Optimization:** Matrix blocks automatically transform from a desktop grid into stacked mobile cards, ensuring perfect responsiveness on phones.
+</Banner>
+
+The **Matrix Choice** block (`MatrixChoiceField`) allows you to group multiple related questions into a single, cohesive table. It is perfect for Likert scale surveys (e.g., "Rate the following aspects of our service from 1 to 5") or bulk product selections.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Likert Surveys" icon="chart-simple">
+    "How satisfied are you with..." (Rows: Support, Product, Pricing | Cols: 1 to 5).
+  </Card>
+  <Card title="Bulk Order Forms" icon="boxes-stacked">
+    "Select your uniform sizes." (Rows: Small, Medium, Large | Cols: Red, Blue, Green).
+  </Card>
+  <Card title="Feature Prioritization" icon="list-check">
+    "Rank these features by importance." (Rows: Features | Cols: Must Have, Nice to Have, Do Not Build).
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Matrix Choice** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Define the Grid">
+    Configure the **Rows** (the subjects or items being evaluated) and the **Columns** (the scale, answers, or rating options).
+  </Step>
+  <Step title="Choose the Mode">
+    Decide if the user can pick only one answer per row (`Radio` mode) or multiple answers per row (`Checkbox` mode).
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Grid Configuration">
+    <ParamField path="rows" type="array" required>
+      The list of items to evaluate. Each row is defined as a key-value pair (e.g., `cleanliness` => "Cleanliness of the room").
+    </ParamField>
+    
+    <ParamField path="columns" type="array" required>
+      The scale or choices available for each row. Defined as a key-value pair (e.g., `5` => "Excellent", `1` => "Poor").
+    </ParamField>
+    
+    <ParamField path="mode" type="string">
+      Defines the selection logic:
+      - `radio`: Only one choice can be made per row.
+      - `checkbox`: Multiple choices can be selected per row.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the matrix table. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="color" type="string">
+      The accent color used to highlight selected cells in the grid.
+    </ParamField>
+    
+    <ParamField path="column_icons" type="array">
+      An array mapping column keys to Heroicon names. This displays an icon inside the column header (e.g., a star icon).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Advanced Locking Logic">
+    <ParamField path="disabled_rows" type="array">
+      An array of row keys that are grayed out and unclickable.
+    </ParamField>
+    
+    <ParamField path="disabled_cells" type="array">
+      An array of specific cells that cannot be selected (e.g., `row_key:column_key`).
+    </ParamField>
+    
+    <ParamField path="disable_cell_when" type="array">
+      A dynamic ruleset to lock a cell based on another answer within the matrix.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Because a Matrix is fundamentally a grid of questions, the data is saved as a JSON object where the keys are the rows, and the values are the selected columns.
+
+<CodeGroup>
+  ```json Webhook Payload (Radio Mode)
+  {
+    "submission_id": "sub_719",
+    "data": {
+      "hotel_survey": {
+        "room_cleanliness": "5_stars",
+        "staff_friendliness": "4_stars",
+        "food_quality": "3_stars"
+      }
+    }
+  }
+  ```
+
+  ```json Webhook Payload (Checkbox Mode)
+  {
+    "submission_id": "sub_719",
+    "data": {
+      "tshirt_order": {
+        "size_large": ["color_red", "color_blue"],
+        "size_small": ["color_green"]
+      }
+    }
+  }
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Complex Cell Locking
+
+The Matrix Choice field supports complex, cell-level locking logic to prevent impossible combinations. 
+
+If you are using a Matrix for an order form (Rows = Shirt Sizes, Columns = Colors), but you are out of stock for "Small Red" shirts, you can use the `disabled_cells` parameter to explicitly block the coordinate `size_small:color_red`. 
+
+This prevents users from ordering inventory that doesn't exist, maintaining data integrity without having to delete the row or column entirely.
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Width Limits">
+    **UX Rule:** Do not add more than 7 columns to a Matrix. Anything beyond that becomes cognitively overwhelming for the user and visually cluttered on tablets, forcing horizontal scrolling.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Rating & NPS Block](/features/blocks/rating-nps)
+</Panel>

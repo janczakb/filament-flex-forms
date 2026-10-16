@@ -1,0 +1,161 @@
+---
+title: "File Upload Block"
+description: "Securely collect documents, images, and attachments directly into your cloud storage."
+icon: "paper-clip"
+keywords: ["file", "upload", "attachment", "image", "document", "s3"]
+---
+
+<Banner type="critical" dismissible={false}>
+  🚨 **Security Notice:** Never deploy a File Upload block without setting a `max_size_kb` limit. Without it, an attacker could upload gigabytes of data and spike your cloud storage bill.
+</Banner>
+
+The **File Upload** block provides a powerful drag-and-drop interface for users to submit files. It includes robust security limits, automatic image optimization, and multi-file support, seamlessly routing files directly to your configured storage disks (like AWS S3 or Google Cloud Storage) without stressing your primary web server.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Job Applications" icon="file-pdf">
+    Collect resumes and cover letters by enforcing PDF-only uploads.
+  </Card>
+  <Card title="Field Inspections" icon="camera">
+    Allow field workers to take photos of broken equipment directly via their mobile device's camera.
+  </Card>
+  <Card title="KYC Verification" icon="id-card">
+    Securely upload copies of passports or driver's licenses to a private S3 bucket.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **File Upload** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Set Storage Rules">
+    Define which `disk` and `directory` the uploaded files should be saved to (e.g., `s3` in the `customer_resumes` folder).
+  </Step>
+  <Step title="Enforce Security Restrictions">
+    To prevent malicious uploads, always set the **Accepted Types** (e.g., just PDFs) and a strict **Max Size (KB)** limit.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Storage & Routing">
+    <ParamField path="disk" type="string">
+      The Laravel storage disk where the files should be saved (e.g., `s3`, `public`, `local`).
+    </ParamField>
+    
+    <ParamField path="directory" type="string">
+      The specific folder inside the disk where the files will be placed.
+    </ParamField>
+    
+    <ParamField path="visibility" type="string">
+      Sets the ACL visibility on S3-compatible storage (e.g., `private` or `public-read`).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Limits & Validation">
+    <ParamField path="multiple" type="boolean" default="false">
+      If enabled, the user can select and upload multiple files at once.
+    </ParamField>
+    
+    <ParamField path="max_size_kb" type="integer">
+      The maximum file size allowed for **each individual file**, specified in kilobytes (e.g., `5120` for 5MB).
+    </ParamField>
+    
+    <ParamField path="accepted_types" type="array">
+      An array of allowed MIME types (e.g., `['application/pdf', 'image/jpeg']`). The browser will restrict the file picker to these extensions.
+    </ParamField>
+    
+    <ParamField path="documents_only" type="boolean" default="false">
+      A quick-preset that automatically restricts uploads to standard document formats (PDF, DOCX, TXT).
+    </ParamField>
+    
+    <ParamField path="images_only" type="boolean" default="false">
+      A quick-preset that restricts uploads to image formats (JPG, PNG, WEBP).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Image Optimization">
+    <ParamField path="optimize_images" type="boolean" default="false">
+      Legacy block-level toggle. Flex Forms also applies package-wide image optimization on public fill uploads (see below).
+    </ParamField>
+    
+    <ParamField path="max_image_width" type="integer">
+      Automatically resizes images that exceed this width (in pixels).
+    </ParamField>
+    
+    <ParamField path="max_image_height" type="integer">
+      Automatically resizes images that exceed this height (in pixels).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## How Flex Forms stores respondent files
+
+- **Images** are converted to WebP (quality 80 by default) with a **normal** variant (max 1500px long edge) and a **thumb** (max 350px). Smaller images are never upscaled; the original upload is discarded after variants exist.
+- **Everything else** (PDF, Word, video, audio, …) is stored as a **single original file** — no forced WebP, no thumb.
+- Storage uses your configured submissions disk by default. If you set `FLEX_FORMS_MEDIA_DRIVER=spatie` and install [spatie/laravel-medialibrary](https://github.com/spatie/laravel-medialibrary), Spatie becomes the **primary** store: native conversions, responsive images (optional), `ffmedia:{uuid}` path tokens, and originals deleted after conversions. Details: [Upload disks](/developers/upload-disks).
+
+---
+
+## Data Payload Architecture
+
+Flex Forms handles the heavy lifting of uploading the file to your cloud storage. When the form submits, it passes the *path* to the file, not the raw binary data.
+
+<CodeGroup>
+  ```json Webhook Payload (Single File)
+  {
+    "submission_id": "sub_909",
+    "data": {
+      "resume_upload": "customer_resumes/john_doe_resume.pdf"
+    }
+  }
+  ```
+
+  ```json Webhook Payload (Multiple Files)
+  {
+    "submission_id": "sub_909",
+    "data": {
+      "inspection_photos": [
+        "inspections/photo_1.jpg",
+        "inspections/photo_2.jpg"
+      ]
+    }
+  }
+  ```
+</CodeGroup>
+
+<Callout type="info">
+  **Generating URLs:** To view these files, you will need to generate a URL based on your disk configuration (e.g., `https://my-s3-bucket.s3.amazonaws.com/customer_resumes/john_doe_resume.pdf`).
+</Callout>
+
+---
+
+## Deep Dive: Image Optimization
+
+When asking for photos (e.g., a profile picture or an inspection photo), modern smartphones often upload 10MB to 20MB raw images. If 1,000 users upload a 15MB photo, you will rapidly burn through your cloud storage and bandwidth budget.
+
+By enabling **Optimize Images** and setting a **Max Width/Height** (e.g., 1920px), the File Upload block intercepts the massive file on the server, resizes it, and compresses it down to ~500KB *before* saving it to S3.
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Organizing Uploads via Directories">
+    Always specify a `directory` (e.g., `form_uploads/campaign_x`). If you leave it blank, all files dump into the root of your storage disk, making it a nightmare to manage later.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Signature Block](/features/blocks/signature)
+</Panel>

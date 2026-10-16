@@ -1,0 +1,55 @@
+---
+title: "Multi-Page Forms & Wizard Stepper"
+description: "Dramatically increase completion rates by breaking long, intimidating forms into bite-sized, interactive steps."
+icon: "layers"
+keywords: ["multi-page", "stepper", "wizard", "pages", "ux"]
+boost: 3
+---
+
+Long, single-page forms are terrifying to users and lead to massive abandonment rates. 
+
+Flex Forms allows you to easily chop any form into multiple pages. When combined with the [Logic Engine](/guides/logic-and-calculated), you can even skip irrelevant pages entirely based on the user's answers.
+
+```mermaid
+flowchart LR
+  P1[Page_1_Intro] -->|Next| P2[Page_2_Questions]
+  P2 -->|Logic_Rule_Matches| P4[Page_4_Special_Offer]
+  P2 -->|Normal_Flow| P3[Page_3_Standard]
+  P3 --> P4
+  P4 --> Submit[Final_Submission]
+```
+
+---
+
+## Designing the Wizard Experience
+
+<Steps>
+  <Step title="Split the Pages in Studio">
+    Open the **Pages** sidebar in the Studio. Simply drag and drop your existing blocks into new Page columns. There is no limit to how many pages you can create.
+  </Step>
+  <Step title="Select a Stepper Style">
+    In **Studio → Form settings (gear) → General**, choose how you want to visualize progress (only when the form has more than one page):
+    - **Numbered Tiles:** Circled step numbers (Step 1, Step 2, Step 3).
+    - **Progress Bar:** A continuous line that fills as respondents move through pages.
+    - **None:** Hide the stepper for a chat-style experience.
+  </Step>
+  <Step title="Define Brand Colors">
+    Set the **Stepper Accent Color** to your brand Hex code so the wizard matches your identity.
+  </Step>
+</Steps>
+
+---
+
+## Frictionless Progression
+
+If you are building a rapid-fire quiz or a triage form, forcing users to click "Next" after every single question is annoying.
+
+Toggle **Auto-Jump** on in the Behavior settings. The exact millisecond a user clicks a multiple-choice answer, the form will instantly and smoothly transition to the next page, creating a polished, app-like experience.
+
+<Callout type="warning">
+  **Intelligent Validation:** You don't need to worry about users skipping required fields. The engine strictly validates the *current visible page* before allowing the user to progress. It intelligently ignores required fields that are hidden by Logic or located on future pages.
+</Callout>
+
+<Panel>
+  **Next Steps:** [Building Quizzes & Calculators](/guides/quiz-recipe) · [Monitoring Page Drop-offs](/guides/reading-insights)
+</Panel>

@@ -1,0 +1,156 @@
+---
+title: "Is not empty"
+description: "When clause operator: The respondent provided an answer."
+icon: "circle-dot"
+keywords: ["logic", "operator", "not_empty", "condition", "when"]
+---
+
+**Is not empty** checks that a field **has an answer** — any text, selection, upload, signature, or numeric value counts as filled.
+
+Use it to reveal follow-ups once they start typing, gate routing on “attachment provided”, or require downstream logic only after a prerequisite field is completed.
+
+---
+
+## When to choose this
+
+| Goal | Use **Is not empty** | Use something else instead |
+|------|---------------------|----------------------------|
+| Any answer provided | ✓ | — |
+| Still blank | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Specific value | ✗ | **[Equals](/features/studio/logic/operators/eq)** or comparisons |
+| Text contains snippet | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+| Yes/no checked | ✗ | **[Equals](/features/studio/logic/operators/eq)** on toggle |
+
+---
+
+## Exact behavior
+
+Filled means **not** any of:
+
+- `null`
+- `""`
+- `[]`
+
+Whitespace-only text (`"   "`) is **not** empty — it counts as an answer.
+
+No comparison value required.
+
+For signatures, Studio may show **Is signed** — same as **Is not empty** for that block type.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| Number | ✓ |
+| Date & time | ✓ |
+| Choice | ✓ |
+| Presence (file, signature, …) | ✓ |
+| Yes / no | — |
+| Default fallback | ✓ |
+
+---
+
+## Blank / unanswered answers
+
+**Does not match** when empty — this operator is the inverse of [Is empty](/features/studio/logic/operators/empty).
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select field">
+    Prerequisite question, upload, ID field, etc.
+  </Step>
+  <Step title="Choose Is not empty">
+    Signatures: **Is signed**.
+  </Step>
+  <Step title="Skip value entry">
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), [Require answer](/features/studio/logic/actions/require-answer) on dependents.
+  </Step>
+  <Step title="Test progressive disclosure on Fill">
+    Rule should fire on first keystroke/selection.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Reveal details after company name
+
+> **When** Company **is not empty** → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `VAT ID, Billing address`
+
+### Attachment triggers review page
+
+> **When** Supporting document **is not empty** → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Document review`
+
+### Signed waiver enables submit
+
+> **When** Waiver **is signed** → **Then** allow submit (remove [Hide submit](/features/studio/logic/actions/hide-submit) paired rule)
+
+Often paired: **Is not signed → Hide submit**.
+
+### Any date picked for scheduling
+
+> **When** Preferred date **is not empty** → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Time slot`
+
+Use **Equals** / comparisons for specific dates.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Start with blank field">
+    Rule off.
+  </Step>
+  <Step title="Enter any value">
+    Rule on immediately (live recompute).
+  </Step>
+  <Step title="Clear value">
+    Rule off.
+  </Step>
+  <Step title="Upload file then remove">
+    Presence fields follow same empty/filled rules.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Is not empty** when you need a specific value — add **Equals** or **Contains**.
+- Using on toggle — unchecked may still be a valid “No” answer; use **Equals**.
+- Assuming spaces are empty — `" "` is not empty.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule fires too early">
+    **Is not empty** triggers on any input — combine with **Contains** or length checks via calculated field if needed.
+  </Accordion>
+  <Accordion title="File uploaded but rule off">
+    Upload may still be processing — retry after upload completes on Fill.
+  </Accordion>
+  <Accordion title="vs Is empty pair">
+    Ensure **Show** and **Hide** rules do not fight — check evaluation order.
+  </Accordion>
+  <Accordion title="Default pre-filled value">
+    Field may start “not empty” — adjust defaults in block settings.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Is empty](/features/studio/logic/operators/empty) · [Show blocks](/features/studio/logic/actions/show-blocks) · [How logic works](/features/studio/logic/overview)
+</Panel>

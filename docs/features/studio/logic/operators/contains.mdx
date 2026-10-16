@@ -1,0 +1,157 @@
+---
+title: "Contains"
+description: "When clause operator: The text includes this snippet, or a multi-choice answer includes this option."
+icon: "text-search"
+keywords: ["logic", "operator", "contains", "condition", "when"]
+---
+
+**Contains** checks whether the answer **includes** what you specify — a substring in text, or a selected option in a multi-choice field.
+
+Use it for keyword triggers (“urgent” in notes), add-on detection, and tag-style membership without requiring an exact full set.
+
+---
+
+## When to choose this
+
+| Goal | Use **Contains** | Use something else instead |
+|------|------------------|----------------------------|
+| Text includes substring | ✓ | **Starts with** / **Ends with** for prefix/suffix |
+| Multi-select includes one option | ✓ | **Is any of** for allow-list of several values |
+| Exact full multi-select set | ✗ | **[Equals set](/features/studio/logic/operators/eq_set)** |
+| All listed options selected | ✗ | **[Includes every of](/features/studio/logic/operators/is_every_of)** |
+| Text does not include | ✗ | **[Does not contain](/features/studio/logic/operators/not_contains)** |
+| Blank field | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Text fields:** case-insensitive substring search (`mb_strtolower` on both sides). `"URGENT ticket"` contains `"urgent"`.
+- **Multi-choice / tags:** checks whether **any selected option** equals your value (same flexible matching as [Equals](/features/studio/logic/operators/eq)).
+- **Single-choice** fields support **Contains** — behaves like **Equals** for one value.
+- Your comparison value must be non-empty, or the clause never matches.
+- Null or non-string text answers fail the check; empty string `""` does not contain a non-empty snippet.
+- Empty multi-select `[]` does not contain any option.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| Choice (select, radio, checkbox list, tags, …) | ✓ |
+| Number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+- **Unanswered text** (`null`, non-string): **does not match**.
+- **Empty text** (`""`): does not contain a non-empty snippet.
+- **Empty multi-select** (`[]`): does not contain any option.
+- Use [Is empty](/features/studio/logic/operators/empty) for “nothing selected / no notes”.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick text or choice field">
+    Email, textarea, tags, checkbox list, etc.
+  </Step>
+  <Step title="Choose Contains">
+    Operator appears for text and choice families.
+  </Step>
+  <Step title="Enter snippet or pick option chip">
+    Non-empty value required — `"urgent"`, `Priority support`, etc.
+  </Step>
+  <Step title="Add Then actions">
+    [Require answer](/features/studio/logic/actions/require-answer), [Show blocks](/features/studio/logic/actions/show-blocks).
+  </Step>
+  <Step title="Test case variants on Fill">
+    Upper/lowercase text, partial selections, empty field.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Urgent keyword in notes
+
+> **When** Notes **contains** `urgent` → **Then** [Require answer](/features/studio/logic/actions/require-answer) `Phone`
+
+`URGENT`, `Urgent`, and `urgent` all match — case-insensitive.
+
+### Add-on selected
+
+> **When** Add-ons **contains** `Priority support` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `SLA disclaimer`
+
+Other add-ons may also be selected.
+
+### Tag membership
+
+> **When** Tags **contains** `Enterprise` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Account manager field`
+
+Works like “includes this tag among many”.
+
+### Email domain hint (text)
+
+> **When** Work email **contains** `@acme.com` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Employee ID`
+
+Substring match — not full email validation.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Type text with snippet">
+    Rule fires; remove snippet — rule off.
+  </Step>
+  <Step title="Try different casing">
+    Should still match for text.
+  </Step>
+  <Step title="Select option on multi-choice">
+    Fire; deselect — off.
+  </Step>
+  <Step title="Leave field empty">
+    Off — use **Is empty** if you need blank handling.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Contains** for exact multi-select with no extras — use **Equals set**.
+- Expecting **Contains** on numbers or dates — operator unavailable.
+- Duplicating rules for `VIP` and `vip` — matching is case-insensitive for text.
+- Empty comparison snippet — clause never matches.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Text rule never fires">
+    Field may be null/non-string, or snippet not actually present. Check for extra spaces — substring must appear contiguously.
+  </Accordion>
+  <Accordion title="Choice rule never fires">
+    Verify stored option value matches chip in rule, not just label shown on Fill.
+  </Accordion>
+  <Accordion title="Need exclude substring">
+    Use **Does not contain** — requires non-blank answer on source field.
+  </Accordion>
+  <Accordion title="Need multiple allowed snippets">
+    Use **Any** group with several **Contains** clauses, or **Is any of** on choice fields.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Does not contain](/features/studio/logic/operators/not_contains) · [Is any of](/features/studio/logic/operators/in) · [Equals set](/features/studio/logic/operators/eq_set) · [How logic works](/features/studio/logic/overview)
+</Panel>

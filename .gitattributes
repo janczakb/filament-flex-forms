@@ -1,0 +1,12 @@
+# Public Help Center repo — not a Composer package.
+
+*.mdx linguist-documentation
+*.md linguist-documentation
+
+# Never ship local tooling / secrets if archived
+/node_modules/** export-ignore
+/.mintlify/** export-ignore
+/.cache/** export-ignore
+/.env export-ignore
+/.env.* export-ignore
+/auth.json export-ignore

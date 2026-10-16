@@ -1,0 +1,130 @@
+---
+title: "Mapbox Integration"
+description: "A comprehensive guide to powering Location and Address blocks with lightning-fast Mapbox geocoding APIs."
+icon: "map-location-dot"
+keywords: ["mapbox", "location", "address", "geocoding", "map", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API resolves unstructured text into precise coordinates, please read the [Official Mapbox Geocoding API Documentation](https://docs.mapbox.com/help/getting-started/access-tokens/).
+</Banner>
+
+The **Mapbox** integration provides enterprise-grade geocoding capabilities for your forms. By connecting Flex Forms to Mapbox, you enable advanced Address Autocomplete features, allowing users to type a few letters of their address and instantly select perfectly formatted, verified location data from a dropdown.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Address Autocomplete" icon="keyboard">
+    Drastically reduce user friction on complex shipping or intake forms. Instead of making users manually type their city, state, and zip code across 5 different fields, Mapbox allows them to search one single field and auto-populates everything perfectly.
+  </Card>
+  <Card title="Data Standardization" icon="spell-check">
+    Ensure clean data enters your CRM. Mapbox standardizes spelling (e.g., forcing "New York" instead of "NY" or "NYC") and verifies the address actually exists before allowing the submission.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Mapbox requires generating an **Access Token**. Mapbox uses a highly secure, restricted token architecture. Follow these exact instructions.
+
+<Steps>
+  <Step title="Step 1: Log into Mapbox">
+    Open your web browser and navigate to the Mapbox login portal (`account.mapbox.com`). Enter your credentials to access the main administrative dashboard.
+  </Step>
+  
+  <Step title="Step 2: Access the Tokens Menu">
+    Once logged in, look at the **top navigation menu**. Click exactly on the link labeled **Tokens**.
+  </Step>
+  
+  <Step title="Step 3: Initiate Token Creation">
+    On the Access Tokens page, you will see a Default Public Token. While you *could* use this, it is not secure. 
+    
+    Click the prominent blue button on the right side labeled **+ Create a token**. A configuration screen will appear.
+  </Step>
+  
+  <Step title="Step 4: Configure Token Details">
+    Fill out the top section with the following exact details:
+    - **Token name:** Type exactly `Flex Forms Integration`.
+    
+    Under the "Public scopes" section, ensure the following are checked (they usually are by default):
+    - `styles:read`
+    - `fonts:read`
+  </Step>
+  
+  <Step title="Step 5: Apply URL Restrictions (Crucial Step)">
+    Scroll down to the bottom section labeled **URL restrictions**. 
+    
+    <Callout type="critical">
+      **CRITICAL SECURITY WARNING:** Because this token will be exposed in the frontend JavaScript to provide autocomplete, you MUST restrict it. If you do not restrict it, anyone can copy your token and use it on their own website, running up massive billing charges on your Mapbox account.
+    </Callout>
+    
+    Type the exact URL where your forms are hosted (e.g., `https://yourcompany.com`) and click **Add URL**.
+  </Step>
+  
+  <Step title="Step 6: Generate and Copy the Token">
+    Click the blue **Create token** button at the absolute bottom of the page.
+    
+    You will be redirected back to the Tokens overview. Locate your new `Flex Forms Integration` token. It will be a very long string starting with `pk.eyJ1...`. Highlight this entire string, right-click, and select **Copy**.
+  </Step>
+  
+  <Step title="Step 7: Inject the Token into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Mapbox.
+    2. Click inside the **Access Token** input field.
+    3. Right-click and select **Paste** (or press `Ctrl+V` / `Cmd+V`) to inject the token.
+    4. Click the **Save Settings** button to finalize the secure connection.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+Once the Access Token is saved, Mapbox is globally activated. 
+
+There is no field mapping required in the integration settings. Instead, this integration "unlocks" specific Blocks inside the Flex Forms Studio.
+
+### Unlocking the Address Autocomplete Block
+
+Now that Mapbox is connected, you can use the advanced **Address Autocomplete** block in your forms.
+
+<Tree>
+  <Tree.Folder name="How Autocomplete Works Under the Hood" defaultOpen>
+    <Tree.File name="1. You drag the Address block into your form in the Studio." />
+    <Tree.File name="2. A user visits your form and starts typing '123 Main S...'." />
+    <Tree.File name="3. Flex Forms securely pings the Mapbox Geocoding API using your restricted token." />
+    <Tree.File name="4. Mapbox instantly returns 5 perfectly formatted address suggestions." />
+    <Tree.File name="5. The user clicks a suggestion, and the data is locked in." />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: 403 Forbidden">
+    **The Problem:** The autocomplete dropdown is not appearing when users type, and the browser console shows a `403 Forbidden` error from Mapbox.
+    
+    **The Solution:** You have encountered the URL Restriction Trap. The domain you entered in Step 5 does not perfectly match the domain where the form is actually embedded. For example, if you restricted it to `https://yourcompany.com`, but the form is embedded on `https://www.yourcompany.com` (with the 'www'), Mapbox will block the request. Ensure you add all possible subdomains to the restriction list.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="access_token" type="password" required>
+  **Access token**
+  Public token with Geocoding API enabled. Map / address fields appear in the form builder only after this integration is ready.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+

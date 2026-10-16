@@ -1,0 +1,149 @@
+---
+title: "Includes every of"
+description: "When clause operator: Multi-select includes all listed options (extras allowed)."
+icon: "list-checks"
+keywords: ["logic", "operator", "is_every_of", "condition", "when"]
+---
+
+**Includes every of** checks that a multi-select answer contains **all** options you list — extras are allowed, but every required chip must be present.
+
+Use for prerequisites: “must include Safety **and** Ethics modules”, even if they also pick electives.
+
+---
+
+## When to choose this
+
+| Goal | Use **Includes every of** | Use something else instead |
+|------|---------------------------|----------------------------|
+| Must have all listed options (extras OK) | ✓ | — |
+| Exact set, no extras | ✗ | **[Equals set](/features/studio/logic/operators/eq_set)** |
+| Any one of listed | ✗ | **[Is any of](/features/studio/logic/operators/in)** |
+| Single option present | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+| Blank | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Choice multi-select fields.**
+- Normalizes actual and expected to unique string sets.
+- Returns false if either set is empty after normalization.
+- True when **every** expected needle appears in the actual haystack.
+- Extra selections beyond your list do **not** break the match.
+- Order ignored.
+
+<Note>
+  Both the field and your chip list must be non-empty — an unanswered field or empty requirement list never matches.
+</Note>
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Choice (multi-select) | ✓ |
+| Text, number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches** — empty selection normalizes to `[]`, which fails the “non-empty haystack” requirement.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick multi-select field">
+    Checkbox list, tags, dual listbox, etc.
+  </Step>
+  <Step title="Choose Includes every of">
+  </Step>
+  <Step title="Add required option chips">
+    All options that must be selected — at least one chip required.
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), certificate, pricing tier.
+  </Step>
+  <Step title="Test subset, superset, exact on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Required training modules
+
+> **When** Completed modules **includes every of** `Safety, Ethics` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Certification eligible`
+
+Selecting Safety + Ethics + Leadership still matches.
+
+### Feature prerequisites
+
+> **When** Enabled features **includes every of** `SSO, Audit log` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Enterprise dashboard`
+
+Missing either feature fails the clause.
+
+### Tag gate
+
+> **When** Tags **includes every of** `Paid, Verified` → **Then** unlock VIP content
+
+### Survey segments
+
+> **When** Interests **includes every of** `Product, Support` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Cross-sell offer`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Select all required chips only">
+    Rule on.
+  </Step>
+  <Step title="Select all required plus extras">
+    Rule on.
+  </Step>
+  <Step title="Missing one required chip">
+    Rule off.
+  </Step>
+  <Step title="Nothing selected">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using when extras must be forbidden — use **Equals set**.
+- Using for single-select — **Equals** or **Is any of** is clearer.
+- Empty chip list in rule — never matches.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Extras break my mental model">
+    **Includes every of** allows extras by design — switch to **Equals set** for exact combos.
+  </Accordion>
+  <Accordion title="One chip never satisfied">
+    Option value mismatch between Fill and Studio chips.
+  </Accordion>
+  <Accordion title="Rule never fires on partial">
+    Expected — all listed chips must be present.
+  </Accordion>
+  <Accordion title="vs Contains for one chip">
+    **Contains** one option is equivalent for single needle; use **Includes every of** when multiple required.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Equals set](/features/studio/logic/operators/eq_set) · [Is any of](/features/studio/logic/operators/in) · [Contains](/features/studio/logic/operators/contains) · [How logic works](/features/studio/logic/overview)
+</Panel>

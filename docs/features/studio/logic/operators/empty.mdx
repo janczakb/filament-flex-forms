@@ -1,0 +1,157 @@
+---
+title: "Is empty"
+description: "When clause operator: There is no answer yet (blank, empty list, unsigned)."
+icon: "circle"
+keywords: ["logic", "operator", "empty", "condition", "when"]
+---
+
+**Is empty** checks that a field has **no answer** — skipped, blank text, nothing selected, no file uploaded, or unsigned (for signature blocks).
+
+This is the correct operator for “they left it blank”. Do not use [Not equals](/features/studio/logic/operators/neq) or [Does not contain](/features/studio/logic/operators/not_contains) for that case.
+
+---
+
+## When to choose this
+
+| Goal | Use **Is empty** | Use something else instead |
+|------|------------------|----------------------------|
+| Skipped / blank / nothing selected | ✓ | — |
+| Has any answer | ✗ | **[Is not empty](/features/studio/logic/operators/not_empty)** |
+| Equals specific value | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+| Toggle unchecked | ✗ | **[Equals](/features/studio/logic/operators/eq)** `No` on yes/no fields |
+| File not uploaded | ✓ | Presence family — same operator |
+
+---
+
+## Exact behavior
+
+Treats these as empty:
+
+- `null` / never answered
+- Empty string `""`
+- Empty array `[]` (no multi-select choices)
+
+No comparison value is needed — if Studio shows a value field, leave it unset.
+
+For **signature** blocks, Studio may label this **Is not signed** — same behavior: no signature captured yet.
+
+---
+
+## Which field types
+
+| Family | Available | Notes |
+|--------|-----------|-------|
+| Text | ✓ | |
+| Number | ✓ | Unfilled numeric |
+| Date & time | ✓ | No date picked |
+| Choice | ✓ | Nothing selected |
+| Presence (file, signature, map, repeater, …) | ✓ | Nothing provided |
+| Yes / no (toggle, checkbox) | — | Use **Equals** `No` / unchecked |
+| Default fallback | ✓ | |
+
+---
+
+## Blank / unanswered answers
+
+**This operator exists for blank answers** — empty **matches**, filled **does not**.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick the field to watch">
+    Company, Attachment, Signature, optional follow-up, etc.
+  </Step>
+  <Step title="Choose Is empty">
+    On signatures: **Is not signed**.
+  </Step>
+  <Step title="Leave value blank">
+    No comparison value required.
+  </Step>
+  <Step title="Add Then actions">
+    Common: [Hide blocks](/features/studio/logic/actions/hide-blocks), [Make optional](/features/studio/logic/actions/make-optional), [Jump to page](/features/studio/logic/actions/jump-to-page).
+  </Step>
+  <Step title="Test fill then clear on Fill">
+    Rule should toggle when answer removed.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Hide invoice when no company
+
+> **When** Company **is empty** → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Invoice address`
+
+Typing a company name hides the rule’s effect (if no other rule applies).
+
+### Skip verification without attachment
+
+> **When** Attachment **is empty** → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Summary`
+
+Uploading a file disables the jump on next recompute.
+
+### Optional follow-up collapsed
+
+> **When** Referral code **is empty** → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Referrer details`
+
+### Unsigned waiver
+
+> **When** Liability waiver **is not signed** → **Then** [Hide submit](/features/studio/logic/actions/hide-submit)
+
+Pair with explanation block on canvas.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Load page without touching field">
+    Rule on if field starts blank.
+  </Step>
+  <Step title="Provide an answer">
+    Rule off.
+  </Step>
+  <Step title="Clear answer if field allows">
+    Rule on again.
+  </Step>
+  <Step title="Multi-select: deselect all">
+    Treats as empty `[]` — rule on.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **not equals X** hoping blank triggers — it will not; use **Is empty**.
+- Using **Is empty** on toggle/checkbox — use **Equals** for unchecked state.
+- **All** group combining **Is empty** and **Equals** on same field without planning — often use separate rules or **Any** mode.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule off while field looks blank">
+    Default value may pre-fill field; hidden calculated tokens may count as answered.
+  </Accordion>
+  <Accordion title="Hide does not revert when filled">
+    Another rule may still match — check Logic Board order and **last wins** policy.
+  </Accordion>
+  <Accordion title="File field always not empty">
+    Partial upload states — test real Fill upload/remove cycle.
+  </Accordion>
+  <Accordion title="Need both empty and specific value">
+    Use **Any** with **Is empty** and **Equals** clauses, or separate rules with clear UX copy.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Is not empty](/features/studio/logic/operators/not_empty) · [Hide blocks](/features/studio/logic/actions/hide-blocks) · [How logic works](/features/studio/logic/overview)
+</Panel>

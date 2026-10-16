@@ -1,0 +1,144 @@
+---
+title: "Number Block"
+description: "Safely collect numeric data, enforce boundaries, and trigger proper mobile keyboards."
+icon: "hash"
+keywords: ["number", "stepper", "integer", "float", "math", "calculator"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **UX Tip:** Using the Number block automatically triggers the numeric keypad on iOS and Android devices, significantly speeding up form completion.
+</Banner>
+
+The **Number** block (`integer` in the schema, labeled **Number** in Studio) is for mathematical and quantitative data. Prefer it over Text input when you need numeric keyboards, min/max bounds, and clean analytics. For stepping UI, use [Number stepper](/features/blocks/number-stepper). For money, use [Currency](/features/blocks/currency).
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Age Gates" icon="person-cane">
+    Ask for a user's age and strictly enforce a minimum limit (e.g., must be > 18).
+  </Card>
+  <Card title="Financial Inputs" icon="dollar-sign">
+    Collect salary expectations or donation amounts using float (decimal) steps.
+  </Card>
+  <Card title="Inventory Quantities" icon="boxes-stacked">
+    Use the built-in stepper buttons (`+` and `-`) to let users quickly adjust order quantities.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Number** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Configure Boundaries">
+    Define the **Minimum** and **Maximum** values. For example, if you are asking for "Age", set the minimum to `18` to legally restrict submissions.
+  </Step>
+  <Step title="Allow decimals (optional)">
+    By default Number accepts whole numbers only. Enable **Allow decimals** when you need fractional values (e.g. weight). Adjust **Step** if you use a stepper UI.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the number stepper field. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="increment_icon" type="string">
+      Customizes the heroicon used for the `+` (increment) button on the stepper.
+    </ParamField>
+    
+    <ParamField path="decrement_icon" type="string">
+      Customizes the heroicon used for the `-` (decrement) button on the stepper.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Mathematical Boundaries">
+    <ParamField path="min" type="integer | float">
+      The absolute minimum numeric value the user is allowed to enter (e.g., `18`).
+    </ParamField>
+    
+    <ParamField path="max" type="integer | float">
+      The maximum numeric value the user is allowed to enter (e.g., `100`).
+    </ParamField>
+    
+    <ParamField path="step" type="integer | float" default="1">
+      The incremental step for the stepper buttons. 
+      - A step of `1` enforces integers. 
+      - A step of `0.01` or `0.5` allows floats/decimals.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+The Number block guarantees that the data saved is a true programmatic number type, not a string masquerading as a number. This is crucial for APIs that expect strict types.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_777",
+    "data": {
+      "user_age": 28,
+      "donation_amount": 150.50
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'user_age' => 28,           // Saved as integer
+      'donation_amount' => 150.50 // Saved as float
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: When NOT to use the Number Block
+
+It is a common mistake to use the Number block for things that *look* like numbers but are actually *identifiers*.
+
+**Do NOT use the Number block for:**
+- Phone Numbers
+- Zip / Postal Codes
+- Credit Card Numbers
+- Social Security Numbers
+
+<Callout type="warning">
+  **The Rule of Thumb:** If you would never add, subtract, or multiply the data, it is not a Number. Use a [Short Text Block](/features/blocks/short-text) with a Custom Mask instead!
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Decimals vs Integers">
+    By default the Number block accepts whole numbers only. Turn on **Allow decimals** in the block settings when you need fractional values (e.g. weight `12.5`). For money amounts, prefer the Currency block instead.
+  </Accordion>
+  <Accordion title="Removing Stepper Buttons">
+    If you don't want the `+` and `-` buttons appearing inside the input (e.g., for collecting Salary), simply leave the `increment_icon` and `decrement_icon` blank, and standard browsers will hide them.
+  </Accordion>
+</AccordionGroup>
+
+## Related numeric blocks
+
+- [Number stepper](/features/blocks/number-stepper) — `+` / `-` control for quantities
+- [Currency](/features/blocks/currency) — money amounts with ISO currency
+- [Slider](/features/blocks/slider) — single-value track
+- [Flex slider](/features/blocks/flex-slider) — pill rail, optional two-handle range
+- [Price range](/features/blocks/price-range) · [Traffic split](/features/blocks/traffic-split)
+
+<Panel>
+  **Next Steps:** [Short Text Block](/features/blocks/short-text)
+</Panel>

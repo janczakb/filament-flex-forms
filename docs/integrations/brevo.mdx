@@ -1,0 +1,84 @@
+---
+title: "Brevo"
+description: "Sync contacts to Brevo lists with double opt-in and attribute mapping."
+icon: "mail"
+keywords: ["brevo", "sendinblue", "email marketing", "gdpr", "double opt-in"]
+---
+
+The Brevo integration (formerly Sendinblue) adds each respondent to a Brevo list, with full contact attribute mapping and GDPR-friendly double opt-in support.
+
+## What it does
+
+- Creates or updates a contact on the list you choose, matched by email.
+- Maps first/last name and an SMS/phone field to Brevo's standard attributes, plus any extra attributes you define.
+- Guesses each extra attribute's type (date, boolean, number, or text) from its name, so values are sent in the format Brevo expects.
+- With **Double opt-in** enabled, new contacts (not already on the list) go through Brevo's confirmation flow using a template and redirect URL instead of being added directly.
+- Respects blacklisted contacts by default — you can allow resubscription per feed.
+
+## Steps to enable
+
+<Steps>
+  <Step title="Get your Brevo API key">
+    In Brevo, go to **SMTP & API → API Keys** and copy a key.
+  </Step>
+  <Step title="Enable Brevo in Integrations">
+    Open **Integrations** in the Flex Forms left rail → **Brevo** → paste the API key → Save.
+  </Step>
+  <Step title="Attach a feed to your form">
+    Open the form → hub tab **Integrations** → add a Brevo feed → pick the list.
+  </Step>
+  <Step title="Map fields and attributes">
+    Set the email field, optional first/last name and SMS fields, and any extra attributes using `BREVO_ATTRIBUTE=field_name` (attribute names are matched from Contacts → Attributes in your account).
+  </Step>
+  <Step title="Configure double opt-in (optional)">
+    Turn on **Double opt-in**, pick a template containing the `{{ doubleoptin }}` merge tag, and set a redirect URL for after confirmation.
+  </Step>
+  <Step title="Test it">
+    Submit the form and confirm the contact appears on the list (or receives a confirmation email, if double opt-in is on).
+  </Step>
+</Steps>
+
+<CodeGroup>
+```text Extra attributes
+JOB_TITLE=role
+COMPANY=company
+```
+</CodeGroup>
+
+## Practical tips
+
+<Tip>
+Only DOI templates containing the `{{ doubleoptin }}` tag show up in the **DOI email template** picker — create or edit a Brevo template to include that tag if it's missing from the list.
+</Tip>
+
+<Tip>
+Attribute type is guessed from the name: keys containing `DATE` become dates, `BOOL`/`IS_`/`HAS_` become booleans, and `NUMBER`/`COUNT`/`AMOUNT` become numbers — name your Brevo attributes accordingly for automatic type handling.
+</Tip>
+
+<Warning>
+Double opt-in only applies to contacts not already on the target list — an existing member of the list is updated directly, skipping the confirmation step, to avoid re-confirming existing subscribers.
+</Warning>
+
+## Example
+
+<Examples>
+  <Example title="GDPR-compliant newsletter signup">
+    Enable double opt-in with a confirmation template and `https://example.com/thanks` as the redirect — new subscribers must click the confirmation email before joining the list.
+  </Example>
+</Examples>
+
+<AccordionGroup>
+  <Accordion title="Connection test fails">
+    Confirm the API key was copied from SMTP & API → API Keys and hasn't been deleted or regenerated in Brevo since.
+  </Accordion>
+  <Accordion title="Double opt-in fails immediately">
+    Both a DOI template and a redirect URL are required when double opt-in is enabled — the dispatch fails outright if either is missing.
+  </Accordion>
+  <Accordion title="Blacklisted contact never gets re-added">
+    This is expected when **Allow resubscription of blacklisted emails** is off for the feed. Turn it on if you want previously blacklisted contacts to be added again.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+Related: [Mailchimp](/integrations/mailchimp) · [GetResponse](/integrations/getresponse) · [Conditional feeds](/integrations/conditional-feeds)
+</Panel>

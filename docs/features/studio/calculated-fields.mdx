@@ -1,0 +1,185 @@
+---
+title: "Calculated fields"
+description: "Create Calculated fields, set an initial value, then use Conditional logic → Calculate (Add / Subtract / Multiply / Divide / Assign / Formula) for quizzes, pricing, and scores."
+icon: "calculator"
+keywords: ["calculated", "formula", "score", "math", "quiz", "pricing", "expression"]
+boost: 3
+---
+
+**Calculated fields** run automatic math (or text assembly) inside your form — quiz scores, live pricing, lead scores, or concatenated names — based on respondents’ answers.
+
+Respondents do **not** answer a Calculated field, and **public Fill never renders** the field UI. Values still update for logic, submissions, payment price targets, and thank-you merge tags such as `{score}`. You always see the block in Studio.
+
+For the Then action details, see also [Calculate](/features/studio/logic/actions/calculate).
+
+---
+
+## Examples
+
+| Use case | Pattern |
+|----------|---------|
+| **Quiz scoring** | Calculated **Score** starts at `0`. Each correct answer: **When** answer **is** … → **Calculate** Score **Add** `10`. Show Score on thank-you. |
+| **Pricing calculator** | Inputs for quantity / plan → Calculated **Total** with Formula or chained Multiply/Add → feed **Stripe / payment** price when supported. |
+| **Lead score** | Assign points per answer; branch or sync the score later. |
+| **Full name (text)** | Result type **Text** → Formula or Assign concatenating `{first}` + `{last}`. |
+| **Conditional redirect** | Calculate a status/score, then **When** Score … → [Jump to page](/features/studio/logic/actions/jump-to-page). |
+
+---
+
+## Create a Calculated field
+
+In Build mode, open the **Logic** catalog and drag **Calculated** onto the canvas.
+
+<Tip>
+  Put the Calculated field **above** the questions that *update* it (e.g. Score at the top), or at least where you can find it later. Updates come from **Conditional logic → Calculate**, not from the initial value alone.
+</Tip>
+
+<Steps>
+  <Step title="Name the field">
+    In the **Σ** pill, type a clear name (e.g. `Score`, `Total`). You will pick this name again in Calculate actions.
+  </Step>
+  <Step title="Choose Number or Text">
+    **Number** — arithmetic (Add / Subtract / Multiply / Divide / Formula math).  
+    **Text** — labels, status strings, concatenation (Assign / Formula text).
+  </Step>
+  <Step title="Set the initial value">
+    After **=**, set the starting point:
+    - Type a literal (e.g. `0` for a quiz score)
+    - Leave blank
+    - Or open the chevron and pick another field  
+
+    Same control as Value elsewhere: **type** or **pick from the list**.
+  </Step>
+</Steps>
+
+The block ships with **When [Always](/features/studio/logic/operators/always) → Calculate** so the initial expression stays applied. Scoring and conditional updates usually add **more** Calculate actions on [If / Else](/features/studio/logic/if-else-block) or the [Logic Board](/features/studio/logic-board).
+
+---
+
+## Insert conditional logic and Calculate
+
+Add an **If / Else** (or open Logic Board) near the questions that should change the score.
+
+1. **When** — e.g. flamingo question **is** `Tiny shrimps`
+2. **Then** → **Calculate**
+3. Pick the target (**Σ Score**)
+4. Pick an operation, then a Value (type or pick a field)
+
+### Numeric operations
+
+| Operation | Meaning |
+|-----------|---------|
+| **Add** | Score ← Score + value |
+| **Subtract** | Score ← Score − value |
+| **Multiply** | Score ← Score × value |
+| **Divide** | Score ← Score ÷ value |
+
+### Textual operations
+
+| Operation | Meaning |
+|-----------|---------|
+| **Assign** | Set the field to a literal or another field’s answer (labels, CRM status, category name) |
+| **Formula** (text result type) | Build strings with `{blockId}` tokens (e.g. full name, reference codes) |
+
+### Formulas
+
+**Formula** writes one expression instead of chaining many Add steps. Use `{blockId}` tokens (picker / `@` in the formula editor), `+ − * /`, and parentheses.
+
+| Use case | Example expression |
+|----------|-------------------|
+| Total with quantity | `{price} * {quantity}` |
+| Price after discount | `({price} * {quantity}) - {discount}` |
+| Quiz total (if each Q stores points) | `{q1} + {q2} + {q3}` |
+| Full name (text) | `{first_name} + " " + {last_name}` |
+
+<Warning>
+  Tokens are **block IDs** (`{…}`), not question titles. Always insert fields with the picker / `@` so IDs stay correct.
+</Warning>
+
+---
+
+## Worked example: scored quiz
+
+Matches the common quiz pattern: one Score field + Add points when the answer is correct.
+
+<Steps>
+  <Step title="Add Calculated Score">
+    **Σ Score** → **Number** → **=** `0`
+  </Step>
+  <Step title="Add questions">
+    Multiple choice (or similar) for each quiz item.
+  </Step>
+  <Step title="Add logic per correct answer">
+    **When** question **is** *(correct option)* → **Then Calculate** **Σ Score** **Add** `10`  
+    Repeat for each question / point value.
+  </Step>
+  <Step title="Show or branch on Score">
+    Thank-you message with `{score}`, or **When Score ≥ 70** → Jump to Pass page. Fill never shows the Score field itself.
+  </Step>
+</Steps>
+
+See also the [Quiz recipe](/guides/quiz-recipe).
+
+---
+
+## Number vs text engine behavior
+
+| Result type | Behavior |
+|-------------|----------|
+| **Number** | Safe arithmetic after token replace. If **any** token is blank or non-numeric, the **whole** result is empty (`{qty} + 1` is not `1` when qty is unanswered). |
+| **Text** | Token replace only — no math. Blank tokens become `""`. |
+
+Divide / modulo by zero → empty result (no crash).
+
+---
+
+## How to use the result
+
+| Goal | How |
+|------|-----|
+| See values in admin | **Submissions** — Calculated columns show with **Σ**. Empty → `–`. |
+| Show to respondents | Thank-you merge tags (`{score}`, `{total}`) — Fill never renders Calculated fields on form steps. |
+| Dynamic payment amount | Point Stripe / payment **price** at the Calculated field when the block supports it. |
+| Route by score | **When** Score … → [Jump to page](/features/studio/logic/actions/jump-to-page). |
+| Emails / CSV | Included when present in the submission payload. |
+
+---
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What’s the difference between Add/Subtract and Formula?">
+    **Add / Subtract / Multiply / Divide / Assign** apply **one** step when the When matches (perfect for quiz “+10”). **Formula** is one expression with many operations and field tokens.
+  </Accordion>
+  <Accordion title="Do respondents see Calculated and Logic blocks?">
+    **Logic** blocks are editor-only. **Calculated** fields never appear on public Fill steps — respondents only see the value if you put a merge tag on thank you (or map it to payment price).
+  </Accordion>
+  <Accordion title="My score always stays 0">
+    1. Confirm **Initial value** is `0` (or blank) and rules **Add** points on correct answers.  
+    2. Confirm **When** matches the real option value.  
+    3. Confirm Calculate targets **Σ Score**, not another field.  
+    4. Prefer **Calculate before Jump** on the same screen — a Jump can skip later Calculates.  
+    5. Test on **Fill / published**, not only the canvas.
+  </Accordion>
+  <Accordion title="The form jumps to the wrong page">
+    Logic runs in order. If an earlier rule **Jumps**, later Calculates on that path may never run. Place scoring Calculates **before** Jump actions.
+  </Accordion>
+  <Accordion title="Can I calculate dates?">
+    Date arithmetic is not supported yet — same limitation as typical form calculators.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Common mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Typing labels inside `{…}` | Use the field picker / `@` → `{blockId}` |
+| Expecting math on **Text** result type | Switch to **Number**, or use Formula only for strings |
+| Only setting Initial value, no Calculate on answers | Quiz points need **When → Calculate Add** |
+| Jump before Calculate | Reorder so score updates first |
+
+<Panel>
+  [Calculate action](/features/studio/logic/actions/calculate) · [Always](/features/studio/logic/operators/always) · [Logic overview](/features/studio/logic/overview) · [Logic Board](/features/studio/logic-board) · [Quiz recipe](/guides/quiz-recipe) · [Logic guide](/guides/logic-and-calculated)
+</Panel>

@@ -1,0 +1,165 @@
+---
+title: "Custom Webhooks Integration"
+description: "A comprehensive guide to securely routing raw form payloads to your own servers or custom endpoints."
+icon: "code"
+keywords: ["webhook", "json", "endpoint", "api", "integration", "post"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** This integration executes a standard `POST` request with an `application/json` payload. You must ensure your receiving endpoint is configured to parse flat JSON objects.
+</Banner>
+
+The **Custom Webhooks** integration provides ultimate flexibility for enterprise developers. Instead of relying on predefined integrations, you can instruct Flex Forms to fire a raw, unadulterated JSON payload directly at a URL you control on your own servers, allowing you to ingest the data into custom internal applications.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Proprietary System Ingestion" icon="database">
+    If your company runs a highly customized, internally built CRM or ERP system, simply expose an endpoint, paste the URL into Flex Forms, and let your internal servers ingest the JSON payload seamlessly.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms via Custom Webhooks is incredibly simple, as it only requires a valid URL.
+
+<Steps>
+  <Step title="Step 1: Prepare Your Endpoint">
+    Ensure your server (or an intermediary service like Make.com) has exposed a public URL that is configured to accept incoming HTTP `POST` requests containing `application/json` payloads.
+  </Step>
+  
+  <Step title="Step 2: Copy the URL">
+    Copy the full, secure HTTPS URL of your endpoint (e.g., `https://api.yourcompany.com/v1/webhooks/flex-forms`).
+  </Step>
+  
+  <Step title="Step 3: Inject the URL into Flex Forms">
+    Open your Flex Forms administrative dashboard. 
+    
+    <Callout type="info">
+      **Form-Level Configuration:** Because different forms require different routing logic, you configure Webhooks at the *Form Level*, not the Global Settings level.
+    </Callout>
+    
+    1. Open the specific form you want to connect in the Flex Forms Studio.
+    2. Open the form hub and select the **Integrations** tab.
+    3. Find the **Webhooks** section.
+    4. Paste the URL you copied into the input field.
+    5. Save your form.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+There is no field mapping required for Custom Webhooks. Flex Forms simply packages all the form data, based exactly on the block names you defined in the Studio, into a clean, flat JSON object and fires it at the URL.
+
+### The JSON Payload Architecture
+
+When a user submits the form, your server will receive a POST request with a body that looks exactly like this:
+
+<CodeGroup>
+  ```json Incoming Request Payload
+  {
+    "first_name_input": "Jane",
+    "last_name_input": "Doe",
+    "email_address": "jane@example.com",
+    "company_size_dropdown": "Enterprise (500+)",
+    "marketing_consent_checkbox": true
+  }
+  ```
+</CodeGroup>
+
+Your internal servers are responsible for parsing this JSON and routing it to the appropriate databases.
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: Timeout">
+    **The Problem:** The form submission seems to hang or fail, and the logs show a timeout.
+    
+    **The Solution:** Flex Forms expects your endpoint to return a `200 OK` status code quickly. If your server receives the webhook, spends 30 seconds processing a complex database query, and *then* returns a 200, Flex Forms will time out and assume the request failed. Your endpoint should immediately return a `200 OK` acknowledging receipt, and then process the data asynchronously in the background.
+  </Accordion>
+  <Accordion title="Security & Authentication">
+    **The Problem:** How do I verify the webhook actually came from Flex Forms?
+    
+    **The Solution:** Currently, the webhook payload is a simple, unsigned JSON object. If you require strict security, we recommend appending a secret token as a URL parameter to your endpoint URL (e.g., `https://api.yourcompany.com/webhook?secret=123456789`). Your server can then reject any POST requests that do not include this exact secret parameter.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+*There are no global settings for generic Webhooks. All webhook endpoints are configured on a per-form basis.*
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Endpoint Configuration
+<ParamField path="request_url" type="text" required>
+  **Request URL**
+  The destination server URL. **Must begin with `https://`**. Flex Forms blocks local IP addresses (e.g., `127.0.0.1`, `192.168.x.x`) to prevent Server-Side Request Forgery (SSRF) attacks. You can use merge tags (e.g., `https://api.example.com/hooks/{{department_id}}`) to route requests dynamically.
+</ParamField>
+
+<ParamField path="request_method" type="select" default="POST" >
+  **Request method**
+  The HTTP verb used for the request.
+  
+  **Options:**
+  - `POST`: Standard for creating records.
+  - `PUT` / `PATCH`: Often used for updating resources.
+  - `GET` / `DELETE`: When using these, the payload body is automatically converted into query string parameters (e.g., `?email=test&name=john`).
+</ParamField>
+
+<ParamField path="request_headers" type="textarea" >
+  **Request headers**
+  Pass custom HTTP headers for authentication or API routing. You must provide one header per line using the format `Header-Name=Value`.
+  
+  *Example:*
+  `Authorization=Bearer {{token_field}}`
+  `X-Custom-Form-Id=submission`
+</ParamField>
+
+#### Payload Formatting
+<ParamField path="request_format" type="select" default="json" >
+  **Request format**
+  How the payload data is serialized.
+  
+  **Options:**
+  - `json`: Sends a strict `application/json` payload. Best for modern APIs.
+  - `form`: Sends data as `application/x-www-form-urlencoded`. Often required by legacy systems.
+</ParamField>
+
+<ParamField path="body_type" type="select" default="all_fields" >
+  **Request body**
+  Determines what data is included in the webhook payload.
+  
+  **Options:**
+  - `all_fields`: Automatically dumps every form answer into the payload.
+  - `select_fields`: Gives you strict control, forcing you to define a specific `field_values` map.
+</ParamField>
+
+<ParamField path="field_values" type="textarea" >
+  **Field values**
+  *Only used if `body_type` is set to `select_fields`.*
+  Manually construct the exact JSON keys or form parameters sent to the server. Format is `payload_key=form_block_name` (or literal text).
+  
+  *Example:*
+  `customer_email=email`
+  `source=website_form` (literal)
+</ParamField>
+
+<ParamField path="include_meta" type="select" default="0" >
+  **Include submission meta**
+  *Only applies when `body_type` is `all_fields`.*
+  If enabled (`Yes`), Flex Forms automatically injects system metadata (Form ID, Form Title, Submission ID, and Submitted At timestamp) into the root of the webhook payload.
+</ParamField>

@@ -1,0 +1,86 @@
+---
+title: "Transactions"
+description: "Payment ledger for Stripe (and future gateways) — filter, export CSV, and refund from the Studio rail."
+icon: "receipt"
+keywords: ["transactions", "payments", "stripe", "refund", "ledger", "csv", "drawer"]
+boost: 3
+---
+
+**Transactions** is the Studio hub for every recorded payment on your Flex Forms workspace. Open it from the left rail (under **Contacts**).
+
+It is available on **all plans** once you connect Stripe and collect at least one successful charge on a **published** form. Preview mode never writes transactions.
+
+---
+
+## What you see
+
+Each row is one ledger entry with:
+
+| Column | Meaning |
+|---|---|
+| **Status** | Colored chip — succeeded, refunded, partially refunded, failed, canceled, processing, … |
+| **Amount / currency** | Charged amount and ISO currency from the Payment block |
+| **Provider** | Chip (currently **Stripe**) |
+| **Mode** | Live / Test chip |
+| **Payer** | Billing email / name when Stripe collected them |
+| **Payment method** | Type (card, BLIK, P24, …). Cards also store brand + last 4 digits (never full PAN) |
+| **Form** | Which form produced the charge |
+| **When** | Charge / last update time |
+| **Actions** | **⋯** menu (same pattern as the Forms hub) |
+
+The list uses cursor pagination and respects search / form filters — same lean pattern as Contacts.
+
+---
+
+## Row actions (⋯)
+
+| Action | What it does |
+|---|---|
+| **View details** | Opens a right-side drawer (bottom sheet on mobile) with full payment, payer, form, and provider IDs |
+| **Copy transaction ID / payment ID / email** | Clipboard helpers |
+| **Open in Stripe** | Stripe Dashboard for the PaymentIntent (test vs live) |
+| **Open form in Studio / Submissions / Contacts** | Jump to related Studio hubs when links exist |
+| **Refund / Partial refund…** | Full remaining balance or enter a partial amount (requires `refundTransactions`) |
+
+---
+
+## Actions in the drawer
+
+From **View details** you can also refund, open Stripe, or jump to submissions. Status / provider / mode chips appear at the top of the drawer.
+
+Export CSV still lives in the toolbar (respects filters) and requires `exportTransactions` when Spatie permissions are enabled. The download is a direct streamed file (not loaded into the Studio page), so large ledgers stay responsive. Choose **CSV** or **Excel (.xlsx)** in the export dialog.
+
+Refunds require the `refundTransactions` ability when you use Spatie / Shield (see [Studio permissions](/developers/studio-permissions)).
+
+---
+
+## How a row gets created
+
+1. Connect **Integrations → Stripe** (test or live keys).  
+2. Add a **Stripe Payment** block in Studio and **Publish** the form.  
+3. A respondent pays on fill / embed.  
+4. Flex Forms verifies the PaymentIntent (amount, currency, form, mode) and writes the ledger.  
+5. Optional Stripe webhooks keep statuses in sync (`payment_intent.*`, `charge.refunded`).
+
+Full setup: [Stripe Integration](/integrations/stripe).
+
+<Warning>
+  **Draft / Preview** never confirms Stripe or creates Transactions — even if the thank-you screen appears. Publish first for real money and ledger rows.
+</Warning>
+
+---
+
+## Empty state
+
+If the hub is empty:
+
+- Stripe is not connected or not **Ready**  
+- No published form has a Payment block yet  
+- You only tested in Preview  
+- Filters hide existing rows  
+
+Connect Stripe, publish a payment form, and submit a **test-mode** payment with a [Stripe test card](https://docs.stripe.com/testing).
+
+<Panel>
+  **Also see:** [Stripe](/integrations/stripe) · [Submissions](/features/submissions/overview) · [Preview & Publish](/features/studio/preview-publish) · [Permissions](/developers/studio-permissions)
+</Panel>

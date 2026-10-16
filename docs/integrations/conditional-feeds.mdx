@@ -1,0 +1,96 @@
+---
+title: "Conditional Integrations"
+description: "A comprehensive, enterprise-grade guide to triggering API integrations based on dynamic form logic."
+icon: "code-branch"
+keywords: ["conditional", "logic", "integrations", "api", "routing", "dynamic"]
+---
+
+The **Conditional Integrations** engine represents the absolute pinnacle of Flex Forms routing capabilities. Instead of blindly firing every single form submission to the same CRM or API, this feature allows you to build highly complex, conditional `if/then` logic gates that determine exactly which integrations execute based on how the user answered the form.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Multi-CRM Routing" icon="diagram-project">
+    If a user selects "Enterprise ($100k+)" in a budget dropdown, trigger the Salesforce integration to alert your senior sales team. If they select "Small Business ($5k)", trigger the ActiveCampaign integration to place them in an automated email drip campaign instead.
+  </Card>
+  <Card title="Departmental Notifications" icon="building">
+    If a user selects "Report a Bug", trigger a Slack Webhook to the `#engineering` channel. If they select "Billing Issue", trigger a Help Scout integration to create a ticket for the finance team.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed Setup Guide
+
+Conditional Integrations are configured at the *Form Level* directly within the Flex Forms Studio. Follow these exact instructions to construct a conditional logic gate.
+
+<Steps>
+  <Step title="Step 1: Open the Flex Forms Studio">
+    Navigate to your administrative dashboard and open the specific form you wish to configure inside the drag-and-drop Studio.
+  </Step>
+  
+  <Step title="Step 2: Access the Integrations Panel">
+    Open the form hub and select the **Integrations** tab (alongside Insights, Submissions, and Share).
+  </Step>
+  
+  <Step title="Step 3: Enable an Integration">
+    Locate the specific integration you want to conditionally trigger (e.g., Slack). Toggle the main switch to **On** and fill out the required credentials (e.g., Webhook URL).
+  </Step>
+  
+  <Step title="Step 4: Locate the Logic Gate">
+    Scroll to the absolute bottom of that specific integration's settings panel. You will see a highly advanced section labeled **Conditional Logic**.
+  </Step>
+  
+  <Step title="Step 5: Activate Conditional Logic">
+    Toggle the switch labeled **Enable Conditional Logic** to the **On** position. A complex rule-builder interface will instantly appear.
+  </Step>
+  
+  <Step title="Step 6: Construct the Rule">
+    You must now build the `if/then` statement. 
+    1. **Field:** Select the specific form block you want to evaluate (e.g., `Department Dropdown`).
+    2. **Operator:** Select how you want to evaluate it (e.g., `Equals`, `Not Equals`, `Contains`, `Is Empty`).
+    3. **Value:** Type the exact value that must be met (e.g., `Support`).
+  </Step>
+  
+  <Step title="Step 7: Add Compound Logic (Optional)">
+    If your enterprise requires strict logic, click the **Add Rule** button to create an `AND` / `OR` condition. For example: Trigger this integration IF Department `Equals` Support AND Priority `Equals` Urgent.
+  </Step>
+  
+  <Step title="Step 8: Save the Form">
+    Click the prominent **Save** button in the top right corner of the Studio. The integration will now ONLY execute when that exact logical condition is met during a submission.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: The Validation Architecture
+
+<Tree>
+  <Tree.Folder name="How the Logic Engine Works Under the Hood" defaultOpen>
+    <Tree.File name="1. The user submits the form." />
+    <Tree.File name="2. Flex Forms safely records the data to the internal database." />
+    <Tree.File name="3. The Integration Engine wakes up and looks at the Salesforce Integration." />
+    <Tree.File name="4. It sees a Logic Gate: IF 'budget' > 50000." />
+    <Tree.File name="5. It evaluates the user's payload. The user submitted 'budget' = 10000." />
+    <Tree.File name="6. The evaluation returns FALSE." />
+    <Tree.File name="7. The Salesforce Integration is silently aborted." />
+    <Tree.File name="8. The Engine moves to the Mailchimp Integration, which has no Logic Gate, and executes it normally." />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="The Logic is Evaluating Incorrectly">
+    **The Problem:** The integration is firing when it shouldn't, or not firing when it should.
+    
+    **The Solution:** This is almost always caused by a mismatch in the "Value" you typed in Step 6. If your Dropdown block has an option with a Label of "High Priority" but a hidden Value of `priority_high`, you MUST use the hidden value (`priority_high`) in your logic rule. The engine evaluates raw data values, not human-readable labels.
+  </Accordion>
+  <Accordion title="Conflicting Integrations">
+    **The Problem:** Can I trigger HubSpot and Salesforce at the same time using different logic?
+    
+    **The Solution:** Yes, absolutely. The Flex Forms Integration Engine evaluates every single integration independently. You can construct entirely separate, complex logical rules for HubSpot, Salesforce, Slack, and Zapier on the exact same form. They will not interfere with each other.
+  </Accordion>
+</AccordionGroup>

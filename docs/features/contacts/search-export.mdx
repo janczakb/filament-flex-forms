@@ -1,0 +1,67 @@
+---
+title: "Search & Export Contacts"
+description: "Instantly locate specific respondents and export your deduplicated CRM data to a spreadsheet."
+icon: "search"
+keywords: ["search contacts", "export contacts", "sort contacts", "csv", "xlsx", "excel"]
+boost: 2
+---
+
+The Contacts Directory is designed to handle thousands of leads effortlessly. To make sense of massive datasets, Flex Forms provides a lightning-fast search engine and robust export capabilities.
+
+## The Search Engine
+
+You don't need to craft complex SQL queries to find a lead. The global search bar at the top of the Contacts Directory executes a fuzzy search across multiple data vectors simultaneously.
+
+<CardGroup cols={3}>
+  <Card title="Email Search" icon="envelope">
+    Type `jane@company.com` for an exact match, or just `@company.com` to pull up an entire corporate account roster.
+  </Card>
+  <Card title="Name Search" icon="user">
+    Type `Jane` to instantly find anyone named Jane, Janet, or any email containing the word "jane".
+  </Card>
+  <Card title="IP Address" icon="network-wired">
+    Investigating spam? Type a partial IP prefix (e.g., `203.0.113`) to identify all contacts originating from a specific network.
+  </Card>
+</CardGroup>
+
+---
+
+## Sorting & Navigation
+
+Click any column header (e.g., **Last Seen** or **Submissions**) to instantly sort the directory. Click it again to reverse the order. This is incredibly useful for instantly identifying your most highly engaged "whale" leads.
+
+<Callout type="info">
+  **Cursor Pagination:** Unlike traditional systems that slow down as you jump to "Page 400", Flex Forms uses advanced cursor-based pagination. Navigating through massive datasets using the **Next** and **Previous** buttons remains blisteringly fast, regardless of directory size.
+</Callout>
+
+---
+
+## Exporting the Directory
+
+You can extract your pristine, deduplicated CRM data for use in Mailchimp, Salesforce, or external BI tools via the Export engine.
+
+<Steps>
+  <Step title="Filter the View">
+    Use the search bar or the **Form Filter** dropdown (which restricts the view to contacts who have submitted a *specific* form) to isolate the exact cohort you want to export.
+  </Step>
+  <Step title="Generate the export">
+    Click **Export**, choose **CSV** or **Excel (.xlsx)**, optional joined-date range, then download. The file streams directly (up to 10 000 rows) with `id`, `email`, `name`, `ip_address`, `submissions_count`, `joined_at`, and `last_seen_at`.
+  </Step>
+</Steps>
+
+<Warning>
+  **Performance Caps:** To protect your server from memory exhaustion, massive directories are subject to an export row cap. If your directory exceeds this limit, the export will safely truncate and display a notification. Simply use the search or form filters to export the data in smaller, manageable cohorts.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Can I bulk-delete contacts?">
+    Yes. If you need to purge test data or comply with GDPR "Right to be Forgotten" requests, select multiple rows using the checkboxes and click the bulk Delete action in the toolbar. Note: This deletes the *directory profile*, it does not hunt down and delete their underlying submissions in the form inboxes.
+  </Accordion>
+  <Accordion title="Why are some Contact names blank?">
+    A profile gets a Name when the form includes a [Name](/features/blocks/name) block (preferred) or clear first/last Text input fields.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Related Actions:** [Understanding the Directory](/features/contacts/overview) · [Exporting Raw Submissions](/features/submissions/export-csv)
+</Panel>

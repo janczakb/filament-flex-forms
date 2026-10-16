@@ -1,0 +1,277 @@
+---
+title: "Config & env"
+description: "Every published config key in filament-flex-forms.php — uploads, builder limits, Insights, and license signing."
+icon: "settings"
+keywords: ["config", "env", "filament-flex-forms.php", "publish config"]
+---
+
+Publish the config to override any default:
+
+```bash
+php artisan vendor:publish --tag=filament-flex-forms-config
+```
+
+This writes `config/filament-flex-forms.php`. Keys listed below can also be set via `.env` without publishing (unless noted otherwise).
+
+## License
+
+License check, portal, and purchase URLs are **fixed in the package** (same endpoints Studio uses). They are not config or `.env` settings — changing them is not supported.
+
+<Note>
+`license.signing_public_key` is loaded from the bundled public Ed25519 JWK at `resources/license/signing-public-key.json`, not an env var — you should not need to touch it.
+</Note>
+
+## Security
+
+<ResponseField name="security.force_submission_encryption" type="bool" default="false">
+  When `true`, every form encrypts submission answers at rest (same as Global Settings → Security → Require encryption on all forms, but locked by env). Env: `FLEX_FORMS_FORCE_SUBMISSION_ENCRYPTION`. See [Multi-tenancy](/developers/multi-tenancy) and [General Settings](/features/settings/general).
+</ResponseField>
+
+## Localization (i18n)
+
+Host overrides for Studio / Fill JS catalogs. Full workflow (publish PHP + JSON, add languages, RTL): [Localization & RTL](/get-started/languages-rtl).
+
+<ResponseField name="i18n.js_path" type="string|null" default="null (lang/vendor/filament-flex-forms/js)">
+  Absolute or app-relative root for published JS locale JSON (`studio/{locale}.json`, `fill/{locale}.json`). Env: `FLEX_FORMS_I18N_JS_PATH`. Leave empty to use Laravel `lang_path('vendor/filament-flex-forms/js')`.
+</ResponseField>
+
+## Uploads
+
+<ResponseField name="uploads.design_disk" type="string" default="public (env: FLEX_FORMS_UPLOAD_DISK, then public)">
+  Disk for logo/cover/social images — must be **publicly readable** so crawlers can render link previews. Env: `FLEX_FORMS_DESIGN_DISK`.
+</ResponseField>
+<ResponseField name="uploads.submissions_disk" type="string" default="local">
+  Disk for respondent file uploads — kept **private**, served via signed URLs. Env: `FLEX_FORMS_SUBMISSIONS_DISK`.
+</ResponseField>
+<ResponseField name="uploads.design_directory / submissions_directory" type="string" default="flex-forms/design, flex-forms/submissions">
+  Root path prefix inside each disk.
+</ResponseField>
+<ResponseField name="uploads.webp_quality / jpeg_quality" type="int" default="80 / 85">
+  Compression quality for optimized images (WebP default **80**, JPEG **85**). Env: `FLEX_FORMS_WEBP_QUALITY`, `FLEX_FORMS_JPEG_QUALITY`.
+</ResponseField>
+<ResponseField name="uploads.design.*" type="array" default="cover 1500 / thumb 400, logo 500, social 1500 @ 16:9">
+  Long-edge limits for Studio design assets. Cover writes a normal + thumb pair; logo fits a 500×500 box; social/OG is center-cropped to 16:9 JPEG. Images are never upscaled.
+</ResponseField>
+<ResponseField name="uploads.fields.image_*_max_long_edge" type="int" default="1500 / 350">
+  Public fill field images: normal max **1500px**, thumb max **350px** (WebP). Non-image uploads (PDF, video, audio, …) stay as a single original file.
+</ResponseField>
+<ResponseField name="uploads.media.driver" type="string" default="disk">
+  Storage driver for design assets **and** public fill field uploads: `disk` (default) or `spatie`. When `spatie`, Media Library is the primary store (conversions + URLs). Env: `FLEX_FORMS_MEDIA_DRIVER`.
+</ResponseField>
+<ResponseField name="uploads.media.spatie.disk_name" type="string|null" default="null">
+  Optional Spatie disk override. When null, Flex Forms uses the purpose-aware design / submissions disks. Env: `FLEX_FORMS_SPATIE_DISK`.
+</ResponseField>
+<ResponseField name="uploads.media.spatie.collection_prefix" type="string" default="flex-forms">
+  Prefix for Spatie media collections (e.g. `flex-forms-design-cover`). Env: `FLEX_FORMS_SPATIE_COLLECTION_PREFIX`.
+</ResponseField>
+<ResponseField name="uploads.media.spatie.responsive_images" type="bool" default="true">
+  Generate Spatie responsive srcsets for cover/field `normal` conversions. Env: `FLEX_FORMS_SPATIE_RESPONSIVE`.
+</ResponseField>
+<ResponseField name="uploads.media.spatie.queue_conversions" type="bool" default="false">
+  Queue Spatie conversions (needs a worker). Default `false` so Studio/fill get URLs immediately. Env: `FLEX_FORMS_SPATIE_QUEUE_CONVERSIONS`.
+</ResponseField>
+<ResponseField name="uploads.max_megapixels" type="int" default="40">
+  Rejects images above this resolution before processing.
+</ResponseField>
+<ResponseField name="uploads.rate_limit_per_minute" type="int" default="30">
+  Per-IP upload rate limit on Studio design uploads.
+</ResponseField>
+<ResponseField name="uploads.signed_url_ttl_minutes" type="int" default="15">
+  How long a signed private-file URL stays valid.
+</ResponseField>
+<ResponseField name="uploads.quota_bytes_per_form" type="int" default="524288000 (500 MB)">
+  Total upload quota per form across all submissions.
+</ResponseField>
+<ResponseField name="uploads.authorize" type="callable|null" default="null">
+  **Required for multi-tenant apps.** `fn (?Authenticatable $user, FlexForm $form, string $ability): bool` — without it, any authenticated panel user can upload/view files for *any* form.
+</ResponseField>
+<ResponseField name="uploads.require_authorize_callback" type="bool" default="false">
+  When `true`, uploads/views are denied unless `uploads.authorize` is set — flip this on for SaaS hosts to fail closed instead of open.
+</ResponseField>
+
+<CodeGroup>
+```php title="config/filament-flex-forms.php — multi-tenant authorization"
+'uploads' => [
+    'authorize' => fn ($user, $form) => $user?->can('update', $form) ?? false,
+    'require_authorize_callback' => true,
+],
+```
+
+```bash title=".env — disks, quotas, optional Spatie"
+FLEX_FORMS_DESIGN_DISK=public
+FLEX_FORMS_SUBMISSIONS_DISK=s3
+FLEX_FORMS_QUOTA_BYTES_PER_FORM=1073741824
+FLEX_FORMS_SIGNED_URL_TTL=30
+FLEX_FORMS_WEBP_QUALITY=80
+# Optional — requires composer require spatie/laravel-medialibrary
+FLEX_FORMS_MEDIA_DRIVER=disk
+# FLEX_FORMS_MEDIA_DRIVER=spatie
+# FLEX_FORMS_SPATIE_DISK=
+# FLEX_FORMS_SPATIE_COLLECTION_PREFIX=flex-forms
+# FLEX_FORMS_SPATIE_RESPONSIVE=true
+# FLEX_FORMS_SPATIE_QUEUE_CONVERSIONS=false
+```
+</CodeGroup>
+
+## Builder
+
+<ResponseField name="builder.max_pages" type="int" default="10">
+  Maximum number of pages a form can have in Studio. Env: `FLEX_FORMS_MAX_PAGES`.
+</ResponseField>
+
+## Filament navigation
+
+Sidebar item for the Forms resource. Prefer the fluent plugin API in your panel provider; config / env are fallbacks.
+
+```php
+FilamentFlexFormsPlugin::make()
+    ->navigationIcon('heroicon-o-envelope')
+    ->navigationLabel('Forms')
+    ->navigationGroup('Flex Forms')
+    ->navigationSort(10);
+```
+
+<ResponseField name="navigation.group" type="string" default="Flex Forms">
+  Filament sidebar group. Env: `FLEX_FORMS_NAVIGATION_GROUP`.
+</ResponseField>
+<ResponseField name="navigation.label" type="string" default="Forms">
+  Sidebar label. Env: `FLEX_FORMS_NAVIGATION_LABEL`.
+</ResponseField>
+<ResponseField name="navigation.icon" type="string" default="heroicon-o-envelope">
+  Heroicon (or other Blade icon) for the Forms item. Env: `FLEX_FORMS_NAVIGATION_ICON`.
+</ResponseField>
+<ResponseField name="navigation.sort" type="int|null" default="null">
+  Sort order inside the group. Env: `FLEX_FORMS_NAVIGATION_SORT`.
+</ResponseField>
+
+## Studio branding
+
+<ResponseField name="studio.brand_logo / studio.brand_name" type="string|null" default="null / Filament">
+  Left-rail branding shown inside Studio itself (not the public fill page) — override programmatically with `FilamentFlexFormsPlugin::make()->brandLogo()->brandName()`, or via `FLEX_FORMS_STUDIO_BRAND_LOGO` / `FLEX_FORMS_STUDIO_BRAND_NAME`.
+</ResponseField>
+
+## Studio account menu
+
+The Studio left rail shows a Filament-style account avatar **below Global Settings**. Items are cloned from the current panel’s `userMenuItems()` (profile, logout, and any custom entries). Nested `children` in config extras render as nested submenus.
+
+If your panel only customizes logout with `MenuItem::make()->icon(...)` (no URL), Studio still exposes **Log out** as a POST to Filament’s logout route.
+
+<ResponseField name="studio.user_menu.enabled" type="bool" default="true">
+  Env: `FLEX_FORMS_STUDIO_USER_MENU`.
+</ResponseField>
+<ResponseField name="studio.user_menu.show_email" type="bool" default="true">
+  Env: `FLEX_FORMS_STUDIO_USER_MENU_EMAIL`.
+</ResponseField>
+<ResponseField name="studio.user_menu.guard / model" type="string|null" default="null">
+  Optional auth guard and expected Authenticatable FQCN (defaults to the Filament panel user). Env: `FLEX_FORMS_STUDIO_USER_MENU_GUARD` / `FLEX_FORMS_STUDIO_USER_MENU_MODEL`.
+</ResponseField>
+<ResponseField name="studio.user_menu.name / email / avatar_url" type="string|callable|null" default="null">
+  Attribute names or `fn (Authenticatable $user)` callbacks. When null, Flex Forms uses Filament’s name/avatar helpers and the user’s `email`.
+</ResponseField>
+<ResponseField name="studio.user_menu.except" type="array" default="[]">
+  Filament menu keys to hide in Studio (e.g. `['profile']`).
+</ResponseField>
+<ResponseField name="studio.user_menu.items" type="array" default="[]">
+  Extra menu entries merged after Filament’s. Each item may include `key`, `label`, `url`, `method` (`get`|`post`), `icon`, `color`, `sort`, `group`, `openInNewTab`, and nested `children` for submenus.
+</ResponseField>
+<ResponseField name="studio.user_menu.cache / cache_ttl" type="bool / int" default="true / 120">
+  Per-user menu payload cache via FlexFormsCache (Redis when Insights Redis scaling is enabled, otherwise Laravel cache) plus an in-request memo. Invalidation is **TTL-only** — profile/menu changes are not bumped; wait for `cache_ttl` or disable cache in local/dev. Env: `FLEX_FORMS_STUDIO_USER_MENU_CACHE` / `FLEX_FORMS_STUDIO_USER_MENU_CACHE_TTL`.
+</ResponseField>
+
+## Submission emails (HTML)
+
+Publish Blade templates to customize HTML visually:
+
+```bash
+php artisan vendor:publish --tag=filament-flex-forms-mail
+```
+
+<ResponseField name="mail.accent" type="string" default="#0F172A">
+  Fallback accent when the form design has no accent color. Env: `FLEX_FORMS_MAIL_ACCENT`.
+</ResponseField>
+<ResponseField name="mail.respondent_include_answers" type="bool" default="false">
+  When true, respondent receipts include the answers table (also forced on when “Include answers receipt” is checked). Env: `FLEX_FORMS_MAIL_RESPONDENT_ANSWERS`.
+</ResponseField>
+<ResponseField name="mail.views.admin / respondent / text" type="string">
+  Blade view names for team alerts, respondent receipts, and plain-text fallback.
+</ResponseField>
+
+## Studio permissions (optional Spatie)
+
+Spatie is **not required**. See the full guide: [Studio permissions (RBAC)](/developers/studio-permissions).
+
+<ResponseField name="permissions.enabled" type="bool" default="true">
+  Master switch. Env: `FLEX_FORMS_PERMISSIONS_ENABLED`.
+</ResponseField>
+<ResponseField name="permissions.spatie" type="bool" default="true">
+  When true and `spatie/laravel-permission` is installed, enforce mapped Gate names **only if** that permission exists in your DB. Env: `FLEX_FORMS_PERMISSIONS_SPATIE`.
+</ResponseField>
+<ResponseField name="permissions.strict" type="bool" default="false">
+  Deny when no authorize callback and no registered Spatie permission. Env: `FLEX_FORMS_PERMISSIONS_STRICT`.
+</ResponseField>
+<ResponseField name="permissions.authorize" type="callable|null" default="null">
+  `fn (Authenticatable $user, StudioAbility $ability, ?FlexForm $form): ?bool` — return null to continue the chain.
+</ResponseField>
+<ResponseField name="permissions.map" type="array">
+  Maps each Studio ability (e.g. `createForm`) to a Gate / Spatie name (e.g. `Create:FlexForm`).
+</ResponseField>
+
+## Insights
+
+<ResponseField name="insights.raw_retention_days" type="int" default="90">
+  How long raw analytics events are kept before pruning.
+</ResponseField>
+<ResponseField name="insights.filtered_scan_max_rows" type="int" default="100000">
+  Hard cap on filtered raw-event cursor rows. When exceeded, the scan stops and `meta.filtered_scan_capped` is set. Global Insights with filters on ranges longer than 31 days also clamps the scan window and sets `meta.filtered_range_clamped` (separate from the row-budget flag). Env: `FLEX_FORMS_INSIGHTS_FILTERED_SCAN_MAX_ROWS`.
+</ResponseField>
+<ResponseField name="insights.cache_ttl" type="int" default="300">
+  Seconds an Insights query result is cached — see [Redis production checklist](/guides/redis-production).
+</ResponseField>
+<ResponseField name="insights.scaling.redis" type="bool|null" default="null (auto-detect)">
+  Force Redis scaling on/off, or leave unset to auto-detect connectivity. Env: `FLEX_FORMS_INSIGHTS_SCALING_REDIS`.
+</ResponseField>
+<ResponseField name="insights.scaling.connection / key_prefix" type="string" default="null / flex_forms.insights.">
+  Named Redis connection and key namespace.
+</ResponseField>
+<ResponseField name="insights.geo_ip" type="object">
+  Country/city for Insights maps. Defaults: CDN headers, optional local MaxMind. External `ip-api` Pro HTTPS is **opt-in** (`enable_external_api` + `api_key`) — visitor IPs are personal data; keep off unless you have a DPA and disclose the processor. Plain HTTP is never used.
+</ResponseField>
+<ResponseField name="insights.beacon.events_per_form_per_ip_per_minute" type="int" default="120">
+  Soft per-form × IP event budget for the analytics beacon (in addition to the route throttle). Env: `FLEX_FORMS_BEACON_EVENTS_PER_FORM_IP`.
+</ResponseField>
+<ResponseField name="insights.bot_detection" type="object">
+  User-agent substrings, referrer substrings, and regexes used to exclude bots/crawlers from traffic and drop-off numbers.
+</ResponseField>
+
+<ResponseField name="extensibility.submission_middleware" type="list&lt;class-string&gt;" default="[]">
+  Class names implementing `SubmissionMiddleware`, run around submission ingest. Also push via `FilamentFlexFormsPlugin::pushSubmissionMiddleware()`. See [Events & hooks](/developers/events-hooks).
+</ResponseField>
+<ResponseField name="extensibility.integrations.drivers" type="list&lt;class-string&gt;" default="[]">
+  Extra `IntegrationDriver` classes registered at boot. Prefer `FilamentFlexFormsPlugin::registerIntegration()` for panel-scoped apps. See [Custom integrations](/developers/custom-integrations).
+</ResponseField>
+<ResponseField name="extensibility.integrations.discover" type="list&lt;string&gt;" default="[]">
+  Absolute paths scanned for `*.php` driver classes (e.g. `app_path('FlexForms/Integrations')`).
+</ResponseField>
+<ResponseField name="extensibility.integrations.allow_override" type="bool" default="false">
+  When false, host drivers cannot replace shipped keys like `mailchimp`.
+</ResponseField>
+<ResponseField name="extensibility.integrations.redact_keys" type="list&lt;string&gt;" default="[]">
+  Extra delivery-context keys always redacted before persistence (e.g. `ssn`, `nip`).
+</ResponseField>
+
+<Tip>
+Full Redis-specific tuning (connection, prefix, HyperLogLog, today-hashes) is covered end to end in [Redis production checklist](/guides/redis-production).
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Do I need to publish the config at all?">
+    No — every key has a sane default and can be overridden purely with env vars. Publish only if you need PHP-level overrides like `uploads.authorize`.
+  </Accordion>
+  <Accordion title="What happens if I don't set uploads.authorize in a multi-tenant app?">
+    Any authenticated panel user can view/upload files for any form's Studio — set `uploads.authorize` and `require_authorize_callback` before going to production with more than one tenant. Step-by-step: [Multi-tenancy](/developers/multi-tenancy).
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+**Next:** [Multi-tenancy](/developers/multi-tenancy) · [Upload disks](/developers/upload-disks) · [Extensibility overview](/developers/extensibility-overview) · [Upgrading](/get-started/upgrading) · [Redis production checklist](/guides/redis-production) · [Webhooks](/developers/webhooks)
+</Panel>

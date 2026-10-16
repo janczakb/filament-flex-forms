@@ -1,0 +1,76 @@
+---
+title: "Automated Emails & PDFs"
+description: "Deploy instant auto-responders, team alerts, and branded HTML receipts directly from the form engine."
+icon: "mail"
+keywords: ["email notifications", "pdf", "confirmation email", "auto-responder", "html template"]
+boost: 2
+---
+
+The **Emails** engine automates communication the moment a form is completed. It handles two pathways: notifying your internal team, and thanking the respondent — both as polished, client-safe HTML emails (with a plain-text fallback).
+
+## 1. Internal Team Alerts (Self Notifications)
+
+Never miss a hot lead or an urgent support ticket.
+
+<Steps>
+  <Step title="Enable Internal Alerts">
+    In Form Settings → Email notifications, toggle **Notify me** on.
+  </Step>
+  <Step title="Define Routing">
+    Specify one or multiple addresses (e.g. `sales@acme.com, ceo@acme.com`).
+  </Step>
+  <Step title="Customize the Payload">
+    Set the **Subject** and **Message**. Flex Forms dispatches a branded HTML team alert (hero artwork plus your message and submission answers). Optional merge tags: `{form_title}`, `{form_name}`, `{submission_id}`, `{submitted_at}`.
+  </Step>
+</Steps>
+
+---
+
+## 2. Auto-Responders (Respondent Notifications)
+
+Confirm submissions instantly.
+
+<Steps>
+  <Step title="Enable Auto-Responders">
+    Toggle **Notify respondent** on.
+  </Step>
+  <Step title="Bind the Target Address">
+    Choose which [Email Block](/features/blocks/email) holds the respondent address, and/or enter a fixed **To** address.
+  </Step>
+  <Step title="Craft the Message">
+    Write a confirmation (e.g. *"Thanks — we will review within 24 hours."*). Toggle **Attach PDF of answers** to include their answers in the HTML receipt **and** attach a PDF file of the answers.
+  </Step>
+</Steps>
+
+---
+
+## 3. Customize the HTML templates
+
+Every notification uses publishable Blade views — edit the HTML visually however you like without forking the package:
+
+```bash
+php artisan vendor:publish --tag=filament-flex-forms-mail
+```
+
+This writes files under `resources/views/vendor/filament-flex-forms/mail/`:
+
+| File | Purpose |
+|------|---------|
+| `submission-admin.blade.php` | Team alert layout |
+| `submission-respondent.blade.php` | Respondent receipt |
+| `submission-text.blade.php` | Plain-text fallback |
+| `partials/*` | Shared chrome + answers table |
+
+Accent color defaults to your form design accent (or `FLEX_FORMS_MAIL_ACCENT`).
+
+Team alerts use the optional **email logo** from Global Settings → Mail when uploaded; otherwise the **site name** from Appearance is shown as text in the header and footer.
+
+Emails are **queued** so respondents are not blocked waiting on SMTP. Ensure your Laravel queue worker is running in production.
+
+<Callout type="warning">
+  These emails use your Laravel mail driver (SMTP, Postmark, SES, …). You do not need Mailchimp or Zapier for basic receipts.
+</Callout>
+
+<Panel>
+  **Next Steps:** [Integrations](/features/settings/integrations) · [Config & env](/developers/config-env)
+</Panel>

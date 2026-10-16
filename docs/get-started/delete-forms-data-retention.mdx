@@ -1,0 +1,56 @@
+---
+title: "Data Retention & Deletion"
+description: "Manage your data lifecycle securely. Learn how to delete forms and understand the retention policies for submissions and contacts."
+icon: "trash-2"
+keywords: ["delete", "data retention", "gdpr", "cleanup", "submissions"]
+boost: 1
+---
+
+Keeping your workspace clean and compliant is essential. Flex Forms provides granular control over how and when form schemas and submission data are removed.
+
+## Deleting a Form Schema
+
+If a form has run its course, you can permanently remove it from your Hub.
+
+<Steps>
+  <Step title="Locate the Form">
+    Navigate to the Forms Hub in your Filament panel.
+  </Step>
+  <Step title="Execute Deletion">
+    Open the context menu (three dots) on the form card and click **Delete**.
+  </Step>
+  <Step title="Confirm Action">
+    Carefully confirm the deletion prompt. 
+    
+    <Warning>
+      **Destructive Action:** Deleting a form removes the entire Studio configuration, logic rules, and published links. This action cannot be undone.
+    </Warning>
+  </Step>
+</Steps>
+
+---
+
+## The Data Retention Architecture
+
+Deleting a form schema **does not** automatically purge your historical data. Flex Forms employs a decoupled architecture to protect your respondent records.
+
+<CardGroup cols={2}>
+  <Card title="Submissions Data" icon="inbox">
+    Raw submissions tied specifically to the deleted form will be orphaned or removed based on your specific database cascade configurations. Always export critical CSVs first.
+  </Card>
+  <Card title="Unified Contacts" icon="users">
+    People who submitted the form are stored in the global **Contacts Directory**. Deleting the form will *not* delete these global user profiles.
+  </Card>
+</CardGroup>
+
+## Compliance & Best Practices
+
+To maintain GDPR compliance and a pristine Insights dashboard, adhere to these guidelines:
+
+- **Export Before Destruction:** Always run a full CSV export from the Submissions tab before deleting a production form.
+- **Scrub Test Data Regularly:** Frequently delete test submissions generated during your staging phase so they do not pollute your live production Insights and conversion rates.
+- **Enforce Company Policy:** Manually purge the Unified Contacts directory according to your organization's legal data retention limits.
+
+<Panel>
+  **Deep Dive:** [Managing Submissions](/features/submissions/overview) · [The Unified Contacts Directory](/features/contacts/overview)
+</Panel>

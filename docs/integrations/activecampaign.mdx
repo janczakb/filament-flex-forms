@@ -1,0 +1,235 @@
+---
+title: "ActiveCampaign Integration"
+description: "A comprehensive, enterprise-grade guide to syncing contacts, triggering automations, and managing dynamic tags in ActiveCampaign."
+icon: "envelope-open-text"
+keywords: ["activecampaign", "email", "crm", "tags", "marketing", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** For deep dives into the payload structure and webhook architecture, please read the [Official ActiveCampaign API Documentation](https://developers.activecampaign.com/reference/overview).
+</Banner>
+
+The **ActiveCampaign** integration is a powerhouse for enterprise marketing automation. It goes far beyond simply adding an email address to a list. It allows you to dynamically append behavioral tags, populate custom fields, and trigger complex automated workflows the absolute second a form is submitted, effectively removing any manual data entry from your marketing team.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Dynamic Tag-Based Segmentation" icon="tags">
+    Automatically tag users based on their exact form selections. For example, if a user selects "Enterprise" in a pricing dropdown, Flex Forms will instantly append the `interest: enterprise_plan` tag to their profile, instantly triggering a VIP sales automation sequence.
+  </Card>
+  <Card title="Instant Drip Campaigns" icon="droplet">
+    Push high-value leads straight into a specific ActiveCampaign List. This acts as the entry trigger for a 5-day educational welcome email sequence, ensuring your brand stays top-of-mind immediately after the conversion.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+ActiveCampaign makes API integration incredibly simple and secure. You only need a specific Base URL and a single API key. Follow these exact instructions to find them.
+
+<Steps>
+  <Step title="Step 1: Log into ActiveCampaign">
+    Open your web browser and navigate to your ActiveCampaign login URL. Enter your email and password to log in. 
+    
+    *Note: You must have Administrator privileges to access developer settings.*
+  </Step>
+  
+  <Step title="Step 2: Locate the Settings Gear">
+    Once you are logged into the main dashboard, look at the absolute **bottom left corner** of your screen. You will see a **gear icon** (Settings). Click it to open the administrative menu.
+  </Step>
+  
+  <Step title="Step 3: Navigate to Developer Settings">
+    In the left-hand sidebar menu of the Settings page, scroll down until you see the section labeled **Developer**. Click exactly on this link.
+  </Step>
+  
+  <Step title="Step 4: Locate the API Access Box">
+    You are now on the Developer settings page. At the very top, you will see a prominent box labeled **API Access**. Inside this box are the two pieces of information you need: the **URL** and the **Key**.
+  </Step>
+  
+  <Step title="Step 5: Copy the URL">
+    Highlight the entire string in the **URL** field (it will look something like `https://yourcompany.api-us1.com`). Right-click and select **Copy** (or press `Ctrl+C` / `Cmd+C`). 
+    
+    *Do not copy any trailing slashes.*
+  </Step>
+  
+  <Step title="Step 6: Create a Connection (recommended)">
+    Switch to Flex Forms → **Integrations** → **Connections**. Create an **ActiveCampaign** connection, paste the **API URL**, then continue with the key in the next steps.
+  </Step>
+  
+  <Step title="Step 7: Copy the API Key">
+    Switch back to the ActiveCampaign tab. In that same "API Access" box, highlight the extremely long string of characters in the **Key** field. Right-click and select **Copy**.
+  </Step>
+  
+  <Step title="Step 8: Save credentials and wire feeds">
+    Paste the key into the same Connection (or Catalog → ActiveCampaign for a single shared account). On each form hub **Integrations** tab, enable ActiveCampaign and pick the **Connection**.
+  </Step>
+</Steps>
+
+---
+
+## Masterclass: Mapping Data Payloads
+
+ActiveCampaign handles standard fields easily, but true marketing power comes from mapping data to highly specific Custom Fields and Lists.
+
+By default, Flex Forms automatically syncs the primary `Email Block` to the Contact's email address.
+
+<Tabs>
+  <Tab title="Standard Field Mapping">
+    Map additional fields one per line in your specific form's Integration settings.
+    
+    The format is always: `activecampaign_field=flex_forms_field`
+    
+    Standard fields include:
+    - `firstName`
+    - `lastName`
+    - `phone`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      firstName=first_name_input
+      lastName=last_name_input
+      phone=mobile_phone_block
+      %COMPANY_SIZE%=company_size_dropdown
+      %INDUSTRY%=industry_selector
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How Custom Fields Work in ActiveCampaign
+
+When you map to a custom field in ActiveCampaign, you cannot just use the field's text name. ActiveCampaign strictly requires you to map to its internal **Numeric ID** (e.g., `12`).
+
+<Tree>
+  <Tree.Folder name="Finding Custom Field IDs" defaultOpen>
+    <Tree.File name="1. In ActiveCampaign, go to Settings > Manage Fields" />
+    <Tree.File name="2. Use your browser's Developer Tools (Network tab)" />
+    <Tree.File name="3. Or simply use Flex Forms' built-in Field Catalog dropdown!" />
+  </Tree.Folder>
+</Tree>
+
+<Callout type="info">
+  **The + Prefix Trick:** If you don't want to hunt down numeric IDs, Flex Forms offers a massive quality-of-life feature. If you prefix a text key with a plus sign (`+`), Flex Forms will tell ActiveCampaign to automatically create that custom text field if it doesn't exist.
+  
+  *Example:* `+CompanySize=size_dropdown`
+</Callout>
+
+---
+
+## Enterprise Features & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="List Subscriptions (Double Opt-in)">
+    In the form's specific integration settings in the Flex Forms Studio, you can define a comma-separated list of `List IDs`. Any user who submits the form will be instantly subscribed to those lists. 
+    
+    *Note: If your ActiveCampaign list is configured to require Double Opt-in, the user will be added in an 'Unconfirmed' state until they click the link in the email ActiveCampaign sends them.*
+  </Accordion>
+  <Accordion title="Dynamic Tagging Strategies">
+    You can define static tags to apply to every submission (e.g., `source: website_form`). However, for true enterprise automation, you should configure your Flex Forms Dropdown values to perfectly match your ActiveCampaign tags (e.g., set the Dropdown Value to `interest_b2b`). This allows for dynamic, conditional segmentation without building complex logic rules inside ActiveCampaign.
+  </Accordion>
+  <Accordion title="Duplicate Contact Management">
+    ActiveCampaign uses the email address as the universal primary key. If a user submits a Flex Form and they already exist in your ActiveCampaign database, Flex Forms will safely update their custom fields and append the new tags/lists to their profile without duplicating the contact record.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_url" type="text" required>
+  **API URL**
+  Your account-specific ActiveCampaign API endpoint. You can find this by logging into ActiveCampaign, navigating to **Settings → Developer**, and copying the **URL** from the API access section.
+</ParamField>
+
+<ParamField path="api_key" type="password" required>
+  **API key**
+  The master API key that grants Flex Forms permission to manage your contacts and lists. Also found in **Settings → Developer**. Treat this like a password.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Subscriber Placement
+<ParamField path="list_id" type="remote_select" required>
+  **ActiveCampaign list**
+  The primary mailing list that the new contact will be subscribed to. Flex Forms automatically queries the ActiveCampaign API to load a live dropdown of all your available lists.
+</ParamField>
+
+<ParamField path="tags" type="text" >
+  **Tags**
+  A comma-separated list of tags to instantly apply to the new contact (e.g., `lead, webinar-2024, highly-engaged`). You can use merge tags to dynamically apply tags based on form answers (e.g., `{{industry_dropdown}}`).
+</ParamField>
+
+#### Field Mapping
+<ParamField path="email_field" type="select" required>
+  **Email field**
+  The primary email block to sync. Required for ActiveCampaign's deduplication and creation logic.
+</ParamField>
+
+<ParamField path="first_name_field" type="select">
+  **First name field**
+</ParamField>
+
+<ParamField path="last_name_field" type="select">
+  **Last name field**
+</ParamField>
+
+<ParamField path="phone_field" type="select">
+  **Phone field**
+</ParamField>
+
+<ParamField path="org_field" type="select">
+  **Organization field**
+</ParamField>
+
+<ParamField path="custom_field_map" type="textarea" >
+  **Custom fields**
+  The routing engine for mapping Flex Form answers into ActiveCampaign Custom Contact Fields. 
+  
+  Unlike HubSpot, ActiveCampaign identifies custom fields using numeric IDs, not text names. You must provide one rule per line using the format: `activecampaign_field_id=flex_forms_block_name`.
+  
+  **Pro-tip:** If you prefix a key with `+` (e.g., `+FavoriteColor=color_input`), Flex Forms will automatically create that custom text field inside ActiveCampaign for you on the fly if it doesn't already exist.
+</ParamField>
+
+<ParamField path="field_catalog" type="remote_select" >
+  **Available fields (reference)**
+  A helper tool. Open this dropdown to view a live list of all your existing ActiveCampaign custom fields and their required numeric IDs, so you can easily construct your `custom_field_map`.
+</ParamField>
+
+#### Contact Processing & Overrides
+<ParamField path="override_empty_fields" type="select" default="1" >
+  **Overwrite with empty values**
+  Controls how Flex Forms handles blank form submissions when updating an *existing* contact.
+  
+  **Options:**
+  - `1`: Yes — If a user leaves a form field blank, Flex Forms will wipe out the corresponding data in ActiveCampaign (destructive).
+  - `0`: No — If a user leaves a form field blank, Flex Forms will preserve the existing data in ActiveCampaign for that field (safe).
+</ParamField>
+
+<ParamField path="note" type="textarea" >
+  **Note**
+  An optional block of text appended to the Contact's Activity Stream as a Note. Perfect for summarizing their inquiry. Supports merge tags (e.g., `Reason for contacting: {{reason}}`).
+</ParamField>
+
+#### Email Automation Triggers
+<ParamField path="double_optin_form" type="remote_select" >
+  **Double opt-in form**
+  If you are strictly enforcing GDPR/CAN-SPAM, select an existing ActiveCampaign form here. Flex Forms will trigger ActiveCampaign to send the official double opt-in confirmation email associated with that specific ActiveCampaign form.
+</ParamField>
+
+<ParamField path="instant_responders" type="select" default="0" >
+  **Instant responders**
+  If enabled (`1`), ActiveCampaign will immediately send any auto-responder emails attached to the selected `list_id` the moment the contact is created.
+</ParamField>
+
+<ParamField path="last_message" type="select" default="0" >
+  **Send last broadcast**
+  If enabled (`1`), ActiveCampaign will automatically forward the very last broadcast campaign you sent to this list to the new contact as a welcome gesture.
+</ParamField>

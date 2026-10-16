@@ -1,0 +1,165 @@
+---
+title: "Greater than / after"
+description: "When clause operator: The number is bigger, or the date/time is later."
+icon: "chevron-up"
+keywords: ["logic", "operator", "gt", "condition", "when"]
+---
+
+**Greater than** (numbers) or **After** (dates) checks whether the answer is **strictly above** your threshold — higher quantity, later deadline, score above a cutoff.
+
+Use it for eligibility gates, quiz routing, age checks, and “late registration” fees. Equal values **do not** match — use [Greater than or equal](/features/studio/logic/operators/gte) on numbers when the boundary counts.
+
+---
+
+## When to choose this
+
+| Goal | Use **Greater than / After** | Use something else instead |
+|------|------------------------------|----------------------------|
+| Strictly above a number | ✓ | **Greater than or equal** to include the boundary |
+| Strictly after a date | ✓ | On dates, **≥** is not available — adjust boundary date or use number field |
+| At or above threshold | ✗ | **[Greater than or equal](/features/studio/logic/operators/gte)** (numbers) |
+| Below threshold | ✗ | **[Less than / Before](/features/studio/logic/operators/lt)** |
+| Exact match | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+| Blank number/date | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Both sides must be present and valid** — blank answers never match.
+- **Numbers:** compared as floating-point values (`10` > `9.5`, `"10"` > `"9"`).
+- **Dates and times:** parsed as real timestamps when possible (`strtotime`); otherwise compared as strings lexicographically.
+- **Strictly greater** — equal values do **not** match.
+- If your comparison value is blank, the clause never matches (fail-closed).
+- Pick another field in **Value** — e.g. End date **after** Start date.
+
+<Note>
+  Date fields support **After** and **Before** only — not “greater than or equal”. To include the boundary date, pick the day before as your comparison value, or store dates as numbers.
+</Note>
+
+---
+
+## Which field types
+
+| Family | Available | Label in Studio |
+|--------|-----------|-----------------|
+| Number | ✓ | Greater than |
+| Date & time | ✓ | After |
+| Text, choice, yes/no, presence | — | — |
+
+Supported number blocks include integer, stepper, currency, sliders, rating, year, duration, and calculated numeric results.
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Use [Is empty](/features/studio/logic/operators/empty) to react to skipped number or date fields.
+
+If you reference a later-page date via **Value**, the comparison stays false until that field is answered.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** — open **When**.
+  </Step>
+  <Step title="Pick a number or date field">
+    Only numeric and date/time families show **Greater than** / **After**.
+  </Step>
+  <Step title="Select the operator">
+    Choose **Greater than** (numbers) or **After** (dates).
+  </Step>
+  <Step title="Set the threshold">
+    Enter a literal number, pick a date, or pick another field in **Value** for dynamic comparisons.
+  </Step>
+  <Step title="Add Then actions">
+    Popular: [Jump to page](/features/studio/logic/actions/jump-to-page), [Show blocks](/features/studio/logic/actions/show-blocks), [Calculate](/features/studio/logic/actions/calculate).
+  </Step>
+  <Step title="Test boundary values">
+    On Fill, try exactly at threshold (should fail) and one step above (should pass).
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Quiz winner routing
+
+> **When** Score **greater than** `80` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Winner`
+
+Score of exactly `80` does **not** jump — use **≥ 80** if ties should win.
+
+### Late registration fee
+
+> **When** Event date **after** `2026-06-01` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Late fee notice`
+
+June 1 itself does not match — use May 31 as boundary or switch to a numeric “days until event” calculated field with **≥**.
+
+### Budget exceeds minimum
+
+> **When** Budget **greater than** *(pick)* `Minimum budget` → **Then** show upsell options
+
+Both fields must be filled with valid numbers.
+
+### Age gate (numeric)
+
+> **When** Age **greater than** `17` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Adult consent`
+
+Age exactly `17` does not match — use **Greater than or equal** `18` for “18+”.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Enter a value below the threshold">
+    Rule should stay off.
+  </Step>
+  <Step title="Enter exactly the threshold">
+    **Greater than / After** should **not** match.
+  </Step>
+  <Step title="Enter one step above">
+    **Then** actions should fire.
+  </Step>
+  <Step title="Clear the field">
+    Rule turns off — blank never matches.
+  </Step>
+  <Step title="Test date parsing">
+    Use realistic date formats your block emits; invalid strings may fall back to string compare.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **After** when you mean “on or after” — adjust the date or use a number field with **≥**.
+- Comparing text fields — use [Starts with](/features/studio/logic/operators/starts_with) or **Contains** instead.
+- Reading a field on a page the respondent has not reached — stays false until answered.
+- Mixing date formats — keep Studio defaults consistent across compared fields.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Boundary date should qualify but does not">
+    **After** excludes equality. Pick the previous calendar day or use a calculated numeric offset.
+  </Accordion>
+  <Accordion title="Comparison never fires with a field pick">
+    Referenced field may still be blank or non-numeric. Fill both fields in order on Fill.
+  </Accordion>
+  <Accordion title="Numbers compare wrong as strings">
+    Both sides must be numeric for float compare. Non-numeric strings use lexicographic order — usually not what you want for quantities.
+  </Accordion>
+  <Accordion title="Operator missing for my field">
+    Field may be text or choice family — **Greater than** is numbers and dates only.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Greater than or equal](/features/studio/logic/operators/gte) · [Less than / before](/features/studio/logic/operators/lt) · [How logic works](/features/studio/logic/overview)
+</Panel>

@@ -1,0 +1,177 @@
+---
+title: "Google Sheets Integration"
+description: "A comprehensive guide to instantly exporting structured form data directly into a Google Spreadsheet."
+icon: "file-excel"
+keywords: ["google sheets", "spreadsheet", "export", "csv", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API manages secure OAuth flows and writes to specific cell ranges, please read the [Official Google Sheets API Documentation](https://developers.google.com/sheets/api/guides/concepts).
+</Banner>
+
+The **Google Sheets** integration provides an incredibly powerful, decentralized database alternative. Instead of logging into the Flex Forms dashboard to view submissions, this integration instantly appends a new row to a specific Google Spreadsheet the exact second a form is submitted, allowing your team to analyze data in real-time.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Instant Data Collaboration" icon="users-viewfinder">
+    Route survey or registration data directly into a shared Google Sheet. Your entire marketing team can watch the rows populate in real-time and leave comments on specific leads without needing administrative access to the Flex Forms backend.
+  </Card>
+</CardGroup>
+
+---
+
+## Connect Google Sheets
+
+You need a Google Cloud **OAuth client** plus a **refresh token** with Sheets access. Store credentials once, then attach them per form.
+
+### Recommended: Integrations → Connections
+
+Use a **named Connection** when you have more than one Google account (Production vs Marketing) or want feeds to pick which account to write with.
+
+<Steps>
+  <Step title="Create the Google Cloud OAuth client">
+    In [Google Cloud Console](https://console.cloud.google.com), create or select a project, enable **Google Sheets API**, configure the OAuth consent screen, then create an **OAuth client ID** of type **Web application**. Copy the **Client ID** and **Client Secret**.
+  </Step>
+
+  <Step title="Obtain a refresh token">
+    Authorize the client with the `https://www.googleapis.com/auth/spreadsheets` scope and capture a long-lived **refresh token** (Google OAuth Playground, your own authorize script, or your IdP tooling). Flex Forms refreshes short-lived access tokens automatically from this value.
+  </Step>
+
+  <Step title="Create a Connection in Flex Forms">
+    Open **Integrations** (left rail) → **Connections** tab. Choose **Google Sheets**, give it a clear label (for example `Marketing workbook`), paste Client ID, Client Secret, and Refresh Token, then **Create**. Click **Test** until the status is Connected.
+  </Step>
+
+  <Step title="Enable Google Sheets in Catalog">
+    Still under **Integrations**, open the **Catalog** tab, enable **Google Sheets**, and Save. Catalog can stay empty of tokens if every feed uses a Connection — enable only so the driver appears on forms.
+  </Step>
+
+  <Step title="Attach the Connection on the form">
+    Open the form hub **Integrations** tab, enable Google Sheets, pick your **Connection**, set Spreadsheet ID and sheet tab, map columns, then save. Submit a test response to confirm a new row appears.
+  </Step>
+</Steps>
+
+### Alternative: Catalog (global) credentials
+
+For a single shared Google account across all forms, paste Client ID / Secret / Refresh Token under **Integrations → Catalog → Google Sheets** instead of creating a Connection. Form feeds leave **Connection** empty to use those global credentials.
+
+<Callout type="info">
+  Upgrading from an older install? `php artisan flex-forms:upgrade` can backfill a Connection from legacy global Google credentials. Globals remain as a fallback until you switch feeds to `connection_id`.
+</Callout>
+
+---
+
+## Route submissions to a spreadsheet
+
+Establishing the connection allows Flex Forms to access your Google account, but you must instruct it exactly which Spreadsheet to write data to.
+
+<Callout type="info">
+  **Spreadsheet ID Requirement:** You must provide the specific **Spreadsheet ID** in the form's integration settings. 
+  
+  **How to find it:** Open your target Google Sheet in a browser. Look at the URL: `https://docs.google.com/spreadsheets/d/1BxiMVs0X_X.../edit`. The long string of characters exactly between `/d/` and `/edit` is your Spreadsheet ID. Copy that string.
+</Callout>
+
+### Creating the Header Row
+
+Flex Forms does not blindly dump data. It intelligently matches your form blocks to the **Headers** you define in Row 1 of your Google Sheet.
+
+<Tabs>
+  <Tab title="Spreadsheet Setup">
+    1. Open your target Google Sheet.
+    2. In Row 1, type the exact **Block Names** you defined in the Flex Forms Studio across the columns (e.g., A1: `first_name_input`, B1: `email_address`, C1: `company_name`).
+    3. When a user submits the form, Flex Forms scans Row 1, matches the keys, and correctly appends the data in the corresponding columns in a new row.
+  </Tab>
+  <Tab title="Exact Column Mapping Example">
+    <CodeGroup>
+      ```text Google Sheet Layout (Row 1)
+      | Column A          | Column B       | Column C             | Column D     |
+      |-------------------|----------------|----------------------|--------------|
+      | first_name_input  | last_name_input| email_address_block  | phone_number |
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Callout type="warning">
+  **The Spelling Trap:** The names in Row 1 of your Google Sheet MUST perfectly match the block names in the Flex Forms Studio. If you name your block `first_name`, but you type `First Name` in the Google Sheet column header, the API will silently ignore that data and the column will remain blank.
+</Callout>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Test connection fails">
+    Confirm the refresh token was issued for the same Client ID/Secret, and that the Google account can edit the target spreadsheet. Prefer refresh tokens over short-lived access tokens.
+  </Accordion>
+  <Accordion title="403 Permission Denied when appending a row">
+    The Google account behind the Connection (or Catalog credentials) does not have Edit access to the Spreadsheet ID on the form feed. Share the sheet with that account.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration reference
+
+### Credentials (Catalog or Connection)
+
+Same fields appear under **Integrations → Catalog → Google Sheets** and **Integrations → Connections** when you create a Google Sheets connection.
+
+<ParamField path="client_id" type="text" required>
+  **OAuth Client ID** — Google Cloud OAuth 2.0 web client ID.
+</ParamField>
+
+<ParamField path="client_secret" type="password" required>
+  **OAuth Client Secret** — paired with the Client ID for refresh exchanges.
+</ParamField>
+
+<ParamField path="refresh_token" type="password" required>
+  **OAuth Refresh Token** — preferred. Flex Forms refreshes access tokens automatically.
+</ParamField>
+
+<ParamField path="access_token" type="password">
+  **OAuth Access Token (fallback)** — short-lived; use only for temporary tests.
+</ParamField>
+
+### Form feed
+
+Located on the form hub **Integrations** tab.
+
+<ParamField path="connection_id" type="select">
+  **Connection** — named account from Integrations → Connections, or Catalog (global) when empty.
+</ParamField>
+
+#### Destination Sheet
+<ParamField path="spreadsheet_id" type="text" required>
+  **Spreadsheet ID**
+  The unique identifier of the target Google Sheet. You can extract this from the URL of your document. 
+  *Example:* If the URL is `https://docs.google.com/spreadsheets/d/1BxiMVs0X_x/edit`, your ID is `1BxiMVs0X_x`.
+</ParamField>
+
+<ParamField path="sheet_name" type="text" required>
+  **Sheet tab name**
+  The exact name of the specific tab inside your spreadsheet (e.g., `Sheet1` or `Leads_Q4`). If you rename the tab in Google Sheets, you must update this field or the integration will throw a 400 error.
+</ParamField>
+
+#### Data Formatting
+<ParamField path="include_meta" type="select" default="1" >
+  **Include meta columns**
+  Determines whether Flex Forms automatically prefixes your row data with system metadata. 
+  
+  **Options:**
+  - `1`: Yes — Automatically prepends columns for Timestamp, Submission ID, and Form Name before mapping your form answers.
+  - `0`: No — Only inserts the exact fields you map in the `column_map`, giving you strict control over every cell.
+</ParamField>
+
+<ParamField path="column_map" type="textarea" >
+  **Column map**
+  The mapping engine for strict column placement. By default (if left empty), Flex Forms simply dumps all payload fields into the sheet sorted alphabetically by their name.
+  
+  To lock fields to specific columns, define one rule per line using the format: `COLUMN_LETTER=flex_forms_block_name`.
+  
+  *Example:*
+  `A=email_input`
+  `B=full_name`
+  `C=phone_number`
+</ParamField>
+

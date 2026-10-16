@@ -1,0 +1,51 @@
+---
+title: "What's new"
+description: "Recent Flex Forms releases — Insights Redis scaling, hardened access gates, and Studio improvements."
+icon: "megaphone"
+mode: "center"
+keywords: ["changelog", "release notes", "updates"]
+---
+
+<Update label="Encryption, Excel export & multi-tenant recipe" description="Per-form encrypt answers, Global Security policy, CSV + XLSX exports, Filament tenancy docs.">
+Turn on **Encrypt submission answers** in Form Settings → General (or force it for every form via Global Settings → Security / `FLEX_FORMS_FORCE_SUBMISSION_ENCRYPTION`). Submissions, Contacts, and Transactions export as **CSV or Excel (.xlsx)**. SaaS hosts: follow the [Multi-tenancy](/developers/multi-tenancy) recipe for `uploads.authorize` and Studio gates.
+</Update>
+
+<Update label="Plans, yearly pricing & Lifetime" description="Standard $99 · Pro $199 · Enterprise $799 / year · Lifetime $899 once — clear seats, Design on all plans.">
+Commercial tiers: **Standard** $99/yr (2 activations), **Pro** $199/yr (6 + hide branding), **Enterprise** $799/yr (100 + priority support), and **Lifetime** $899 one-time (10 activations · Pro features · updates forever) — four equal plans on [Plans & Pricing](/plans/overview). The **Design** panel and custom CSS are on every plan. If a yearly subscription expires, Studio, public fill, and Composer downloads pause; your stored data is kept. Lifetime keeps runtime and updates permanently. See also [Compare plans](/plans/standard-pro-enterprise).
+</Update>
+
+<Update label="Smarter image uploads" description="WebP variants for covers and field photos, no upscaling, optional Spatie-first Media Library driver.">
+Studio covers store normal + thumb (max 1500 / 400). Logos fit 500×500; social/OG stay JPEG at 16:9. Respondent **images** get normal + thumb (1500 / 350); PDFs and other files stay single originals. Set `FLEX_FORMS_MEDIA_DRIVER=spatie` to use Spatie as the primary store (native conversions, responsive images, purge on delete) — see [Upload disks](/developers/upload-disks).
+</Update>
+
+<Update label="Branded HTML submission emails" description="Publishable Blade templates for team alerts and respondent receipts — customize the HTML visually.">
+Form Settings → Email notifications now send polished HTML (plus plain text). Publish templates with `php artisan vendor:publish --tag=filament-flex-forms-mail`. Merge tags: `{form_title}`, `{submission_id}`, and more — see [Emails & PDF](/features/settings/emails-pdf).
+</Update>
+
+<Update label="Studio team permissions" description="Optional Spatie RBAC for create, edit, publish, export, Insights, Contacts, and more — server-enforced.">
+Every Studio action can be gated with optional [spatie/laravel-permission](https://github.com/spatie/laravel-permission) or a plugin authorize callback. Spatie is never required; unseeded installs stay open. Full map and env keys: [Studio permissions](/developers/studio-permissions).
+</Update>
+
+<Update label="Global Settings tabs" description="Appearance, License, Public URLs, and Insights — vertical tabs instead of one long page.">
+[Global Settings](/get-started/global-settings) is now sectioned into icon tabs. Third-party API keys stay under **Integrations** in the left rail. Insights Redis options live under the **Insights** tab — see [Redis production](/guides/redis-production).
+</Update>
+
+<Update label="Insights Redis scaling" description="O(1) today-hashes, HyperLogLog uniques, duration aggregates, dedicated key prefix.">
+Insights can now route its hot counters through a dedicated Redis connection instead of the default cache store — auto-detected or forced via Global Settings → Insights / env. See [Redis production checklist](/guides/redis-production).
+</Update>
+
+<Update label="Production-grade indexes" description="Composite indexes for submission caps and bot-aware analytics scans.">
+New indexes on `flex_form_submissions` (form + partial + IP/user) and `flex_form_analytics_events` (form + bot + event + time) keep [access gate](/guides/access-gates) counters and Insights fast at scale.
+</Update>
+
+<Update label="Studio architecture split" description="Leaner StudioApp with focused hooks for faster iteration and fewer regressions.">
+Studio's internals were refactored into smaller, purpose-built hooks and components — no user-facing change, but it means new fields, Logic actions, and settings ship faster and with fewer regressions.
+</Update>
+
+<Update label="SSRF-hardened webhooks" description="DNS re-resolution, private-range blocking, and metadata-host denylisting on every outbound webhook.">
+The [Webhooks](/developers/webhooks) integration re-validates the fully interpolated URL (including merge tags) at dispatch time, not just at save time, closing a class of bypasses.
+</Update>
+
+<Tip>
+Watch the roadmap for what's coming next at [Roadmap](/resources/roadmap), or subscribe to release notes via [GitHub](https://github.com/janczakb/filament-flex-forms/releases).
+</Tip>

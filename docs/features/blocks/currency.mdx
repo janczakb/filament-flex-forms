@@ -1,0 +1,34 @@
+---
+title: "Currency Block"
+description: "Collect money amounts with ISO currency codes and minor-unit storage."
+icon: "banknote"
+keywords: ["currency", "money", "amount", "ISO", "PLN", "USD"]
+---
+
+<Banner type="info" dismissible={true}>
+  Prefer **Currency** over Number whenever the answer is money. Amounts are stored in **minor units** (e.g. cents) for clean math and CRM mapping.
+</Banner>
+
+The **Currency** block (`currency`) collects a monetary amount. You can lock a single ISO currency or let respondents pick from an allowed list.
+
+## Configuration
+
+<Steps>
+  <Step title="Add the block">
+    Drag **Currency** from the Number category onto the canvas.
+  </Step>
+  <Step title="Set currency">
+    Choose the default ISO code (for example `PLN`, `USD`, `EUR`) and optional min/max in major units.
+  </Step>
+  <Step title="Optional picker">
+    Enable a currency picker when respondents may choose among allowed codes.
+  </Step>
+</Steps>
+
+## Storage
+
+Answers are stored as integer **minor units**, or as `{{amount, currency}}` when a picker is enabled. Submissions and CSV export format them for humans (e.g. `999,00 PLN`).
+
+<Panel>
+  Related: [Number](/features/blocks/number) · [Price range](/features/blocks/price-range) · [Flex slider](/features/blocks/flex-slider)
+</Panel>

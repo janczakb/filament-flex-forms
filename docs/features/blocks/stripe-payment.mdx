@@ -1,0 +1,46 @@
+---
+title: "Stripe Payment"
+description: "Once-per-form Payment Element block — fixed, product options, custom, or field-driven amounts with Stripe."
+icon: "credit-card"
+keywords: ["stripe", "payment", "payment element", "blik", "checkout", "required"]
+boost: 2
+---
+
+The **Stripe Payment** block is the only block that charges cards (and other Stripe methods) on public fill and embeds.
+
+<Banner type="info" dismissible={false}>
+  Connect keys under **Integrations → Stripe** first. Configure amount, currency, capture, and billing **on this block** — not on Form Settings → Integrations.
+</Banner>
+
+## Limits
+
+- **At most one** Stripe Payment block per form  
+- Available in the Studio catalog under **Payments** after Stripe is **Ready**  
+- Works on fill + embed; skipped for real confirm in **Preview** (no charge, no transaction)
+
+## What to configure
+
+See the full field-by-field guide: [Stripe Integration → Payment block settings](/integrations/stripe#payment-block-settings-studio).
+
+Quick checklist:
+
+1. **Required** on/off (optional donations vs must-pay)  
+2. **Payment type** — fixed / product options / customer amount / from field  
+3. **Currency** + capture mode  
+4. **Payment methods** — Automatic (Dashboard methods) or Cards only  
+5. Billing / shipping / receipt email options  
+
+## Not this block
+
+| Block | Role |
+|---|---|
+| [Credit card](/features/blocks/credit-card) | Collects card-*like* text into the submission — **not** a gateway |
+| [Currency](/features/blocks/currency) / [Number](/features/blocks/number) | Can feed **From a form field** amounts into Stripe Payment |
+
+## After publish
+
+Successful charges appear in **[Transactions](/features/transactions/overview)**. Refunds happen there (or via Stripe + webhook sync).
+
+<Panel>
+  **Deep dive:** [Stripe Integration](/integrations/stripe) · [Transactions](/features/transactions/overview) · [Preview & Publish](/features/studio/preview-publish)
+</Panel>

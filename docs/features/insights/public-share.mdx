@@ -1,0 +1,58 @@
+---
+title: "Public Share Links"
+description: "Generate secure, read-only dashboard links to present form performance to external stakeholders and clients."
+icon: "globe"
+keywords: ["public share", "share insights", "insights link", "client portal"]
+boost: 2
+---
+
+Form performance shouldn't be locked inside your admin panel. **Public Share Links** allow you to generate a secure, read-only version of the Insights Dashboard that can be distributed to marketing teams, executives, or external clients—without requiring them to have a Filament login.
+
+## Generating a Share Link
+
+<Steps>
+  <Step title="Access the Share Hub">
+    Click the **Share Insights** button located in the top toolbar of the dashboard.
+  </Step>
+  <Step title="Select Data Scopes">
+    You have granular control over what the stakeholder can see. Check or uncheck the **Answers**, **Visits**, and **Drop-offs** tabs. 
+    *(Example: You might want a client to see traffic Visits, but hide the raw Answers to protect respondent privacy).*
+  </Step>
+  <Step title="Apply Security (Optional)">
+    Enter a password in the security field to lock the dashboard. The client will be prompted to enter this password before the data loads.
+  </Step>
+  <Step title="Generate the URL">
+    Click **Create Share**. The system generates a unique, cryptographic URL and copies it to your clipboard.
+  </Step>
+</Steps>
+
+---
+
+## The Stakeholder Experience
+
+When a stakeholder opens the link, they are presented with a beautiful, branded, read-only environment. 
+
+While they **cannot** edit the form or view raw PII in the Submissions Inbox, they **can** manipulate the Date Ranges and Filters within the shared dashboard, allowing them to interactively explore the data you permitted them to see.
+
+---
+
+## Managing Active Links
+
+You retain complete control over all distributed links. Below the creation panel, you will see a list of every active share link currently in circulation.
+
+<CardGroup cols={2}>
+  <Card title="Audit Active Links" icon="list-check">
+    See exactly which links are active, whether they are password protected, and which tabs they expose.
+  </Card>
+  <Card title="Instant Revocation" icon="ban">
+    Click **Revoke** to immediately destroy the link. Anyone attempting to visit the URL will instantly receive an "Expired" message.
+  </Card>
+</CardGroup>
+
+<Callout type="warning">
+  **Automatic Expiration:** For security, all public share links automatically expire 30 days after creation. If a client needs permanent access, you must generate a new link for them.
+</Callout>
+
+<Panel>
+  **Next Steps:** [Understanding the Dashboard Panels](/features/insights/answers-visits-dropoffs)
+</Panel>

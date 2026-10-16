@@ -1,0 +1,154 @@
+---
+title: "The Logic & Calculation Engine"
+description: "Master guide: Branch, Rules, Map, Simulator, Calculated fields, operators, actions, and end-to-end recipes."
+icon: "git-branch"
+keywords: ["logic", "conditional", "calculated fields", "branching", "rules", "dynamic pricing", "tutorial"]
+boost: 3
+---
+
+Static forms ask every question. Smart forms only ask what matters.
+
+Flex Forms logic is always the same sentence:
+
+**When** something is true about an answer → **Then** do something.
+
+This guide is the **instructional hub**. Deep reference pages sit under Features → Studio → Logic.
+
+---
+
+## Start here (read once)
+
+1. [How logic works](/features/studio/logic/overview) — Branch, Rules, Map, Simulator, blanks, path validation, cascade scrub  
+2. [Operators (When)](/features/studio/logic/operators/overview) — full field-type matrix + every operator page  
+3. [Actions (Then)](/features/studio/logic/actions/overview) — show/hide/require/jump/calculate/hide submit  
+
+Then pick a surface:
+
+| Surface | Instructions |
+|---------|----------------|
+| Per-answer follow-up / jump | [Branch & field conditions](/features/studio/logic/field-conditions) |
+| Form-wide routing & gates | [Rules / Map / Simulator](/features/studio/logic-board) |
+| Live total / score | [Calculated fields](/features/studio/calculated-fields) |
+
+<Warning>
+  Canvas **If / Else** cards are **deprecated** and removed from the catalog. Prefer Branch or Rules. See [If / Else (deprecated)](/features/studio/logic/if-else-block).
+</Warning>
+
+---
+
+## Golden rules (memorize these)
+
+<Warning>
+  1. **Blank fails closed** — unanswered fields do not match equals / not equals / most comparisons. Use [Is empty](/features/studio/logic/operators/empty).  
+  2. **Hide clears answers** — never hide a field to “keep” a secret value for submit.  
+  3. **Later matching rule wins** — Rules evaluation order.  
+  4. **Tokens are block ids** — use the `{x}` inserter in Calculate / Calculated.  
+  5. **Conflicts & flow health are release blockers** — clear chips and critical Map issues before publish.  
+  6. **Deletes scrub logic** — removing a field/page/option cleans references automatically.
+</Warning>
+
+---
+
+## End-to-end recipe A — Other → specify
+
+<Steps>
+  <Step title="Add fields">
+    Multiple choice with an `Other` option + Short text “Please specify”.
+  </Step>
+  <Step title="Branch on the choice">
+    Follow [Branch](/features/studio/logic/field-conditions): Other → **Show follow-up** specify. Optionally Require in Rules.
+  </Step>
+  <Step title="Preview">
+    Confirm specify appears only for Other and blocks Submit when required and empty.
+  </Step>
+</Steps>
+
+---
+
+## End-to-end recipe B — Eligibility + hide Submit
+
+<Steps>
+  <Step title="Ask budget">
+    Number field “Monthly budget”.
+  </Step>
+  <Step title="Open Rules">
+    Top bar → **Logic** → **Rules** → Add rule.
+  </Step>
+  <Step title="Gate Submit">
+    When Budget **less than** `1000` → [Hide submit](/features/studio/logic/actions/hide-submit) + Show a message block.
+  </Step>
+  <Step title="Preview">
+    Low budget removes Submit. Raising budget restores it.
+  </Step>
+</Steps>
+
+---
+
+## End-to-end recipe C — Quiz score + jump
+
+<Steps>
+  <Step title="Build questions">
+    Multiple pages of scored choices (see [Quiz recipe](/guides/quiz-recipe)). Mark terminal pages.
+  </Step>
+  <Step title="Add Calculated">
+    Sum point fields with `{q1}+{q2}+…` ([Calculated fields](/features/studio/calculated-fields)).
+  </Step>
+  <Step title="Branch on Rules">
+    When Score **greater than or equal** `80` → Jump to Winner; else Jump to Standard (two rules or Branch **Otherwise** carefully).
+  </Step>
+  <Step title="Verify on Map + Simulator">
+    Confirm edges and dry-run paths. Optional: Behavior → Auto-Jump for instant advances on choice.
+  </Step>
+</Steps>
+
+---
+
+## End-to-end recipe D — Live pricing
+
+<Steps>
+  <Step title="Collect variables">
+    Seats (number), priority support (yes/no), setup fee (number).
+  </Step>
+  <Step title="Calculated total">
+    Number formula e.g. `({seats} * {seat_price}) + {setup}` and optional priority uplift via a second Calculate rule.
+  </Step>
+  <Step title="Show the scoreboard">
+    Keep the Calculated block visible on the quote page.
+  </Step>
+</Steps>
+
+---
+
+## Operator & action cheat sheet
+
+### When (operators)
+
+Equality, comparisons, contains/starts/ends, choice sets (`in`, `eq_set`, `is_every_of`), empty/not empty, between, regex, relative dates, Always — each has its own page from the [operators index](/features/studio/logic/operators/overview).
+
+### Then (actions)
+
+| Action | Remember |
+|--------|----------|
+| [Show](/features/studio/logic/actions/show-blocks) | Visibility only — pair with Require if needed |
+| [Hide](/features/studio/logic/actions/hide-blocks) | Clears answers; forces not required |
+| [Require](/features/studio/logic/actions/require-answer) / [Optional](/features/studio/logic/actions/make-optional) | Ignored while hidden |
+| [Jump](/features/studio/logic/actions/jump-to-page) | Last matching jump wins; check Map |
+| [Calculate](/features/studio/logic/actions/calculate) | Feeds later rules in the same pass |
+| [Hide submit](/features/studio/logic/actions/hide-submit) | Always explain why |
+
+---
+
+## Publish checklist
+
+1. Preview every branch path (match, non-match, **Otherwise**).  
+2. Clear Rules conflict chips.  
+3. Clear **flow health** criticals (Map).  
+4. Confirm blank paths (Is empty) do what you intend.  
+5. Confirm Calculate blanks when inputs are empty.  
+6. Confirm hidden required fields never block Submit on the visited path.  
+7. Run **Simulator** on key answer sets.  
+8. Publish and retest on the live fill URL.
+
+<Panel>
+  [How logic works](/features/studio/logic/overview) · [Workflow → Rules](/features/studio/logic-board) · [Calculated fields](/features/studio/calculated-fields) · [Quiz recipe](/guides/quiz-recipe) · [Multi-page forms](/guides/multi-page-stepper)
+</Panel>

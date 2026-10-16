@@ -1,0 +1,157 @@
+---
+title: "Email Block"
+description: "Collect securely validated email addresses. Learn how Primary routing drives integrations and CRM synchronization."
+icon: "mail"
+keywords: ["email", "contact", "primary", "validation", "crm"]
+boost: 2
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **New Feature:** You can now automatically sync the Primary Email to the global Contacts Hub!
+</Banner>
+
+The **Email** block is the absolute cornerstone of digital identity and lead generation. It inherently enforces structural validation (ensuring the input contains an `@` symbol and a valid domain format) before allowing submission. Without a verified email, your CRM workflows, marketing automations, and transactional receipts cannot function.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="SaaS Signups" icon="rocket">
+    Act as the primary unique identifier for account creation and password resets.
+  </Card>
+  <Card title="E-commerce" icon="cart-shopping">
+    Route order confirmations, digital downloads, and shipping receipts to the customer.
+  </Card>
+  <Card title="Lead Magnets" icon="magnet">
+    Gate valuable content (like PDFs) behind a required email capture for newsletter drip campaigns.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+Deploying the Email block is straightforward, but its power lies in its deep integration with the rest of the Flex Forms ecosystem.
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Email** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Configure the Inspector">
+    Define the **Label** (e.g., *"Work Email"*). You can also inject a **Placeholder** (e.g., *"jane@company.com"*) to guide the respondent.
+  </Step>
+  <Step title="Enforce Requirement">
+    Email blocks are typically the most critical piece of data. Toggle the **Required** switch to prevent anonymous submissions.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+Customize the email block using the advanced configuration options in the Inspector. We have broken these down into logical categories.
+
+<Tabs>
+  <Tab title="Visuals & Text">
+    <ParamField path="label" type="string" required>
+      The main text displayed above the field.
+    </ParamField>
+    
+    <ParamField path="placeholder" type="string">
+      The empty state placeholder (e.g., `you@example.com`).
+    </ParamField>
+    
+    <ParamField path="help_text" type="string">
+      Muted instructional text displayed below the input.
+    </ParamField>
+    
+    <ParamField path="hidden_label" type="boolean" default="false">
+      Hides the main field label, keeping only the input and the placeholder visible. Useful for minimal landing pages.
+    </ParamField>
+  </Tab>
+  
+  <Tab title="Validation Rules">
+    <ParamField path="is_required" type="boolean" default="false">
+      If enabled, the form cannot be submitted unless a valid email address is provided.
+    </ParamField>
+    
+    <ParamField path="unique" type="boolean" default="false">
+      Validates against your database to ensure this email hasn't been submitted previously to this form (useful for limiting "one entry per person" giveaways).
+    </ParamField>
+  </Tab>
+  
+  <Tab title="Advanced Logic">
+    <ParamField path="is_visible" type="boolean" default="true">
+      Determines if the field is visible on the screen.
+    </ParamField>
+    
+    <ParamField path="default_value" type="string">
+      Pre-fill the email if you already know it (e.g., via URL query parameters).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+When a form containing an Email block is submitted and sent via Webhook to an external service (like Zapier or Make), the payload looks like this:
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_987654321",
+    "form_id": "frm_123456789",
+    "data": {
+      "email_primary": "jane.doe@acmecorp.com"
+    },
+    "metadata": {
+      "ip_address": "192.168.1.1",
+      "submitted_at": "2026-08-02T10:00:00Z"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'email_primary' => 'jane.doe@acmecorp.com',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: The "Primary Email" Concept
+
+If your form contains multiple Email blocks (e.g., *Personal Email* and *Manager's Email*), the system must know which one identifies the respondent. This is handled by the **Primary** toggle.
+
+<Callout type="info">
+  **Automatic Promotion:** Flex Forms intelligently promotes the first Email block you add to the Canvas to be the **Primary**.
+</Callout>
+
+### Why Primary Matters:
+
+1. **The Contacts Directory:** The Primary email is used as the unique identifier when creating or updating profiles in the global [Contacts Hub](/features/contacts/overview).
+2. **Notification Routing:** If you configure the form to send an auto-responder or receipt, the system dispatches it to the Primary address.
+3. **CRM Integration:** Third-party feeds (like Mailchimp or Zapier) prioritize the Primary email field when syncing lead data.
+
+You can manually change which block is designated as Primary within the block's <Tooltip headline="Field settings" tip="The left dock in Studio where you configure the selected block">field settings</Tooltip>.
+
+---
+
+## Best Practices & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="URL Prefilling for Email Campaigns">
+    If you are emailing an existing database, you already know their email. Use [Query Parameter Prefilling](/features/share/query-params) (e.g., `?email=known@user.com`) so they don't have to type it again. You can even combine this with the **Hide Label** setting for a frictionless flow.
+  </Accordion>
+  <Accordion title="Preventing Typos">
+    Consider using the **Help Text** setting to gently remind users to double-check their spelling, as this address will be used for critical communications.
+  </Accordion>
+  <Accordion title="Issue: Users submitting fake emails">
+    While the Email block validates structural integrity (e.g., requires an `@` and a `.com`), it cannot verify if the inbox actually exists. For high-security environments, you should implement a double-opt-in workflow where the user must click a confirmation link sent to the provided address before granting access.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Query Parameter Prefilling](/features/share/query-params) · [The Contacts Directory](/features/contacts/overview)
+</Panel>

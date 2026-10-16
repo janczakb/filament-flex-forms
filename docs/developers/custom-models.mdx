@@ -1,0 +1,105 @@
+---
+title: "Custom models"
+description: "Swap FlexForm, submission, connection, and delivery Eloquent models with FlexForms::useFormModel and related registrars."
+icon: "database"
+keywords: ["custom model", "FlexForms", "useFormModel", "multi-tenant", "eloquent"]
+---
+
+Default Flex Forms models work for single-tenant Filament apps. Multi-tenant or white-label hosts often need extra columns (`team_id`, `organization_id`), global scopes, or separate connection tables — register subclasses **early** in `AppServiceProvider::register()`.
+
+## Registrar API
+
+```php
+use Bjanczak\FilamentFlexForms\FlexForms;
+use App\Models\TenantFlexForm;
+use App\Models\TenantFlexFormSubmission;
+use App\Models\TenantIntegrationConnection;
+use App\Models\TenantIntegrationDelivery;
+
+public function register(): void
+{
+    FlexForms::useFormModel(TenantFlexForm::class);
+    FlexForms::useSubmissionModel(TenantFlexFormSubmission::class);
+    FlexForms::useConnectionModel(TenantIntegrationConnection::class);
+    FlexForms::useDeliveryModel(TenantIntegrationDelivery::class);
+}
+```
+
+Each class **must extend** the package base model:
+
+| Registrar | Base class |
+|-----------|------------|
+| `useFormModel()` | `Bjanczak\FilamentFlexForms\Models\FlexForm` |
+| `useSubmissionModel()` | `Bjanczak\FilamentFlexForms\Models\FlexFormSubmission` |
+| `useConnectionModel()` | `Bjanczak\FilamentFlexForms\Models\FlexFormIntegrationConnection` |
+| `useDeliveryModel()` | `Bjanczak\FilamentFlexForms\Models\FlexFormIntegrationDelivery` |
+
+Invalid classes throw `InvalidArgumentException` at registration time.
+
+## Example: tenant-scoped form
+
+```php title="app/Models/TenantFlexForm.php"
+namespace App\Models;
+
+use Bjanczak\FilamentFlexForms\Models\FlexForm;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+final class TenantFlexForm extends FlexForm
+{
+    protected static function booted(): void
+    {
+        static::addGlobalScope('tenant', function (Builder $query): void {
+            if ($teamId = auth()->user()?->current_team_id) {
+                $query->where('team_id', $teamId);
+            }
+        });
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+}
+```
+
+Add migrations for new columns on the same tables (`flex_forms`, `flex_form_submissions`, `flex_form_integration_connections`, …) — do not rename tables unless you override `$table` consistently.
+
+## Resolving models in your code
+
+Use the registrar instead of hard-coded class names:
+
+```php
+$formClass = FlexForms::formModel();
+$submissionClass = FlexForms::submissionModel();
+
+$formClass::query()->where('slug', $slug)->first();
+```
+
+Package internals (ingestor, integration manager, policies) resolve through the same API — custom models participate everywhere once registered.
+
+## Connections and deliveries
+
+When swapping connection/delivery models:
+
+- Keep `credentials` encrypted cast for OAuth tokens — [OAuth token management](/developers/oauth-token-management)
+- Scope Connections per tenant the same way as forms
+- Delivery rows power admin replay UI — preserve foreign keys to submissions
+
+## Policies and authorization
+
+Register policies on your subclass if Filament resolves `$record` as the custom model:
+
+```php
+Gate::policy(TenantFlexForm::class, TenantFlexFormPolicy::class);
+```
+
+Combine with [Multi-tenancy](/developers/multi-tenancy) (`uploads.authorize`, `authorizeAbilityUsing`).
+
+<Warning>
+  Call registrars before Flex Forms boots ( `register()`, not `boot()` ). Late registration leaves cached resolves pointing at default models.
+</Warning>
+
+<Panel>
+**Next:** [Multi-tenancy](/developers/multi-tenancy) · [OAuth integrations](/developers/oauth-integrations) · [Admin customization](/developers/admin-customization)
+</Panel>

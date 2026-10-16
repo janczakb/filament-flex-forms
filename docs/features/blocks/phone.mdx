@@ -1,0 +1,158 @@
+---
+title: "Phone Number Block"
+description: "Collect pristine international phone numbers with built-in country flags and E.164 standardization."
+icon: "phone"
+keywords: ["phone", "mobile", "international", "e164", "sms"]
+---
+
+<Banner type="critical" dismissible={false}>
+  🚨 **Important:** SMS gateways (like Twilio or AWS SNS) will instantly reject phone numbers that are not formatted to the E.164 standard. This block guarantees E.164 compliance out of the box.
+</Banner>
+
+The **Phone Number** block is an advanced input field that abstracts away the complexity of global phone formats. It automatically handles country dialing codes, validates number lengths based on the selected country, and standardizes the output for your CRM or SMS gateways.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="SMS Marketing" icon="comment-sms">
+    Collect verified mobile numbers to send promotional blasts or event reminders.
+  </Card>
+  <Card title="Sales Outreach" icon="headset">
+    Ensure your sales team gets perfectly formatted international numbers to dial right from their CRM.
+  </Card>
+  <Card title="Two-Factor Auth" icon="shield-halved">
+    Capture mobile-only numbers required for sending 2FA security codes.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Phone** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Configure Default Locale">
+    Set your **Default Country**. This determines which flag and dialing code (e.g., `+1` for US) is selected when the user opens the form.
+  </Step>
+  <Step title="Restrict Geographies (Optional)">
+    If you only do business in Europe, use the **Countries** array to whitelist specific nations, preventing users from submitting numbers from unsupported regions.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the phone input. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="default_country" type="string" default="PL">
+      The ISO 3166-1 alpha-2 country code (e.g., `US`, `PL`, `GB`) selected by default.
+    </ParamField>
+    
+    <ParamField path="searchable" type="boolean" default="false">
+      Enables a search bar inside the country flag dropdown, allowing users to quickly find their nation.
+    </ParamField>
+    
+    <ParamField path="international_prefix" type="boolean" default="false">
+      If enabled, the field enforces the `+` prefix natively in the UI.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Geographic Restrictions">
+    <ParamField path="countries" type="array">
+      An array of allowed country codes. If defined, the user can only select a country flag from this specific list (whitelisting).
+    </ParamField>
+    
+    <ParamField path="except_countries" type="array">
+      An array of country codes to hide from the dropdown. Use this to block specific countries (blacklisting) while allowing the rest of the world.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Validation Rules">
+    <ParamField path="mobile_only" type="boolean" default="false">
+      Strict validation constraint. If true, the field will reject landline (fixed-line) phone numbers.
+    </ParamField>
+    
+    <ParamField path="fixed_line_only" type="boolean" default="false">
+      Strict validation constraint. If true, the field will only accept landline phone numbers.
+    </ParamField>
+
+    <ParamField path="allow_types" type="array">
+      Advanced type allow-list (for example `MOBILE`, `VOIP`). When set, overrides mobile-only / fixed-line-only sugar.
+    </ParamField>
+
+    <ParamField path="validate_for_region" type="boolean" default="false">
+      When true, the number must be valid specifically for the selected country (not only valid as an international number).
+    </ParamField>
+
+    <ParamField path="national_format" type="string" default="national">
+      How the national value is stored after validation: `national` (formatted) or `digits` (digits only). Default stays formatted.
+    </ParamField>
+
+    <ParamField path="include_formats" type="array">
+      Optional extra stored keys such as `international` and `rfc3966`.
+    </ParamField>
+
+    <ParamField path="include_metadata" type="array">
+      Optional enrichment keys such as `carrier`, `geo`, `timezones`, and `type` (server-side only).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Regardless of how messy the user types their number, the Phone block strips all formatting and converts it into the globally recognized **E.164 standard**. 
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_902",
+    "data": {
+      "customer_phone": "+48123456789"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'customer_phone' => '+48123456789',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: E.164 Standardization
+
+Phone numbers are notoriously messy. Users might type `(555) 123-4567`, `5551234567`, or `+1 555-123-4567`. 
+
+If you attempt to send an SMS via Twilio or sync this data to Salesforce, formatting inconsistencies will cause catastrophic failures. 
+
+<Callout type="info">
+  **E.164 Guarantee:** Because Flex Forms handles this normalization before the data is saved, your integrations will never fail due to a malformed phone number.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Enforcing Mobile Only">
+    If your workflow involves sending a 2FA code or marketing SMS after submission, you must enable **Mobile Only**. This prevents users from entering a landline number that cannot receive text messages, which would break your flow.
+  </Accordion>
+  <Accordion title="Using Searchable Flags">
+    If you allow all global countries (not whitelisting), always enable **Searchable**. Scrolling through 195+ flags on a mobile device is a terrible user experience.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Country Selector](/features/blocks/country)
+</Panel>

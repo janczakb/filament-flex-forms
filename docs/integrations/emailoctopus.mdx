@@ -1,0 +1,140 @@
+---
+title: "EmailOctopus"
+description: "Automatically sync respondents to your EmailOctopus lists with custom field mapping and double opt-in controls."
+icon: "octopus-deploy"
+keywords: ["emailoctopus", "newsletter", "subscribers", "marketing", "sync", "list"]
+boost: 3
+---
+
+The EmailOctopus integration allows you to instantly route form respondents directly into your EmailOctopus subscriber lists. It supports deep custom field mapping (including numbers and dates) and gives you explicit control over double opt-in behavior.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Newsletter Signups" icon="envelope">
+    Automatically push new blog readers straight into your weekly digest list.
+  </Card>
+  <Card title="Lead Magnets" icon="magnet">
+    Trigger automated EmailOctopus drip campaigns the moment someone downloads your PDF.
+  </Card>
+  <Card title="Event Registration" icon="calendar-check">
+    Build a dedicated segment of webinar attendees with perfectly mapped custom demographic fields.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to EmailOctopus, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your API Key">
+    Log into your EmailOctopus dashboard. Navigate to **Developer → API keys**. 
+    Generate a new **API v2** key (do not use legacy keys).
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **EmailOctopus** card and enter your API Key.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.emailoctopus.com` endpoint to ensure the credentials are valid.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### The Masterclass: Data Mapping
+
+When mapping data from Flex Forms to EmailOctopus, the engine uses the internal `Name` of your form blocks. You do not need to manually hunt for List IDs; the system fetches your lists via live `remote_select` directly from the EmailOctopus API.
+
+<ParamField path="list_id" type="remote_select" required>
+  **Target List**
+  Loaded live from your EmailOctopus account. All new submissions will be added to this specific list.
+</ParamField>
+
+<ParamField path="status" type="select" default="SUBSCRIBED">
+  **Opt-In Status**
+  Control the subscription state of the new contact.
+  
+  - `SUBSCRIBED`: The contact is added immediately and can receive campaigns.
+  - `PENDING`: Triggers the EmailOctopus double opt-in flow. *Note: When the list uses double opt-in, EmailOctopus may still send a confirmation email regardless of this setting.*
+</ParamField>
+
+<ParamField path="custom_fields" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to EmailOctopus Custom Fields. 
+  
+  **Syntax:** `EmailOctopusFieldTag=form_field_name` (One per line).
+  
+  *Crucial Data Casting:* The Flex Forms engine automatically casts Number fields to integers and Date fields to `Y-m-d` format to ensure they are accepted cleanly by the EmailOctopus API.
+  
+  **Example Mapping:**
+  ```text
+  FirstName=first_name
+  LastName=last_name
+  Age=age_number
+  Company=company_name
+  ```
+</ParamField>
+
+---
+
+## Technical Resources & Troubleshooting
+
+If you encounter issues where contacts are not appearing in your EmailOctopus lists, the issue is almost always a mismatch in Custom Field mapping syntax.
+
+<AccordionGroup>
+  <Accordion title="Where do I find my EmailOctopus Field Tags?">
+    Inside your EmailOctopus list settings, view your Custom Fields. The "Tag" column (e.g., `FirstName`, `CompanySize`) is the exact string you must place on the left side of the `=` sign in the mapping text area.
+  </Accordion>
+  <Accordion title="Does this update existing subscribers?">
+    Yes. If a respondent submits the form and their email address already exists in the selected EmailOctopus list, the engine will perform an `update` operation, refreshing their custom fields with the newest data.
+  </Accordion>
+  <Accordion title="Official Documentation Reference">
+    For advanced architectural questions, refer to the official [EmailOctopus API v2 Documentation](https://emailoctopus.com/api-documentation/v2).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+### Global Settings
+<ParamField path="api_key" type="password" required>
+  **EmailOctopus API Key**
+  Your master API key. Generate this in your EmailOctopus account settings.
+</ParamField>
+
+### Form-Level Settings
+
+#### Subscriber Data
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  The primary email field for the subscriber.
+</ParamField>
+
+<ParamField path="first_name_field" type="select">
+  **First Name Field**
+</ParamField>
+
+<ParamField path="last_name_field" type="select">
+  **Last Name Field**
+</ParamField>
+
+#### Field Mapping
+<ParamField path="field_map" type="textarea">
+  **Custom Fields**
+  Map your form blocks to EmailOctopus Custom Field Tags.
+  
+  **Syntax:** `EmailOctopusTag=flex_forms_block_name`
+</ParamField>
+
+<ParamField path="field_catalog" type="remote_select" >
+  **Available fields (reference)**
+  A read-only helper to fetch live custom fields from EmailOctopus for mapping reference.
+</ParamField>

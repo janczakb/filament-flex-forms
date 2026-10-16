@@ -1,0 +1,151 @@
+---
+title: "Equals set"
+description: "When clause operator: Multi-select answer is exactly this set (order ignored)."
+icon: "layers"
+keywords: ["logic", "operator", "eq_set", "condition", "when"]
+---
+
+**Equals set** checks whether a multi-select answer is **exactly** your set of options — same selections, no extras, order ignored.
+
+Use when the combination matters: “only SSO + Audit, nothing else”, not “includes SSO among others”.
+
+---
+
+## When to choose this
+
+| Goal | Use **Equals set** | Use something else instead |
+|------|-------------------|----------------------------|
+| Exact multi-select combination | ✓ | — |
+| Includes one option (may have extras) | ✗ | **[Contains](/features/studio/logic/operators/contains)** or **[Is any of](/features/studio/logic/operators/in)** |
+| Includes all listed (extras OK) | ✗ | **[Includes every of](/features/studio/logic/operators/is_every_of)** |
+| Not this exact set | ✗ | **[Not equals set](/features/studio/logic/operators/neq_set)** |
+| Single choice | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+| Blank | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Choice fields (multi-select)** — checkbox list, tags, dual listbox, etc.
+- Normalizes both sides to unique string sets (drops null/empty entries).
+- Sorts and compares — order does not matter.
+- **Blank answers never match** (fail-closed, same as equality operators).
+- Non-empty expected set required.
+- Selecting `{A,B}` matches expected `{B,A}`; `{A,B,C}` does not.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Choice (multi-select) | ✓ |
+| Single-select only fields | ✓ (degenerates to one-element set) |
+| Text, number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Empty array `[]` is blank. Use [Is empty](/features/studio/logic/operators/empty).
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick multi-select field">
+    Checkbox list, tags, flex checklist, etc.
+  </Step>
+  <Step title="Choose Equals set">
+    Set operators appear for choice family.
+  </Step>
+  <Step title="Select exact option chips">
+    Every option that must be selected — and only those.
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), [Calculate](/features/studio/logic/actions/calculate) bundle pricing.
+  </Step>
+  <Step title="Test exact, superset, subset on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Bundle SKU exactly
+
+> **When** Add-ons **equals set** `Hosting, SSL, Backups` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Bundle discount applied`
+
+Selecting Hosting+SSL only does not match; adding Support breaks match.
+
+### Compliance pair only
+
+> **When** Data processing **equals set** `EU residency, DPA signed` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Enterprise onboarding`
+
+### Quiz multi-answer exact
+
+> **When** Correct topics **equals set** `Safety, Ethics` → **Then** full credit message
+
+### Tags exact campaign
+
+> **When** Tags **equals set** `Campaign-2026` → **Then** campaign-specific thank you
+
+Single-tag set works — equivalent to exact single selection on multi field.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Select exactly the set">
+    Rule on.
+  </Step>
+  <Step title="Add extra option">
+    Rule off.
+  </Step>
+  <Step title="Remove one required option">
+    Rule off.
+  </Step>
+  <Step title="Reorder selections">
+    Still on — order ignored.
+  </Step>
+  <Step title="Nothing selected">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Equals set** when extras are OK — use **Includes every of** or **Contains**.
+- Using on single radio — **Equals** is simpler.
+- Expecting blank to match empty set — blank never matches equality/set ops.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Almost matches but fails">
+    One extra or missing chip — compare selected values to rule chips in submission preview.
+  </Accordion>
+  <Accordion title="Operator feels too strict">
+    Switch to **Includes every of** if extras allowed, or **Is any of** for OR logic.
+  </Accordion>
+  <Accordion title="Single vs multi field">
+    Single-select stores one value — set compare still works as one-element set.
+  </Accordion>
+  <Accordion title="Duplicate selections">
+    Engine deduplicates via `array_unique` — duplicates in UI should not matter.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Not equals set](/features/studio/logic/operators/neq_set) · [Includes every of](/features/studio/logic/operators/is_every_of) · [Contains](/features/studio/logic/operators/contains) · [How logic works](/features/studio/logic/overview)
+</Panel>

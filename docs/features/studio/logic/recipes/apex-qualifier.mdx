@@ -1,0 +1,24 @@
+---
+title: "Apex Lead Qualifier recipe"
+description: "Recipe: show/hide, require Other, warning messaging, and score-based lead routes."
+icon: "filter"
+keywords: ["apex", "lead", "qualifier", "recipe"]
+---
+
+**Apex Lead Qualifier** is a logic recipe for B2B qualification: budget messaging, optional “Other” company size, a calculated lead score, and High / Nurture endings.
+
+## What you get
+
+- **Show** a warning when budget is too low (Next/Submit stay available)
+- **Show** + **Require** an “Other” text field when needed
+- Score from budget / size / timeline → **Jump** to priority or nurture pages (both terminal)
+- Internal lead score stays **hidden** on public Fill (used only for routing)
+- Tiles stepper that only shows the visited path when branching
+
+## How to build it
+
+1. **Create form**, then add qualifier fields and ending pages in Studio (mark endings terminal)
+2. Tune show / require and score jumps in Workflow → Rules
+3. Test fill: low budget shows the warning but Next remains; high score lands on the priority page with Submit
+
+See also: [Show blocks](/features/studio/logic/actions/show-blocks) · [Require answer](/features/studio/logic/actions/require-answer) · [How logic works](/features/studio/logic/overview)

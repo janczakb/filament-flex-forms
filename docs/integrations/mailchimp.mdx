@@ -1,0 +1,236 @@
+---
+title: "Mailchimp Integration"
+description: "A comprehensive guide to instantly piping form submissions directly into your Mailchimp Audiences (lists), updating Merge Tags, and triggering Customer Journeys."
+icon: "monkey"
+keywords: ["mailchimp", "email", "newsletter", "audience", "tags", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand advanced payload schemas, `md5` hashing requirements for updating existing contacts, and subscriber status definitions, please refer to the [Official Mailchimp Marketing API Documentation](https://mailchimp.com/developer/marketing/guides/quick-start/).
+</Banner>
+
+The **Mailchimp** integration provides an automated pipeline for feeding leads directly into your email marketing engine. Instead of manually exporting CSVs of your form submissions, Flex Forms intelligently handles the `md5` hashing required by the Mailchimp API to securely add new subscribers, gracefully update existing contacts with new data, and assign them to specific Audiences.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Instant Newsletter Growth" icon="envelope">
+    Instantly subscribe users to your main weekly newsletter list the exact moment they fill out an opt-in form on your website. Flex Forms handles Double Opt-in (if required) automatically.
+  </Card>
+  <Card title="Triggering Customer Journeys" icon="route">
+    Apply specific tags (e.g., `webinar_attendee` or `ebook_downloader`) to a contact based on which form they submitted. These tags act as immediate entry points to trigger complex, automated welcome sequences in Mailchimp's Customer Journey builder.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Prefer **Connections** when you have more than one Mailchimp account (agency clients, Production vs Sandbox). Catalog credentials still work for a single shared account.
+
+Connecting Flex Forms to Mailchimp requires generating a specific API Key. Follow these exact instructions to ensure the integration is properly authenticated.
+
+<Steps>
+  <Step title="Step 1: Log into Mailchimp">
+    Open your web browser and navigate to Mailchimp's login page (`https://login.mailchimp.com`). Enter your username and password to access the main dashboard.
+  </Step>
+  
+  <Step title="Step 2: Access the Account Menu">
+    Once logged in, look at the absolute **bottom-left corner** of your screen. Click on your profile picture (or the circular icon with your initials) to open the main account drawer menu.
+  </Step>
+  
+  <Step title="Step 3: Navigate to Account Settings">
+    In the drawer menu that pops up, click on the option labeled **Account & billing** (or simply **Account** depending on your Mailchimp tier).
+  </Step>
+  
+  <Step title="Step 4: Find the Extras Menu">
+    You are now on the Account overview page. Look at the horizontal navigation bar at the top of the page. Click on the dropdown menu labeled **Extras**.
+  </Step>
+  
+  <Step title="Step 5: Navigate to API Keys">
+    In the **Extras** dropdown menu, click exactly on the option labeled **API keys**. This will take you to the Developer security center.
+  </Step>
+  
+  <Step title="Step 6: Initiate Key Creation">
+    On the API keys page, scroll down until you see the section titled "Your API keys". Click the prominent button labeled **Create A Key**. 
+  </Step>
+  
+  <Step title="Step 7: Name and Generate the Key">
+    Mailchimp will ask you to name the key. Type exactly: `Flex Forms Website Integration`. Naming the key ensures you don't accidentally delete it during a security audit later. Click **Generate Key**.
+  </Step>
+  
+  <Step title="Step 8: Copy the Server-Prefixed Key">
+    Mailchimp will generate a long string of alphanumeric characters ending with a hyphen and a server prefix (for example, `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6-us14`). 
+    
+    <Callout type="critical">
+      **CRITICAL STEP:** You must highlight and copy the ENTIRE string, **including the hyphen and the server prefix (e.g., `-us14`)**. The server prefix tells Flex Forms which exact datacenter in the world holds your data. Without it, the API will fail.
+    </Callout>
+    
+    Right-click and select **Copy** (or press `Ctrl+C` / `Cmd+C`).
+  </Step>
+  
+  <Step title="Step 9: Create a Connection (recommended)">
+    Switch to Flex Forms → **Integrations** → **Connections**.
+    1. Create a connection, choose **Mailchimp**, and label it clearly (for example `Production` or a client name).
+    2. Paste the entire API key (including `-us14`) into the connection credentials.
+    3. Save / connect so the status shows **Connected**.
+  </Step>
+
+  <Step title="Step 10: Optional Catalog fallback">
+    For a single shared account only, you can instead open Integrations → Catalog → **Mailchimp**, paste the same key, and save. Prefer Connections when you may add another account later.
+  </Step>
+</Steps>
+
+### Wire the form feed
+
+1. Open the form in Studio → hub **Integrations** → **Mailchimp**.
+2. Enable the feed and pick your **Connection** (leave blank only if you rely on Catalog).
+3. Choose the Audience and mapping options, then save the form.
+
+---
+
+## Masterclass: Mapping Data Payloads
+
+Establishing the connection is only half the battle. Now, you must instruct Flex Forms on exactly how to translate your form fields into Mailchimp's database architecture.
+
+<Callout type="info">
+  **Built-in API Sync:** You do NOT need to manually hunt for Audience IDs in the Mailchimp dashboard. As long as your Global API Key is valid, Flex Forms automatically queries MailerLite and provides a live dropdown of all your available Audiences directly on the form hub **Integrations** tab.
+</Callout>
+
+Mailchimp automatically handles the primary `Email Block`. For all other data (names, phone numbers, custom data), you must map them using Mailchimp's **Merge Tags**.
+
+<Tabs>
+  <Tab title="Standard Field Mapping">
+    You define these mappings on the form hub **Integrations** tab.
+    
+    The format is always: `MERGE_TAG=flex_forms_block_name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      FNAME=first_name_input
+      LNAME=last_name_input
+      PHONE=mobile_phone
+      MMERGE3=custom_company_dropdown
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How to Find Exact Merge Tags
+
+If you try to map `first_name=first_name_input`, the API will silently ignore the data because Mailchimp does not use "first_name" as a database key. It uses a Merge Tag like `FNAME`.
+
+<Tree>
+  <Tree.Folder name="Finding Merge Tags" defaultOpen>
+    <Tree.File name="1. In Mailchimp, go to Audience > Settings" />
+    <Tree.File name="2. Click on 'Audience fields and *|MERGE|* tags'" />
+    <Tree.File name="3. Look at the rightmost column for the 'Put this tag in your content' value" />
+    <Tree.File name="4. Copy the tag WITHOUT the asterisks and pipes (e.g., FNAME, not *|FNAME|*)" />
+    <Tree.File name="5. Map it: FNAME=first_name" />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="Double Opt-in and Subscriber Status">
+    By default, Flex Forms instructs Mailchimp to set the subscriber's status to `subscribed`. However, if your company strictly enforces Double Opt-in (to comply with strict GDPR interpretations), you can change the default status to `pending` in the form's integration settings. This will force Mailchimp to send an automated confirmation email to the user before officially adding them to the Audience.
+  </Accordion>
+  <Accordion title="API Error: The resource could not be found">
+    **The Problem:** The server logs show a 404 error when attempting to sync.
+    
+    **The Solution:** This almost always means the **Audience ID** you provided in the form settings is incorrect. Ensure you copied the "Audience ID" from the settings page, NOT the generic URL ID or the Audience Name.
+  </Accordion>
+  <Accordion title="Updating Existing Subscribers">
+    Mailchimp is notoriously strict about duplicates. If a user tries to subscribe twice, a standard POST request will fail. Flex Forms bypasses this by calculating an `md5` cryptographic hash of the submitted email address. It then uses the `PUT` method against the Mailchimp API, which tells Mailchimp: "If this user exists, gracefully update their Merge Tags and append new Tags. If they do not exist, create them."
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_key" type="password" required>
+  **Mailchimp API Key**
+  Your master API key. You can generate this in your Mailchimp account under **Account → Extras → API keys**. 
+  *Note: The key MUST include the datacenter suffix (e.g., `xxxxxxxxxxxxxxxxxxxx-us21`). Flex Forms parses this suffix to route API calls to the correct Mailchimp server.*
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Audience & Opt-in Mechanics
+<ParamField path="list_id" type="remote_select" required>
+  **Mailchimp audience**
+  The master Audience list that this form will feed into. Flex Forms dynamically queries the API to populate this dropdown with your live Mailchimp Audiences.
+</ParamField>
+
+<ParamField path="double_optin" type="toggle" default="true" >
+  **Double opt-in**
+  If enabled (`true`), the subscriber will be added with a `pending` status. Mailchimp will immediately send them an automated confirmation email, and they will not be officially subscribed until they click the link inside it. If disabled, they are added as `subscribed` immediately.
+</ParamField>
+
+<ParamField path="allow_resubscription" type="toggle" default="true" >
+  **Allow resubscription of unsubscribed contacts**
+  If a user previously unsubscribed from your Mailchimp audience and they submit this form, this toggle determines if Flex Forms is allowed to forcefully change their status back to `subscribed` (or `pending`).
+</ParamField>
+
+#### Data Mapping
+<ParamField path="email_field" type="select" required>
+  **Email field**
+  The primary email block from your form. Mailchimp requires this to match or create the subscriber.
+</ParamField>
+
+<ParamField path="merge_field_map" type="textarea" >
+  **Merge fields**
+  The mapping engine for syncing form data to Mailchimp Merge Tags (e.g., First Name, Phone Number).
+  
+  You must provide one rule per line using the format: `MERGE_TAG=flex_forms_block_name`. 
+  *(Note: You do not need to map the primary `EMAIL` tag. Flex Forms handles the primary email automatically).*
+</ParamField>
+
+<ParamField path="merge_field_catalog" type="remote_select" >
+  **Available merge tags (reference)**
+  A read-only helper. Select a field to see its exact Mailchimp Merge Tag (e.g., `FNAME`), so you can copy/paste it into the `merge_field_map` above.
+</ParamField>
+
+#### Segmentation & Tags
+<ParamField path="tags" type="text" >
+  **Tags**
+  A comma-separated list of string tags to append to the contact (e.g., `website-lead, q4-promo`). Supports merge tags (e.g., `{{industry_dropdown}}`) to dynamically tag users based on their answers.
+</ParamField>
+
+<ParamField path="interest_ids" type="text" >
+  **Interest / group IDs**
+  If you use Mailchimp Groups (Interests) to segment your audience, you must pass the strict numeric ID of the Interest, *not* its text name. Comma-separated.
+</ParamField>
+
+<ParamField path="interest_catalog" type="remote_select" >
+  **Available interests (reference)**
+  A read-only helper to find the extremely long alphanumeric ID required for Mailchimp Interests. Copy the ID into the `interest_ids` field.
+</ParamField>
+
+<ParamField path="note" type="textarea" >
+  **Contact note**
+  An optional block of text appended to the Contact's profile as an internal Note. Supports merge tags.
+</ParamField>
+
+#### Advanced Options
+<ParamField path="marketing_permissions" type="textarea" >
+  **Marketing permissions**
+  If you have GDPR fields enabled in Mailchimp, you must map the specific `marketing_permission_id` to a Checkbox block in Flex Forms. Format: `permission_id=checkbox_block_name`. If the checkbox is checked, the permission is granted.
+</ParamField>
+
+<ParamField path="mark_as_vip" type="toggle" default="false" >
+  **Mark subscriber as VIP**
+  Instantly upgrades the subscriber to VIP status in Mailchimp upon submission.
+</ParamField>
+

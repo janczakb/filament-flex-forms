@@ -1,0 +1,358 @@
+================================================================================
+     FLEX FORMS — PROPRIETARY COMMERCIAL LICENSE AGREEMENT — VERSION 1.0
+              janczakb/filament-flex-forms (the "Software")
+================================================================================
+
+Copyright (c) 2026 Bartłomiej Janczak. All rights reserved.
+Contact / support: https://flexforms.bjanczak.com/resources/support
+Product site / docs: https://flexforms.bjanczak.com
+Purchase: https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0
+License portal: https://license.bjanczak.com/flex-forms/panel
+
+IMPORTANT — READ CAREFULLY BEFORE PURCHASING, DOWNLOADING, INSTALLING,
+CONFIGURING, OR USING THIS SOFTWARE. BY TAKING ANY OF THOSE ACTIONS, YOU
+UNCONDITIONALLY ACCEPT EVERY TERM OF THIS AGREEMENT. IF YOU DO NOT ACCEPT,
+DO NOT PURCHASE, DOWNLOAD, INSTALL, OR USE THE SOFTWARE.
+
+This Agreement is intended for professional and business use (B2B). You
+represent that You are acquiring the Software for professional purposes and
+not as a consumer acting outside Your trade, business, craft, or profession,
+to the extent such qualification is relevant under applicable law.
+
+THERE IS NO FREE, COMMUNITY, OR EVALUATION PRODUCTION LICENSE UNDER THIS
+AGREEMENT. ANY USE WITHOUT A VALID PAID LICENSE IS UNAUTHORIZED.
+
+================================================================================
+SECTION 1 — DEFINITIONS
+================================================================================
+
+1.1  "Software" means the PHP/Laravel/Filament package published under the
+     identifier janczakb/filament-flex-forms, including source code (when
+     provided under a paid entitlement), compiled CSS/JS assets, configuration,
+     migrations, documentation shipped with the package, and all updates,
+     patches, and versions thereof.
+
+1.2  "Copyright Holder" means Bartłomiej Janczak, sole and exclusive author
+     and owner of all intellectual property rights in and to the Software,
+     except for third-party components governed by Section 9.4.
+
+1.3  "You" (or "Your") means the individual or legal entity that purchased a
+     License, or that downloads, installs, or uses the Software.
+
+1.4  "License" means a paid entitlement to use the Software purchased through
+     an Official Sales Channel, including the plan tier (Standard, Pro,
+     Enterprise, or successor names) and any seat, domain, or usage limits
+     stated at purchase or in the License Portal.
+
+1.5  "License Key" means the secret credential issued to You for Composer
+     authentication and/or purchase verification. The License Key is
+     confidential and must be treated as a password.
+
+1.6  "Public Key" means the non-secret runtime key (typically beginning with
+     pk_forms_) that You store in the Software's Global settings so the
+     Software can validate Your Licensed Host(s).
+
+1.7  "License Portal" means the Copyright Holder's license management service
+     at https://license.bjanczak.com/flex-forms/panel (or successor URL), used to manage Public
+     Keys, Licensed Hosts, and plan entitlements.
+
+1.8  "Licensed Host" means a hostname (domain or subdomain) that You have
+     registered in the License Portal for Your License and that the Software's
+     runtime license check accepts as allowed.
+
+1.9  "Official Sales Channel" means Lemon Squeezy checkout hosted at
+     https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0, or any other sales channel
+     expressly authorized in writing by the Copyright Holder.
+
+1.10 "Official Distribution Channel" means a private Composer repository,
+     release artifact, or update channel operated or expressly authorized by
+     the Copyright Holder for licensed customers. Public Help Center / docs
+     repositories are not a grant of Software source rights.
+
+1.11 "Technical Enforcement" means runtime and install-time controls in or
+     around the Software, including Composer authentication, License Portal
+     domain checks, LicenseGate (or successor), UI lock states, and HTTP
+     denials on mutations when a host is unlicensed. Technical Enforcement
+     supplements this Agreement; it is not a warranty against circumvention.
+
+1.12 "Tampering" means modifying, patching, bypassing, disabling, mocking,
+     or reverse engineering the Software (or related services) for the purpose
+     of avoiding payment, forging license responses, unlocking Pro/Enterprise
+     features without entitlement, removing branding without entitlement,
+     sharing a single License across unauthorized hosts, or otherwise defeating
+     Technical Enforcement.
+
+1.13 "Software Transfer" means delivering, disclosing, publishing, uploading,
+     or making the Software (source, vendor copy, archive, Docker layer, or
+     extractable artifact) available to any third party as a standalone package,
+     or granting a third party rights to copy, redistribute, or sublicense the
+     Software. Operating the Software on infrastructure You control so that
+     end users only fill forms / view embeds — without receiving Software
+     copies — is not Software Transfer.
+
+1.14 "Derivative Work" means any work based upon, incorporating, modifying,
+     adapting, translating, or otherwise derived from the Software or any
+     substantial part thereof.
+
+1.15 "Competing Product" means a form builder, survey builder, Filament form
+     studio, or substantially similar commercial product offered to third
+     parties that is built primarily by copying, wrapping, or rebranding the
+     Software.
+
+1.16 "Multi-Tenant Offering" means a SaaS or hosted service in which multiple
+     unrelated customer organizations use the Software's form-building or
+     fill capabilities as a material feature of Your service under separate
+     tenancy, accounts, or billing.
+
+================================================================================
+SECTION 2 — NO FREE USE; LICENSE REQUIRED
+================================================================================
+
+2.1  The Software is proprietary commercial software. No rights are granted
+     under open-source, dual-license free tier, "permitted free use", community
+     edition, or similar schemes.
+
+2.2  You may download, install, and use the Software only if:
+     (a) You hold a valid, paid, non-expired License obtained from an Official
+         Sales Channel;
+     (b) You obtain the Software only through Official Distribution Channels
+         using credentials lawfully issued to You;
+     (c) each production (and, where required by Your plan, staging) hostname
+         is a Licensed Host; and
+     (d) You comply with this entire Agreement and the limits of Your plan.
+
+2.3  Evaluation, demos, or trials — if ever offered — exist only under a
+     separate written authorization from the Copyright Holder. Silence or a
+     download does not create evaluation rights.
+
+================================================================================
+SECTION 3 — GRANT OF PAID LICENSE
+================================================================================
+
+Subject to continuous compliance with this Agreement and Your plan limits, the
+Copyright Holder grants You a worldwide, non-exclusive, non-sublicensable,
+non-transferable (except as Section 12.5 allows) license to:
+
+3.1  Install and run the Software on Licensed Hosts for Your own internal
+     business operations, or to collect form responses for Your end users /
+     respondents through fill links and embeds You operate.
+
+3.2  Make a reasonable number of backup and deployment copies solely as needed
+     to operate Licensed Hosts, provided those copies remain under Your control
+     and are not subject to Software Transfer.
+
+3.3  Exercise plan-specific entitlements (for example Pro hide-branding /
+     Advanced Customize, or Enterprise commercial terms) only while Your
+     License Portal status confirms that entitlement for the Licensed Host.
+
+No other rights are granted. All rights not expressly granted are reserved.
+
+================================================================================
+SECTION 4 — PLAN TIERS AND LIMITS
+================================================================================
+
+4.1  Plans may include Standard, Pro, and Enterprise (or successor names).
+     Feature gates, branding rights, domain quotas, support levels, and
+     Multi-Tenant Offering rights are defined at purchase and/or in the
+     License Portal. If documents conflict, the written purchase terms and
+     License Portal entitlement for Your account control for commercial
+     limits; this Agreement controls intellectual-property and prohibition
+     terms.
+
+4.2  You may not exceed domain, seat, environment, or usage limits of Your
+     plan. Additional hosts require additional entitlement or an upgraded plan.
+
+4.3  Multi-Tenant Offering use requires an Enterprise License (or another
+     written entitlement expressly authorizing multi-tenant resale/hosting).
+     A Standard or Pro License does not authorize You to offer the Software's
+     form builder as a multi-tenant product to unrelated organizations.
+
+================================================================================
+SECTION 5 — STRICT PROHIBITIONS
+================================================================================
+
+The following are prohibited unless a separate written amendment signed by the
+Copyright Holder expressly allows them:
+
+5.1  Use without a valid paid License, or on a host that is not a Licensed Host.
+
+5.2  Sharing, publishing, leasing, or transferring License Keys, Public Keys
+     in a way that enables unauthorized hosts, portal credentials, or Composer
+     auth.json files to third parties (except confidential disclosure to Your
+     employees/contractors bound to protect them and acting solely for Your
+     Licensed Hosts).
+
+5.3  Tampering, including forging License Portal responses, disabling
+     LicenseGate, patching paywalls, or stripping branding without Pro /
+     Enterprise entitlement.
+
+5.4  Software Transfer, public or private republication of the Software on any
+     Repository or Package Registry, or redistribution as a Composer/npm/other
+     package under any name.
+
+5.5  Creating Derivative Works for distribution, sale, or as the basis of a
+     Competing Product.
+
+5.6  Selling, renting, licensing, or bundling the Software (or a thin wrapper
+     around it) as a template, boilerplate, starter kit, white-label form
+     product, or Competing Product.
+
+5.7  Removing, altering, or falsifying copyright, LICENSE, or attribution
+     notices shipped with the Software.
+
+5.8  Assigning or sublicensing this Agreement or Your License except as
+     Section 12.5 allows.
+
+5.9  Structuring transactions or technical setups to circumvent plan limits,
+     domain binding, or any prohibition in this Section 5.
+
+================================================================================
+SECTION 6 — LICENSE PORTAL, KEYS, AND TECHNICAL ENFORCEMENT
+================================================================================
+
+6.1  You must keep License Portal account information accurate and promptly
+     update Licensed Hosts when domains change.
+
+6.2  The Copyright Holder may validate Licensed Hosts online. Failed or
+     missing validation may result in denied Studio mutations, blocked
+     submissions, branding enforcement, and similar Technical Enforcement.
+
+6.3  You are responsible for keeping Public Keys configured in Global settings
+     and for network access required for legitimate license checks, except
+     where the Copyright Holder documents an offline/enterprise arrangement.
+
+6.4  Technical Enforcement failures (false denies, outages) do not expand Your
+     rights; contact support. Technical Enforcement successes do not waive
+     breach of this Agreement.
+
+================================================================================
+SECTION 7 — SUPPORT, UPDATES, AND DOCUMENTATION
+================================================================================
+
+7.1  Access to updates through Official Distribution Channels continues only
+     while Your License remains valid according to purchase terms.
+
+7.2  Public Help Center documentation may be freely read; it does not grant
+     Software rights.
+
+7.3  Support channels (email, Issues for bugs, etc.) do not modify this
+     Agreement unless a separate support/SLA contract says otherwise.
+
+================================================================================
+SECTION 8 — CONTRIBUTIONS
+================================================================================
+
+8.1  If You submit patches, issues with code, or other contributions to any
+     repository operated by the Copyright Holder for the Software, You grant
+     Bartłomiej Janczak a perpetual, worldwide, royalty-free, sublicensable
+     license to use, modify, and distribute that contribution under any terms,
+     including proprietary terms.
+
+8.2  You warrant You have rights to grant Section 8.1 and that the contribution
+     does not infringe third-party rights.
+
+================================================================================
+SECTION 9 — INTELLECTUAL PROPERTY
+================================================================================
+
+9.1  The Software is licensed, not sold. The Copyright Holder retains all
+     right, title, and interest in the Software worldwide.
+
+9.2  This Agreement transfers no trademark or goodwill rights.
+
+9.3  You must preserve this LICENSE text and the notice:
+     "Copyright (c) 2026 Bartłomiej Janczak." in copies You are permitted to
+     make under Section 3.2.
+
+9.4  Third-party libraries (Laravel, Filament, Flex Fields, and others) remain
+     under their own licenses. This Agreement covers only original Flex Forms
+     materials authored by the Copyright Holder.
+
+9.5  No patent license is granted except the minimum non-exclusive rights
+     necessary to exercise Section 3 on Licensed Hosts. All other patent
+     rights are reserved.
+
+================================================================================
+SECTION 10 — TERM, TERMINATION, AND REMEDIES
+================================================================================
+
+10.1 This Agreement remains in effect while You have a valid License and
+     comply with its terms.
+
+10.2 It terminates automatically upon License expiry/cancellation (per
+     purchase terms), or immediately upon any material breach (including
+     Tampering, key sharing, or unauthorized redistribution).
+
+10.3 Upon termination You must stop using the Software, remove it from all
+     hosts, and destroy copies under Your control (except copies retention
+     required by mandatory law, which may not be used operationally).
+
+10.4 Unauthorized use constitutes copyright infringement under the Act of
+     4 February 1994 on Copyright and Related Rights (Poland) and applicable
+     treaties. The Copyright Holder may seek injunctions, damages, profits,
+     and all other remedies without limitation by Section 11.
+
+10.5 Sections 5, 8, 9, 10.3–10.4, 11, and 12 survive termination.
+
+================================================================================
+SECTION 11 — DISCLAIMER AND LIMITATION OF LIABILITY
+================================================================================
+
+11.1 THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS
+     OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+     TITLE, AND NON-INFRINGEMENT. THE COPYRIGHT HOLDER DOES NOT WARRANT
+     UNINTERRUPTED OR ERROR-FREE OPERATION.
+
+11.2 TO THE MAXIMUM EXTENT PERMITTED FOR B2B USE, THE COPYRIGHT HOLDER SHALL
+     NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
+     PUNITIVE DAMAGES, OR LOST PROFITS, DATA, OR BUSINESS, ARISING FROM THE
+     SOFTWARE OR THIS AGREEMENT.
+
+11.3 IF LIABILITY CANNOT BE FULLY EXCLUDED, THE COPYRIGHT HOLDER'S TOTAL
+     AGGREGATE LIABILITY FOR CLAIMS BY YOU SHALL NOT EXCEED FEES YOU ACTUALLY
+     PAID FOR THE LICENSE IN THE TWELVE (12) MONTHS BEFORE THE CLAIM, OR
+     EUR 0 IF NO FEES WERE PAID.
+
+11.4 Section 11 limits claims by You against the Copyright Holder. It does
+     not limit the Copyright Holder's claims against You for breach or
+     infringement.
+
+================================================================================
+SECTION 12 — GENERAL
+================================================================================
+
+12.1 GOVERNING LAW. Substantive law of Poland, including the Copyright Act,
+     without conflict-of-laws rules.
+
+12.2 JURISDICTION. Exclusive courts of Warsaw, Poland.
+
+12.3 SEVERABILITY. Invalid provisions are modified to the minimum extent
+     necessary; the rest remains in force.
+
+12.4 ENTIRE AGREEMENT. This Agreement (plus Your purchase terms / License
+     Portal entitlements for commercial limits) is the entire agreement for
+     the Software. Purchase refund policies, if any, are stated at checkout
+     and do not expand IP rights.
+
+12.5 ASSIGNMENT. You may not assign this Agreement without prior written
+     consent, except to a successor of substantially all of Your business
+     that assumes all obligations and re-registers Licensed Hosts. The
+     Copyright Holder may assign freely.
+
+12.6 AUDIT. Upon reasonable notice, the Copyright Holder may require written
+     confirmation of Licensed Hosts and plan compliance. You must respond in
+     good faith within thirty (30) days. Material misrepresentation is breach.
+
+12.7 EXPORT AND SANCTIONS. You must not use or export the Software in
+     violation of applicable export control or sanctions laws.
+
+12.8 LANGUAGE. English text prevails over any translation.
+
+12.9 VERSION. This is License Agreement version 1.0, effective 1 August 2026.
+     Newer Software releases may ship a newer agreement version; the version
+     accompanying the Software You install governs that copy unless the
+     Copyright Holder states otherwise in writing.
+
+================================================================================
+END OF LICENSE
+================================================================================

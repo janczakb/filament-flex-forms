@@ -1,0 +1,149 @@
+---
+title: "Zapier Integration"
+description: "A comprehensive guide to securely routing form payloads to over 5,000+ apps using Zapier Webhooks."
+icon: "bolt"
+keywords: ["zapier", "automation", "webhook", "api", "integration", "workflow"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how Zapier parses incoming JSON arrays, please read the [Official Zapier Webhook Documentation](https://zapier.com/apps/webhook/integrations).
+</Banner>
+
+The **Zapier** integration acts as a universal bridge for Flex Forms. If we do not have a native integration for your highly specific, niche software (like a proprietary ERP or an obscure SMS provider), you can use Zapier to catch the form submission and route it anywhere in the world.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Multi-App Routing" icon="diagram-project">
+    Catch the Flex Forms payload in Zapier, and use Zapier's multi-step logic to simultaneously send an SMS via Twilio, add a row to Smartsheet, and update an inventory count in Shopify.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Zapier does not require API keys. Instead, it relies on creating a secure, unique **Webhook URL** inside Zapier that acts as a "catcher's mitt" for the data.
+
+<Steps>
+  <Step title="Step 1: Log into Zapier">
+    Open your web browser and navigate to the Zapier dashboard. Log into your account. 
+    
+    *Note: The "Webhooks by Zapier" feature requires a paid Zapier plan. It is not available on their free tier.*
+  </Step>
+  
+  <Step title="Step 2: Create a New Zap">
+    In the top left corner of the Zapier dashboard, click the prominent orange button labeled **+ Create Zap**. This will open the workflow editor.
+  </Step>
+  
+  <Step title="Step 3: Configure the Trigger">
+    Click on the first step in the workflow (the Trigger). 
+    
+    In the search bar, type exactly: `Webhooks by Zapier`. Select the app with the blue icon.
+  </Step>
+  
+  <Step title="Step 4: Select the Trigger Event">
+    In the "Event" dropdown menu on the right side of the screen, select exactly **Catch Hook**. 
+    
+    Click the **Continue** button. (You can skip the "Pick off a Child Key" option by leaving it blank and clicking Continue again).
+  </Step>
+  
+  <Step title="Step 5: Copy the Webhook URL">
+    Zapier will now generate a unique "Webhook URL" specifically for this workflow. It will look something like: `https://hooks.zapier.com/hooks/catch/123456/abcdef/`.
+    
+    Click the **Copy** button next to this URL.
+  </Step>
+  
+  <Step title="Step 6: Inject the URL into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    
+    <Callout type="info">
+      **Form-Level Configuration:** Because you want different forms to trigger different Zapier workflows, you configure Zapier at the *Form Level*, not the Global Settings level.
+    </Callout>
+    
+    1. Open the specific form you want to connect in the Flex Forms Studio.
+    2. Open the form hub and select the **Integrations** tab.
+    3. Find the **Zapier** section.
+    4. Paste the long Webhook URL you copied in Step 5 into the input field.
+    5. Save your form.
+  </Step>
+  
+  <Step title="Step 7: Test the Connection">
+    Leave Zapier waiting for a test. Go to the front-end of your website and submit a real test entry through your Flex Form.
+  </Step>
+  
+  <Step title="Step 8: Verify the Payload in Zapier">
+    Switch back to the Zapier tab and click **Test trigger**. Zapier will scan the URL, find the data you just submitted, and parse all your form fields into variables you can now map to any other app in Step 2 of your Zap.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+Once the Webhook URL is pasted into the form's settings, Flex Forms handles formatting the payload. 
+
+There is no field mapping required in Flex Forms. You handle all the mapping inside Zapier itself. Flex Forms simply packages all the form data into a clean, flat JSON object and fires it at the URL you provided.
+
+### The Payload Architecture
+
+<Tree>
+  <Tree.Folder name="What Zapier Receives" defaultOpen>
+    <Tree.File name="first_name_block: 'John'" />
+    <Tree.File name="last_name_block: 'Doe'" />
+    <Tree.File name="email_block: 'john@example.com'" />
+    <Tree.File name="custom_dropdown: 'Option B'" />
+  </Tree.Folder>
+</Tree>
+
+You will see these exact keys (based on the block names you defined in the Flex Forms Studio) appear in Zapier, ready to be mapped to Salesforce, Google Sheets, or Twilio.
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_token" type="password" >
+  **Zapier REST API token**
+  **Optional:** If you want to use Zapier's new "REST API" trigger instead of the standard Catch Hook, you must generate a long, secure random string (e.g., a 64-character UUID) and paste it here. Flex Forms will require Zapier to authenticate using this Bearer token before serving form data.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Webhook Connection
+<ParamField path="webhook_url" type="text" required>
+  **Zapier Catch Hook URL**
+  The exact URL generated by your Zapier "Webhooks by Zapier (Catch Hook)" trigger. 
+  *Security Note: Flex Forms will only accept URLs originating from `hooks.zapier.com` to prevent accidental data leaks to untrusted servers.*
+</ParamField>
+
+<ParamField path="zap_id" type="text" >
+  **Zap ID**
+  Optional. If you are using the REST API feed lookup method (instead of Catch Hooks), you can enter the specific Zap ID here to link the form strictly to that Zap.
+</ParamField>
+
+#### Data Formatting
+<ParamField path="use_admin_labels" type="select" default="0" >
+  **Prefer admin labels as keys**
+  Controls how the JSON payload keys are named when they arrive in Zapier.
+  
+  **Options:**
+  - `0`: No — Uses the raw block names (e.g., `phone_number_1`). Best for stable API integrations.
+  - `1`: Yes — Uses the human-readable Admin Labels you configured in the Studio (e.g., `Mobile Phone`). Best if non-technical staff are building Zaps.
+</ParamField>
+
+<ParamField path="include_meta" type="select" default="1" >
+  **Include submission meta**
+  If enabled (`Yes`), Flex Forms automatically injects system metadata (Form ID, Form Title, Submission ID, and Submitted At timestamp) into the root of the JSON body sent to Zapier.
+</ParamField>
+
+#### Testing & Control
+<ParamField path="send_test_on_dispatch" type="select" default="0" >
+  **Send as Zapier test request**
+  If enabled (`Yes`), Flex Forms injects a special `X-Hook-Test: true` HTTP header into the payload. This tells Zapier to treat the submission as a sample/test record for building the Zap, rather than a live production run.
+</ParamField>

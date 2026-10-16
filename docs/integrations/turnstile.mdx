@@ -1,0 +1,145 @@
+---
+title: "Cloudflare Turnstile Integration"
+description: "A comprehensive guide to securing your forms with Cloudflare's privacy-first, completely invisible CAPTCHA alternative."
+icon: "shield-halved"
+keywords: ["cloudflare", "turnstile", "captcha", "spam", "security", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how Turnstile handles cryptographic tokens and privacy-preserving challenge validation, please read the [Official Cloudflare Turnstile Documentation](https://developers.cloudflare.com/turnstile/).
+</Banner>
+
+The **Cloudflare Turnstile** integration provides enterprise-grade spam protection for your Flex Forms without forcing your users to click frustrating "traffic light" puzzles. Turnstile is a smart alternative to reCAPTCHA that preserves user privacy, offering both visible challenges and completely invisible background telemetry.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Invisible Spam Prevention" icon="user-shield">
+    Eliminate bot submissions and spam payloads completely without adding any friction to the user experience. Turnstile analyzes browser telemetry in the background to verify human authenticity seamlessly.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to Turnstile requires generating a **Site Key** and a **Secret Key** inside the Cloudflare dashboard. Follow these exact instructions.
+
+<Steps>
+  <Step title="Step 1: Log into Cloudflare">
+    Open your web browser and navigate to the Cloudflare dashboard (`dash.cloudflare.com`). Log in with your company's administrator account.
+  </Step>
+  
+  <Step title="Step 2: Access the Turnstile Menu">
+    Once logged in, look at the **left-hand sidebar navigation menu**. You do not need to click on a specific domain yet. Look down the list and click exactly on the link labeled **Turnstile**.
+  </Step>
+  
+  <Step title="Step 3: Add a New Site">
+    On the Turnstile overview page, click the prominent blue button in the center or top right labeled **Add site**. A configuration form will appear.
+  </Step>
+  
+  <Step title="Step 4: Configure the Widget">
+    Fill out the form with the following exact details:
+    - **Site name:** `Flex Forms Website`
+    - **Domain:** Enter the exact domain where your forms are hosted (e.g., `yourcompany.com`). Do not include `https://` or trailing slashes.
+    - **Widget Mode:** You can select **Managed**, **Non-interactive**, or **Invisible** depending on whether you want the widget to be visible or run silently in the background.
+    
+    Click the **Create** button.
+  </Step>
+  
+  <Step title="Step 5: Copy the Keys">
+    Cloudflare will instantly generate two distinct cryptographic keys: a **Site Key** and a **Secret Key**. 
+    
+    Leave this window open, as you will need to copy both of these strings exactly as they appear.
+  </Step>
+  
+  <Step title="Step 6: Inject Credentials into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Cloudflare Turnstile.
+    2. Switch back to Cloudflare, highlight the **Site Key**, and copy it.
+    3. Paste it into the **Site Key** input field in Flex Forms.
+    4. Switch back to Cloudflare, highlight the **Secret Key**, and copy it.
+    5. Paste it into the **Secret Key** input field in Flex Forms.
+    6. Click the **Save Settings** button to finalize the secure connection.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+Once the keys are saved, Turnstile is available globally for forms.
+
+Enable CAPTCHA on a specific form under **Form Settings → Access → CAPTCHA**. Choose **Cloudflare Turnstile** when both Turnstile and reCAPTCHA are connected — only one CAPTCHA provider can be active per form. Flex Forms injects the widget on the last step of that form (no canvas block required).
+
+### The Validation Architecture
+
+<Tree>
+  <Tree.Folder name="How Turnstile Works Under the Hood" defaultOpen>
+    <Tree.File name="1. A user visits your form." />
+    <Tree.File name="2. The Turnstile script analyzes their browser invisibly." />
+    <Tree.File name="3. The user clicks Submit." />
+    <Tree.File name="4. Flex Forms intercepts the submission and injects a cryptographic 'cf-turnstile-response' token into the payload." />
+    <Tree.File name="5. The Flex Forms server securely pings the Cloudflare API to validate the token." />
+    <Tree.File name="6. If valid, the submission proceeds. If invalid or missing, it throws a 400 Bad Request error." />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: Domain Mismatch">
+    **The Problem:** The Turnstile script throws an error on the frontend stating the domain is invalid.
+    
+    **The Solution:** The domain you entered in Step 4 does not match the URL where the form is actually embedded. Ensure you added the correct domain (e.g., if the form is on a landing page builder like `try.yourcompany.com`, you must add `try.yourcompany.com` to Cloudflare).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="site_key" type="text" required>
+  **Site key**
+  From Cloudflare Dashboard → Turnstile → your widget.
+</ParamField>
+
+<ParamField path="secret_key" type="password" required>
+  **Secret key**
+</ParamField>
+
+<ParamField path="theme" type="select" required>
+  **Theme**
+  Widget appearance. Auto follows the visitor’s color scheme.
+  
+  **Options:**
+  - `auto`: Auto
+  - `light`: Light
+  - `dark`: Dark
+</ParamField>
+
+<ParamField path="size" type="select" required>
+  **Widget size**
+  Normal is the standard widget. Flexible stretches to the container. Compact is smaller.
+  
+  **Options:**
+  - `normal`: Normal
+  - `flexible`: Flexible
+  - `compact`: Compact
+</ParamField>
+
+### Form-Level Settings
+Located in **Form Settings → Access → CAPTCHA** for a specific form.
+
+<ParamField path="captcha_provider" type="select">
+  **CAPTCHA provider**
+  Choose `turnstile` for this form, or leave CAPTCHA off. If reCAPTCHA is also connected, pick exactly one provider — never both.
+</ParamField>
+

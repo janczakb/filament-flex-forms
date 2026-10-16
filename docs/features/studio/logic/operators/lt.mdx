@@ -1,0 +1,154 @@
+---
+title: "Less than / before"
+description: "When clause operator: The number is smaller, or the date/time is earlier."
+icon: "chevron-down"
+keywords: ["logic", "operator", "lt", "condition", "when"]
+---
+
+**Less than** (numbers) or **Before** (dates) checks whether the answer is **strictly below** your threshold — lower score, earlier deadline, under a spending cap.
+
+Use it for disqualification paths, early-bird pricing cutoffs, and “under 18” flows. Equal values **do not** match — use [Less than or equal](/features/studio/logic/operators/lte) on numbers when the boundary counts.
+
+---
+
+## When to choose this
+
+| Goal | Use **Less than / Before** | Use something else instead |
+|------|------------------------------|----------------------------|
+| Strictly below a number | ✓ | **Less than or equal** to include boundary |
+| Strictly before a date | ✓ | Dates have no **≤** — adjust boundary |
+| At or below cap | ✗ | **[Less than or equal](/features/studio/logic/operators/lte)** (numbers) |
+| Above threshold | ✗ | **[Greater than / After](/features/studio/logic/operators/gt)** |
+| Exact value | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+
+---
+
+## Exact behavior
+
+- **Both sides must be present and valid** — blank answers never match.
+- **Numbers:** floating-point comparison (`<`).
+- **Dates/times:** timestamp parsing when possible; else lexicographic string compare.
+- **Strictly less** — equal values do **not** match.
+- Blank comparison value → fail-closed.
+- Pick another field in **Value** (e.g. End **before** Start is invalid — use for valid range checks).
+
+<Note>
+  Date fields offer **Before** and **After** only — not “less than or equal”. To include the boundary day, pick the next day as **Before** target or use a numeric day-count field.
+</Note>
+
+---
+
+## Which field types
+
+| Family | Available | Label in Studio |
+|--------|-----------|-----------------|
+| Number | ✓ | Less than |
+| Date & time | ✓ | Before |
+| Text, choice, yes/no, presence | — | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Use [Is empty](/features/studio/logic/operators/empty) for skipped fields.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick number or date field">
+    Threshold comparisons require numeric or date/time blocks.
+  </Step>
+  <Step title="Choose Less than or Before">
+    Operator label adapts to field family.
+  </Step>
+  <Step title="Set threshold">
+    Literal or another field via **Value**.
+  </Step>
+  <Step title="Add Then actions">
+    [Hide blocks](/features/studio/logic/actions/hide-blocks), [Jump to page](/features/studio/logic/actions/jump-to-page), [Hide submit](/features/studio/logic/actions/hide-submit).
+  </Step>
+  <Step title="Verify on Fill">
+    Test at, above, and below boundary.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Early-bird pricing
+
+> **When** Registration date **before** `2026-03-01` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Early bird price`
+
+March 1 itself does not qualify — use Feb 29 or **≤** on a numeric “days until” field.
+
+### Low score remediation
+
+> **When** Score **less than** `50` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Retake instructions`
+
+Score of exactly `50` does not match.
+
+### Under budget cap
+
+> **When** Quote **less than** *(pick)* `Approved budget` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Auto-approve notice`
+
+### Minor gate
+
+> **When** Age **less than** `18` → **Then** [Require answer](/features/studio/logic/actions/require-answer) `Parent consent`
+
+Age `18` does not match — use **Less than or equal** `17` or **Less than** `18` intentionally for “17 and under”.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Value above threshold">
+    Rule off.
+  </Step>
+  <Step title="Exactly at threshold">
+    Rule off (strict comparison).
+  </Step>
+  <Step title="One step below">
+    Rule on.
+  </Step>
+  <Step title="Blank field">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting **Before June 1** to include June 1 — it does not.
+- Using on text fields — unavailable; use string operators instead.
+- Cross-page date reference before second date is filled.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Boundary should qualify">
+    Switch to **Less than or equal** on numbers or nudge the date by one day.
+  </Accordion>
+  <Accordion title="Dates compare as strings">
+    Unparseable formats fall back to string order — use consistent date picker blocks.
+  </Accordion>
+  <Accordion title="Rule never fires">
+    Source or comparison blank; or field type unsupported.
+  </Accordion>
+  <Accordion title="Opposite logic needed">
+    Pair with a **Greater than** rule on another branch or use separate **Rules** rows for clear UX.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Less than or equal](/features/studio/logic/operators/lte) · [Greater than / after](/features/studio/logic/operators/gt) · [How logic works](/features/studio/logic/overview)
+</Panel>

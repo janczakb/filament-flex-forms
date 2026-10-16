@@ -1,0 +1,151 @@
+---
+title: "Rating & NPS Block"
+description: "Collect user satisfaction scores using interactive Star Ratings or standard Net Promoter Score scales."
+icon: "star"
+keywords: ["rating", "nps", "stars", "feedback", "score"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **UX Tip:** When using NPS, toggle **Color Coded** on. Visual cues (Red for low, Green for high) subconsciously help users process the scale faster.
+</Banner>
+
+The **Rating & NPS** block combines two distinct visual interfaces to evaluate user sentiment. Depending on your configuration, it renders either a standard 5-star rating component or a comprehensive 0-10 Net Promoter Score (NPS) scale, making it essential for feedback forms.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Customer Loyalty" icon="heart">
+    Use NPS (0-10) to determine if your customers are Detractors, Passives, or Promoters.
+  </Card>
+  <Card title="Product Reviews" icon="star">
+    Use a 5-star rating scale to collect quick product quality feedback for an e-commerce store.
+  </Card>
+  <Card title="Agent Scoring" icon="headset">
+    After a support ticket is closed, ask the user to rate the agent's helpfulness.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Rating & NPS** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Choose the Interface">
+    By default, it renders as a Star Rating. If you are trying to calculate customer loyalty, switch the mode to **NPS** in the Inspector.
+  </Step>
+  <Step title="Style it">
+    Adjust the colors and icons. For example, change the stars to "Hearts" and the color to "Red" for a more affectionate feedback loop.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Star Rating Configuration">
+    <ParamField path="max" type="integer" default="5">
+      The maximum number of stars available to select. Set to `10` for a 10-star scale.
+    </ParamField>
+    
+    <ParamField path="color" type="string" default="warning">
+      The color of the filled icons (e.g., gold/yellow for stars).
+    </ParamField>
+    
+    <ParamField path="icon" type="string">
+      Overrides the default star with a custom Heroicon (e.g., `heart`, `hand-thumb-up`).
+    </ParamField>
+    
+    <ParamField path="show_value" type="boolean" default="false">
+      Displays the numeric equivalent of the selection next to the stars (e.g., "4 / 5").
+    </ParamField>
+  </Tab>
+
+  <Tab title="NPS Configuration">
+    <ParamField path="variant" type="string" default="pills">
+      Visual template: `pills`, `segments`, or `emojis`. Emojis always use five mood slots (images stay fixed); you can rename the five labels under each emoji.
+    </ParamField>
+
+    <ParamField path="scale_max" type="integer" default="10">
+      Highest number on a 0–N scale for **pills** and **segments** (slider from 5 to 10). Hidden when `variant` is `emojis`.
+    </ParamField>
+
+    <ParamField path="emoji_labels" type="array" default="[Awful, Poor, Neutral, Good, Excellent]">
+      Five captions under the emoji moods. Only shown for the **Emojis** variant.
+    </ParamField>
+    
+    <ParamField path="min_label" type="string">
+      The text displayed below the lowest number (e.g., "Not likely at all").
+    </ParamField>
+    
+    <ParamField path="max_label" type="string">
+      The text displayed below the highest number (e.g., "Extremely likely").
+    </ParamField>
+    
+    <ParamField path="color_coded" type="boolean" default="false">
+      Applies standard NPS color coding automatically (Red/Yellow/Green).
+    </ParamField>
+
+    <ParamField path="size" type="string" default="md">
+      Control size: `sm`, `md`, or `lg`.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Whether you use Star Ratings or NPS, the final selection is always evaluated and saved as a standard `integer`.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_299",
+    "data": {
+      "product_rating": 4,
+      "brand_nps": 9
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'product_rating' => 4,
+      'brand_nps' => 9,
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Why use NPS?
+
+Net Promoter Score is a highly standardized metric used globally by companies to measure customer experience. The core question is always: *"On a scale of 0 to 10, how likely are you to recommend us to a friend?"*
+
+Because Flex Forms natively supports NPS and standardizes the output as an integer, you can instantly pipe this data into tools like Mixpanel, Salesforce, or Zendesk, which have built-in dashboards specifically looking for this exact 0-10 data structure to calculate your Promoters vs Detractors.
+
+<Tree>
+  <Tree.Folder name="NPS Standardization" defaultOpen>
+    <Tree.File name="0-6: Detractors (Red)" />
+    <Tree.File name="7-8: Passives (Yellow)" />
+    <Tree.File name="9-10: Promoters (Green)" />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Always use Context Labels">
+    **UX Best Practice:** Always utilize `min_label` and `max_label` when using NPS mode. Numbers lack context on their own. "0 = Never, 10 = Absolutely" guides the user's psychology.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Matrix Choice Block](/features/blocks/matrix)
+</Panel>

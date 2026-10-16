@@ -1,0 +1,33 @@
+---
+title: "Credit Card Block"
+description: "Collect card-number style inputs for reference — not a payment gateway."
+icon: "credit-card"
+keywords: ["credit card", "card number", "PCI", "last4"]
+---
+
+<Banner type="critical" dismissible={false}>
+  **Not a payment processor.** This block only captures card-like fields into *your* submission payload. For real charges, connect [Stripe](/integrations/stripe) and add the **Stripe Payment** block (Payment Element).
+</Banner>
+
+The **Credit card** block (`credit_card`) is an input UI for collecting card details when you need them for offline processing or a custom backend — for example last-four display in Submissions.
+
+## Security
+
+- Treat stored values as **sensitive PII**. Prefer private disks and strict access policies.
+- Do **not** use this block as a substitute for a PCI-compliant payment form.
+- In **Submissions**, the table shows only the last four digits. Opening the answer asks you to confirm, then shows the full card number, name, and expiry. CVV is never shown in Studio.
+
+## Configuration
+
+<Steps>
+  <Step title="Add the block">
+    Drag **Credit card** from the catalog onto the canvas only if you truly need card-number capture.
+  </Step>
+  <Step title="Minimize data">
+    Collect only what your process requires. Prefer asking for last four + brand elsewhere when full PAN is unnecessary.
+  </Step>
+</Steps>
+
+<Panel>
+  Related: [Access & security](/features/settings/access) · [File upload](/features/blocks/file-upload)
+</Panel>

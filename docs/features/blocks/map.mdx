@@ -1,0 +1,176 @@
+---
+title: "Map & Address Block"
+description: "Collect perfectly structured, geocoded locations using interactive maps and Mapbox autocomplete."
+icon: "map-pin"
+keywords: ["map", "location", "address", "gps", "autocomplete", "mapbox"]
+---
+
+<Banner type="warning" dismissible={false}>
+  ⚠️ **Requirement:** You must provide a valid Mapbox Token in the Settings panel for this block to function.
+</Banner>
+
+The **Map & Address** block (`MapPickerField`) is a heavyweight component that completely replaces standard text fields for address collection. Users can drop a pin on a visual map, or type an address into an autocomplete search bar that automatically drops the pin at the correct location, ensuring perfectly structured geographical data.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Logistics & Delivery" icon="truck">
+    Ensure drivers get exact coordinates (`lat/lng`) instead of misspelled street names that cause failed deliveries.
+  </Card>
+  <Card title="Real Estate" icon="house">
+    Allow users to drop a pin on plots of land or rural properties that do not have standard postal addresses.
+  </Card>
+  <Card title="Store Locators" icon="store">
+    Collect exact geolocation data from franchisees to build accurate internal routing and search tools.
+  </Card>
+</CardGroup>
+
+---
+
+## Complete Integration Guide: Mapbox API
+
+To power the autocomplete search and render the visual map tiles, you must integrate Flex Forms with Mapbox. This is a one-time setup.
+
+<Steps>
+  <Step title="Create a Mapbox Account">
+    Go to [Mapbox.com](https://www.mapbox.com/) and create a free account. Mapbox provides an incredibly generous free tier (usually up to 100,000 requests per month).
+  </Step>
+  <Step title="Generate an Access Token">
+    Navigate to your Mapbox Account Dashboard. Under the **Access Tokens** section, click `Create a token`.
+    
+    *Name it something recognizable, like `Flex_Forms_Production`.*
+  </Step>
+  <Step title="Configure URL Restrictions (Important)">
+    For security, you must restrict the token so it can only be used on your domain. Under the token settings, add your app's URLs (e.g., `https://my-app.com/`) to the **URL Restrictions** list.
+  </Step>
+  <Step title="Inject the Token into Flex Forms">
+    Copy the generated Public Token (starts with `pk.`). 
+    Open **Integrations** in the Flex Forms left rail, and paste the token into the Mapbox API Key field.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+Once integrated, you have massive control over how the map behaves and what users are allowed to search for.
+
+Use **Layout** in Studio to switch between **Search input** (`address_autocomplete`) and **Map picker** (`map_picker`). Shared search settings apply to both.
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="layout" type="string" default="map">
+      `input` (address search only) or `map` (map canvas + optional search). Changing layout switches the block type while keeping shared search config.
+    </ParamField>
+
+    <ParamField path="searchable" type="boolean" default="true">
+      Displays a search bar above the map (map layout) or powers the autocomplete input (input layout).
+    </ParamField>
+    
+    <ParamField path="default_center" type="array">
+      The `[latitude, longitude]` coordinates where the map is centered when it first loads (e.g., `[51.5074, -0.1278]` for London). Map layout only.
+    </ParamField>
+    
+    <ParamField path="default_zoom" type="integer">
+      The initial zoom level of the map (usually between 1 and 20). Map layout only. Studio defaults to `12` when you switch a block to map layout without a zoom set.
+    </ParamField>
+    
+    <ParamField path="language_mode" type="string" default="auto">
+      `auto` uses your app locale / Mapbox default. `manual` uses the `language` code you set.
+    </ParamField>
+
+    <ParamField path="language" type="string">
+      Result language code when `language_mode` is `manual` (e.g., `pl`, `en`, `es`).
+    </ParamField>
+  </Tab>
+  
+  <Tab title="Search Restrictions">
+    <ParamField path="search_scope" type="string" default="all">
+      What respondents may find: `all`, `address` (street only), `cities`, `regions`, `countries`, `admin` (admin areas without street), `poi` (general points of interest), or `custom` (raw Mapbox types).
+    </ParamField>
+
+    <ParamField path="search_area" type="string" default="global">
+      `global` searches worldwide. `countries` limits results to the ISO codes in `countries`.
+    </ParamField>
+
+    <ParamField path="countries" type="array">
+      ISO country codes (e.g., `['US', 'CA']`) when `search_area` is `countries`. Leave empty for worldwide.
+    </ParamField>
+    
+    <ParamField path="search_types" type="array">
+      Used when `search_scope` is `custom` — Mapbox place types such as `address`, `place`, `poi`, `region`.
+    </ParamField>
+    
+    <ParamField path="search_debounce" type="integer" default="350">
+      Delay in milliseconds before search runs after typing stops.
+    </ParamField>
+  </Tab>
+  
+  <Tab title="Validation & Data">
+    <ParamField path="required_fields" type="array">
+      Forces specific address components (e.g., `['city', 'postcode']`) when a location is present.
+    </ParamField>
+    
+    <ParamField path="store_format" type="string" default="structured">
+      How location data is saved: `structured` (object with configured fields) or `string` (formatted via `string_format`).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+If you use a standard Long Text box to ask for an address, a user might type: "123 Apple st NY". This unstructured string is useless for routing or shipping APIs.
+
+With **store format → Structured**, the answer is a normalized object (street, city, postcode, country, and — on map layout — `lat` / `lng`).
+
+<CodeGroup>
+  ```json Webhook Payload (store_format: structured)
+  {
+    "submission_id": "sub_123",
+    "data": {
+      "delivery_address": {
+        "place_name": "123 Apple Street, New York, NY 10001, USA",
+        "lat": 40.7128,
+        "lng": -74.0060,
+        "street": "Apple Street",
+        "city": "New York",
+        "postcode": "10001",
+        "country": "US"
+      }
+    }
+  }
+  ```
+
+  ```json Webhook Payload (store_format: string)
+  {
+    "submission_id": "sub_123",
+    "data": {
+      "delivery_address": "123 Apple Street, New York, NY 10001, USA"
+    }
+  }
+  ```
+</CodeGroup>
+
+> Mapbox Geocoding does not filter POIs by venue category (restaurant vs cafe). Use the **Points of interest** scope for general landmarks/shops, or street/city scopes for postal addresses.
+
+---
+
+## Best Practices & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Enforcing Address Quality (No Parks allowed!)">
+    Set **What to search** to **Street addresses only**, and optionally require fields like `street` and `postcode`. Broad regions and POIs will be rejected.
+  </Accordion>
+  <Accordion title="Managing API Costs">
+    Raise **Search debounce** (advanced) so Mapbox is not called on every keystroke.
+  </Accordion>
+  <Accordion title="Issue: Map tiles are blank or gray">
+    If the map renders as a gray box, your Mapbox Token is either missing, invalid, or blocked by **URL Restrictions** in the Mapbox dashboard. Open the browser console (F12) for the exact 403 from Mapbox.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Short Text Block](/features/blocks/short-text)
+</Panel>

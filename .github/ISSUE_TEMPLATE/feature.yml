@@ -1,0 +1,10 @@
+name: Feature request
+description: Ideas for Flex Forms
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What should we add?
+    validations:
+      required: true

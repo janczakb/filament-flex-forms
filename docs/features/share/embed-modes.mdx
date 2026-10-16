@@ -1,0 +1,74 @@
+---
+title: "Website Embedding"
+description: "Deploy your forms directly into your own website using zero-code HTML snippets."
+icon: "code"
+keywords: ["embed", "iframe", "popup", "html", "integration"]
+boost: 3
+---
+
+You don't need to send users away to a standalone URL. Flex Forms generates robust, copy-and-paste HTML snippets allowing you to embed the form directly into your WordPress, Webflow, Shopify, or custom-built website in seconds.
+
+## The Three Embed Modes
+
+Depending on your UX goals, you can choose between three distinct embed architectures directly from the Share screen.
+
+<Tabs>
+  <Tab title="Standard (Inline Iframe)">
+    The most common approach. The form renders directly within the flow of your existing webpage, exactly like an embedded YouTube video.
+
+    <Steps>
+      <Step title="Configure Height">
+        Define a base pixel height. We strongly recommend leaving **Dynamic Height** enabled. This allows the form to automatically communicate with your website to stretch or shrink its height as the user navigates between pages or triggers conditional logic, eliminating ugly internal scrollbars.
+      </Step>
+      <Step title="Paste the Snippet">
+        Copy the generated `<iframe>` and the tiny `<script>` tag, and paste them into your website's HTML body.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Popup (Modal Overlay)">
+    The form remains hidden until the user clicks a specific button or hyperlink on your website, at which point it opens in a sleek modal overlay.
+
+    <Steps>
+      <Step title="Select the Trigger">
+        Choose whether you want the snippet to generate a styled `<button>` or a simple text `<a href="...">` link.
+      </Step>
+      <Step title="Define Positioning">
+        Choose where the popup appears (Centered, Bottom Right, Top Left, etc.) and define its max-width.
+      </Step>
+      <Step title="Add Polish (Optional)">
+        Enable the **Dimmed Overlay** to blur the background website, and consider enabling an **Emoji Teaser** (e.g., a bouncing 👋) to draw attention to the trigger button.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Full Page Document">
+    This mode generates a complete, standalone `<html>` document containing nothing but your form. 
+    
+    This is highly specialized. Use this if you are a developer building a dedicated routing architecture or if you need to serve the form from a completely isolated environment that you control entirely.
+  </Tab>
+</Tabs>
+
+---
+
+## Universal Embed Options
+
+Regardless of which mode you choose, you can toggle several cosmetic overrides before copying the code:
+
+<CardGroup cols={2}>
+  <Card title="Hide Title" icon="eye-slash">
+    If you embed the form on a webpage that already has a massive `<h1>` header saying "Contact Us", you don't want the embedded form to repeat it. This hides the form's internal title.
+  </Card>
+  <Card title="Transparent Background" icon="droplet">
+    Strips the form's configured background color, allowing your website's native background (e.g., a gradient or an image) to show through the iframe seamlessly.
+  </Card>
+  <Card title="Track Form Events" icon="satellite-dish">
+    For advanced marketers. This instructs the iframe to broadcast standard `postMessage` events (like `form_started` or `form_submitted`) to your parent website, allowing you to hook them into Google Tag Manager or Meta Pixels.
+  </Card>
+</CardGroup>
+
+<Warning>
+  **The Loader Script:** Every snippet contains a small `<script>`. If you are embedding *multiple* forms on the exact same webpage, you only need to include this script tag once. Flex Forms will automatically detect it and manage all iframes on the page.
+</Warning>
+
+<Panel>
+  **Next Steps:** [Injecting Data into Embeds via Query Parameters](/features/share/query-params)
+</Panel>

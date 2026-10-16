@@ -1,0 +1,154 @@
+---
+title: "Google reCAPTCHA Integration"
+description: "A comprehensive guide to securing your forms against bot submissions using Google's invisible reCAPTCHA v3."
+icon: "shield"
+keywords: ["google", "recaptcha", "v3", "captcha", "spam", "security", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API calculates risk scores based on user behavior, please read the [Official Google reCAPTCHA Documentation](https://www.google.com/recaptcha/admin).
+</Banner>
+
+The **Google reCAPTCHA** integration provides absolute enterprise-grade spam protection for your Flex Forms. Flex Forms supports both **reCAPTCHA v2** (the familiar "I'm not a robot" checkbox) and **reCAPTCHA v3** (invisible, score-based protection). 
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Frictionless Spam Prevention" icon="user-shield">
+    Eliminate automated bot submissions from polluting your CRM. By using v3, you maintain a 100% frictionless user experience, drastically improving conversion rates compared to visible CAPTCHAs.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to reCAPTCHA requires generating a **Site Key** and a **Secret Key** inside the Google Admin console. Follow these exact instructions.
+
+<Steps>
+  <Step title="Step 1: Access the reCAPTCHA Admin Console">
+    Open your web browser and navigate directly to this exact URL: `https://www.google.com/recaptcha/admin/create`. Log in with your company's Google Workspace administrator account.
+  </Step>
+  
+  <Step title="Step 2: Register a New Site">
+    You will see a configuration form titled "Register a new site".
+    
+    - **Label:** Type exactly `Flex Forms Website`. (This helps you identify it later).
+  </Step>
+  
+  <Step title="Step 3: Select reCAPTCHA Type">
+    Under the "reCAPTCHA type" section, select either **reCAPTCHA v3** (recommended for seamless UX) or **reCAPTCHA v2** ("I'm not a robot" checkbox).
+    
+    <Callout type="warning">
+      **Crucial Configuration:** You MUST select the exact same version in Flex Forms Settings as you do here in the Google Admin Console. Mismatched versions will cause validation to fail.
+    </Callout>
+  </Step>
+  
+  <Step title="Step 4: Add Your Domains">
+    Under the "Domains" section, type the exact domain where your forms are hosted (e.g., `yourcompany.com`) and press Enter. 
+    *Note: Do not include `https://` or trailing slashes. Just the root domain.*
+  </Step>
+  
+  <Step title="Step 5: Accept Terms and Submit">
+    Check the box to accept the reCAPTCHA Terms of Service. Click the blue **Submit** button at the bottom of the page.
+  </Step>
+  
+  <Step title="Step 6: Copy the Keys">
+    Google will instantly generate two distinct cryptographic keys: a **Site Key** and a **Secret Key**. 
+    
+    Leave this window open, as you will need to copy both of these strings exactly as they appear.
+  </Step>
+  
+  <Step title="Step 7: Inject Credentials into Flex Forms">
+    Switch to your Flex Forms administrative dashboard in a new tab. 
+    1. Open Integrations (Flex Forms left rail) → Google reCAPTCHA.
+    2. Switch back to Google, highlight the **Site Key** (the top one), and copy it.
+    3. Paste it into the **Site Key** input field in Flex Forms.
+    4. Switch back to Google, highlight the **Secret Key** (the bottom one), and copy it.
+    5. Paste it into the **Secret Key** input field in Flex Forms.
+  </Step>
+  
+  <Step title="Step 8: Define the Threshold and Save">
+    In Flex Forms, you will see a setting for **Risk Score Threshold**. Google returns a score between 0.0 (likely a bot) and 1.0 (likely a good interaction).
+    
+    Set the threshold to `0.5` as a safe default. (Any submission scoring below this number will be blocked). Click the **Save Settings** button to finalize the secure connection.
+  </Step>
+</Steps>
+
+---
+
+## Configuration & Masterclass Usage
+
+Once the keys are saved, reCAPTCHA is available globally for forms.
+
+Enable CAPTCHA on a specific form under **Form Settings → Access → CAPTCHA**. Choose **Google reCAPTCHA** when both reCAPTCHA and Turnstile are connected — only one CAPTCHA provider can be active per form. Flex Forms injects the widget on the last step of that form (no canvas block required).
+
+### The Validation Architecture
+
+<Tree>
+  <Tree.Folder name="How reCAPTCHA v3 Works Under the Hood" defaultOpen>
+    <Tree.File name="1. A user interacts with your form." />
+    <Tree.File name="2. Google analyzes their mouse movements and browser history." />
+    <Tree.File name="3. The user clicks Submit." />
+    <Tree.File name="4. Flex Forms intercepts the submission and injects a cryptographic 'g-recaptcha-response' token into the payload." />
+    <Tree.File name="5. The Flex Forms server securely pings the Google API." />
+    <Tree.File name="6. Google returns a score (e.g., 0.9). If it passes your Threshold (e.g., 0.5), the submission proceeds." />
+  </Tree.Folder>
+</Tree>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="API Error: Version Mismatch">
+    **The Problem:** The form submission fails with a validation error related to CAPTCHA.
+    
+    **The Solution:** You likely have a mismatch between your Google Console configuration and Flex Forms. If you generated v2 keys in Google, you MUST select `v2` in the Flex Forms Settings dropdown. If you generated v3 keys, you MUST select `v3`.
+  </Accordion>
+  <Accordion title="False Positives (Blocking Real Users)">
+    **The Problem:** Legitimate customers are complaining that they cannot submit the form.
+    
+    **The Solution:** Your Risk Score Threshold is set too high. If you set it to `0.9`, you are demanding absolute perfection from Google's algorithm, which will frequently block real users on mobile devices or VPNs. Lower your threshold in the Flex Forms settings to `0.3` or `0.5` to allow more leniency while still blocking massive botnets.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="version" type="select" required>
+  **Version**
+  Use v2 for the visible checkbox, or v3 for invisible score-based protection.
+  
+  **Options:**
+  - `v2`: v2 checkbox
+  - `v3`: v3 score
+</ParamField>
+
+<ParamField path="site_key" type="text" required>
+  **Site key**
+</ParamField>
+
+<ParamField path="secret_key" type="password" required>
+  **Secret key**
+</ParamField>
+
+<ParamField path="score_threshold" type="text" >
+  **v3 score threshold**
+  Only for v3. Tokens scoring below this value are rejected (0.0–1.0, default 0.5).
+</ParamField>
+
+### Form-Level Settings
+Located in **Form Settings → Access → CAPTCHA** for a specific form.
+
+<ParamField path="captcha_provider" type="select">
+  **CAPTCHA provider**
+  Choose `recaptcha` for this form, or leave CAPTCHA off. If Turnstile is also connected, pick exactly one provider — never both.
+</ParamField>
+

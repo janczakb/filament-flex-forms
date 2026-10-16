@@ -1,0 +1,149 @@
+---
+title: "Select Block"
+description: "Dropdown select — Studio catalog label: Select (`select`). Supports single or multiple chips."
+icon: "chevron-down"
+keywords: ["dropdown", "select", "options", "single choice", "multiple", "menu"]
+---
+
+<Banner type="info" dismissible={true}>
+  In Studio this block is **Select**. Enable **Searchable** for long lists and **Multiple** for chip multi-select.
+</Banner>
+
+The **Select** block (`select`) is the compact menu for choice questions — single by default, or multiple chips when enabled.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Categorization" icon="layer-group">
+    Ask users to categorize their support ticket (e.g., Billing, Tech Support, Sales).
+  </Card>
+  <Card title="Role Selection" icon="user-tie">
+    Determine a user's job title or industry during a B2B onboarding flow.
+  </Card>
+  <Card title="Multi interests" icon="tags">
+    Enable **Multiple** so respondents can pick several topics or skills as chips.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Select** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Define Options">
+    On the canvas, add option rows (label per row). Each option stores a stable value under the hood.
+  </Step>
+  <Step title="Single or multiple">
+    In settings, leave **Multiple** off for one answer, or turn it on for multi-select chips.
+  </Step>
+  <Step title="Enable Search (Optional)">
+    If your list has more than 10 items, toggle **Searchable** so users can filter by typing.
+  </Step>
+  <Step title="Default value (Optional)">
+    In settings, turn on **Default value** and pick an option by its label (with **Multiple**, pick one or more).
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Visuals & UI">
+    <ParamField path="size" type="string" default="md">
+      The visual size of the dropdown field. Available options are `sm`, `md`, and `lg`.
+    </ParamField>
+    
+    <ParamField path="variant" type="string" default="bordered">
+      The aesthetic style of the dropdown wrapper. Options: `bordered`, `flat`, `soft`, `faded`, `underlined`.
+    </ParamField>
+    
+    <ParamField path="chip_color" type="string" default="neutral">
+      Color of selected chips when **Multiple** is enabled.
+    </ParamField>
+    
+    <ParamField path="clearable" type="boolean" default="true">
+      Adds a clear control so the respondent can empty the field.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Behavioral Features">
+    <ParamField path="multiple" type="boolean" default="false">
+      Allows selecting more than one option. Answers are stored as a list of values.
+    </ParamField>
+
+    <ParamField path="searchable" type="boolean" default="false">
+      Enables a search bar at the top of the dropdown list, allowing users to quickly filter through hundreds of options.
+    </ParamField>
+    
+    <ParamField path="disabled" type="boolean" default="false">
+      Renders the field as non-interactive (preview / locked state).
+    </ParamField>
+  </Tab>
+
+  <Tab title="Data & Validation">
+    <ParamField path="options" type="array" required>
+      The list of choices presented to the user. Each option is a key-value pair (Value => Label).
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Single-select saves one **Value**. With **Multiple** enabled, the field saves an array of values.
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_419",
+    "data": {
+      "support_department": "dept_billing",
+      "interests": ["php", "react", "design"]
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'support_department' => 'dept_billing',
+      'interests' => ['php', 'react', 'design'],
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Deep Dive: Labels vs. Values
+
+When configuring a Dropdown, you must define a Label and a Value for every option.
+
+- **Label:** What the human user sees on the screen (e.g., "Senior Software Engineer").
+- **Value:** The raw data saved to the database (e.g., `role_eng_snr`).
+
+By separating the Label and Value, you can change the visual text at any time without breaking your database schemas, Zapier workflows, or internal reporting logic. The Value acts as an immutable primary key.
+
+<Callout type="info">
+  **Pro Tip:** Always use lowercase, snake_case strings for your Values to ensure maximum compatibility with external APIs.
+</Callout>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Single vs Multiple">
+    Leave **Multiple** off when exactly one answer is required. Turn it on when respondents should pick several options — selections appear as chips.
+  </Accordion>
+  <Accordion title="Dropdowns vs Radio Buttons">
+    If you have 4 or fewer options and need a single answer, use a [Multiple Choice (Radio)](/features/blocks/multiple-choice) block instead. Hiding 3 options behind a click adds unnecessary friction. Use Dropdowns when you have 5+ options, or when you need multi-select chips.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [Multiple Choice](/features/blocks/multiple-choice) · [Checkboxes](/features/blocks/checkbox)
+</Panel>

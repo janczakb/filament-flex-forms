@@ -1,0 +1,54 @@
+---
+title: "Accessibility"
+description: "How the public fill experience supports keyboard navigation, screen readers, RTL languages, and reduced motion."
+icon: "accessibility"
+keywords: ["accessibility", "a11y", "screen reader", "keyboard", "rtl"]
+---
+
+The public fill page is what respondents interact with — often people you don't get to choose, on devices and assistive technology you don't control. Flex Forms builds the fill experience on Filament's own form components, which carry Filament's accessibility baseline forward.
+
+<Columns cols={2}>
+  <Card title="Built in" icon="check-circle">
+    Keyboard navigation, labeled inputs, focus states, and RTL layout support out of the box.
+  </Card>
+  <Card title="Your responsibility" icon="pencil">
+    Writing clear labels/help text, choosing sufficient color contrast in [Design](/guides/design-pro), and testing your specific field choices.
+  </Card>
+</Columns>
+
+<Table>
+  <thead><tr><th>Area</th><th>Support</th></tr></thead>
+  <tbody>
+    <tr><td>Keyboard navigation</td><td>All native inputs, choices, and the wizard's Next/Previous controls are keyboard-operable</td></tr>
+    <tr><td>Labels</td><td>Every field renders a real, associated label — not placeholder-only text</td></tr>
+    <tr><td>Language / RTL</td><td>Per-form <code>language</code> and <code>text_direction</code> settings; Arabic/Hebrew/Farsi/Urdu auto-default to RTL</td></tr>
+    <tr><td>Progress indication</td><td>The [stepper and progress bar](/guides/multi-page-stepper) give non-visual users a sense of position via standard progress semantics</td></tr>
+    <tr><td>Error messaging</td><td>Validation errors are tied to their field and announced on submit attempt</td></tr>
+  </tbody>
+</Table>
+
+<Steps>
+  <Step title="Write real labels, not just placeholders">
+    Placeholder text disappears on focus and isn't a reliable label for screen readers — always fill in the field's **Label**.
+  </Step>
+  <Step title="Keep required-field messaging clear">
+    Use the field's help text to explain *why* something is required, especially for fields that become required conditionally via [Logic](/guides/logic-and-calculated).
+  </Step>
+  <Step title="Set language and direction correctly">
+    For non-English forms, set **Language** in Form settings so screen readers pick the right pronunciation rules; RTL languages flip layout direction automatically.
+  </Step>
+  <Step title="Mind color contrast in Design">
+    If you set a custom [stepper color or design](/guides/design-pro), check contrast against your background — especially for progress indicators and buttons.
+  </Step>
+  <Step title="Test with a keyboard and a screen reader">
+    Tab through a real published form before sending it to real respondents, particularly if it uses heavy [Logic branching](/guides/logic-and-calculated) or a [multi-page wizard](/guides/multi-page-stepper).
+  </Step>
+</Steps>
+
+<Note>
+Accessibility is an ongoing effort, not a checkbox — if you find a concrete a11y issue in the fill experience, please [report it](https://github.com/janczakb/filament-flex-forms/issues/new?template=bug.yml) with the field type and assistive technology involved.
+</Note>
+
+<Panel>
+**Next:** [Design & branding](/guides/design-pro) · [Multi-page & stepper](/guides/multi-page-stepper) · [Support](/resources/support)
+</Panel>

@@ -1,0 +1,45 @@
+---
+title: "Names vs. Labels"
+description: "Understand the critical difference between the visual Label shown to respondents and the system Name used for integrations and data structuring."
+icon: "tag"
+keywords: ["name", "label", "field identity", "data structure"]
+boost: 1
+---
+
+Every field you drop into the Studio canvas possesses two fundamental identities: a **Label** and a **Name**. Understanding the distinction is vital for maintaining stable integrations and reliable data exports.
+
+## The Dual Identity System
+
+<CardGroup cols={2}>
+  <Card title="Label (The Public Face)" icon="eye">
+    This is the actual question text the respondent sees on the live form. 
+    *Example: "What is your primary business email address?"*
+  </Card>
+  <Card title="Name (The System Core)" icon="database">
+    This is the internal, immutable key used in your database, CSV exports, Webhooks, and CRM integrations.
+    *Example: `business_email`*
+  </Card>
+</CardGroup>
+
+---
+
+## Best Practices for Architecture
+
+When you create a field, Flex Forms automatically generates a system Name based on your initial Label. However, you should strictly manage the **Name** property to prevent breaking changes downstream.
+
+<Steps>
+  <Step title="Establish Stable Names Early">
+    Open the field's settings in the Studio Inspector. Set a concise, code-friendly **Name** (e.g., `company_size`, `phone_number`) before you publish or integrate the form.
+  </Step>
+  <Step title="Iterate on Labels Freely">
+    Marketing wants to change the question text? No problem. You can change the **Label** at any time. As long as the **Name** remains untouched, your Zapier flows, Webhooks, and query prefilling will continue to function perfectly.
+  </Step>
+</Steps>
+
+<Callout type="info">
+  **Looking for the "Full Name" block?** If you are trying to capture a person's physical name, use the dedicated **Name Block** from the Component Catalog, which intelligently splits First and Last names for CRM routing. See [Block Overview](/features/blocks/overview).
+</Callout>
+
+<Panel>
+  **Related Concepts:** [Field Settings Configuration](/features/studio/field-settings) · [Prefilling Fields via URL](/get-started/prefill-fields)
+</Panel>

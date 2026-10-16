@@ -1,0 +1,139 @@
+---
+title: "Does not start with"
+description: "When clause operator: The text does not begin with this prefix."
+icon: "text-quote"
+keywords: ["logic", "operator", "not_starts_with", "condition", "when"]
+---
+
+**Does not start with** checks that text **does not begin with** your prefix — exclusion routing for codes, regions, or namespaces.
+
+Requires a **non-blank text answer**. Blank fields never match.
+
+---
+
+## When to choose this
+
+| Goal | Use **Does not start with** | Use something else instead |
+|------|----------------------------|----------------------------|
+| Text lacks specific prefix | ✓ | **Not equals** for full string |
+| Blank / skipped text | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Prefix present | ✗ | **[Starts with](/features/studio/logic/operators/starts_with)** |
+| Substring not anywhere | ✗ | **[Does not contain](/features/studio/logic/operators/not_contains)** |
+
+---
+
+## Exact behavior
+
+- **Text only.**
+- Requires non-blank source answer — null, `""` never match.
+- Expected prefix must be non-empty string.
+- Case-insensitive: true when lowercase actual does not start with lowercase expected.
+- If prefix is empty in rule → never matches.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| All other families | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Pair with **Is empty** if blank should follow the same branch.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select text field">
+    Phone, reference code, email, etc.
+  </Step>
+  <Step title="Choose Does not start with">
+    Text family operator list.
+  </Step>
+  <Step title="Enter excluded prefix">
+    Non-empty, e.g. `TEST-`, `+1`
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), [Hide blocks](/features/studio/logic/actions/hide-blocks).
+  </Step>
+  <Step title="Verify blank vs non-matching text on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Non-test submissions
+
+> **When** Order ID **does not start with** `TEST-` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Production SLA`
+
+Blank Order ID does not match — add **Is not empty** if production path requires an ID.
+
+### International numbers
+
+> **When** Phone **does not start with** `+1` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `International rates`
+
+### Exclude internal namespace
+
+> **When** Username **does not start with** `sys_` → **Then** standard onboarding
+
+### Non-promo codes
+
+> **When** Voucher **does not start with** `PROMO` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Promo terms`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Text with excluded prefix">
+    Rule off.
+  </Step>
+  <Step title="Text with different prefix or no prefix">
+    Rule on (field answered).
+  </Step>
+  <Step title="Empty field">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting blank to count as “does not start with TEST-” — it does not.
+- Confusing with **Does not contain** — position matters at start only.
+- Prefix case duplication — matching is case-insensitive.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Blank should trigger branch">
+    Add **When field is empty** with **Any** match alongside this clause.
+  </Accordion>
+  <Accordion title="Whitespace before prefix">
+    Leading spaces mean string does not start with intended prefix — trim in form design or use **Contains**.
+  </Accordion>
+  <Accordion title="Rule fires on blank">
+    Unlikely — verify operator and that field is truly blank not default-filled.
+  </Accordion>
+  <Accordion title="Need multiple forbidden prefixes">
+    Use **Any** group with multiple **Does not start with** clauses or restructure with nested **Any** / **All** groups in **Rules**.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Starts with](/features/studio/logic/operators/starts_with) · [Does not contain](/features/studio/logic/operators/not_contains) · [How logic works](/features/studio/logic/overview)
+</Panel>

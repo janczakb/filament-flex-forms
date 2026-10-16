@@ -1,0 +1,66 @@
+---
+title: "Answers, Visits & Drop-offs"
+description: "Master the three core analytical panels: question-by-question distributions, traffic KPIs, and the abandonment funnel."
+icon: "chart-line"
+keywords: ["answers", "visits", "dropoffs", "funnel", "kpi", "conversion"]
+boost: 3
+---
+
+The Insights Dashboard is segmented into three specialized tabs. Understanding how to read these panels is critical for optimizing your form's conversion rate and extracting actionable data.
+
+## 1. The Answers Panel
+
+The **Answers** tab is designed for qualitative and quantitative research. It generates a visual card for every block on your form, displaying exactly how respondents answered.
+
+<Steps>
+  <Step title="Choice Distributions">
+    For Choice blocks (Dropdowns, Radios, Checkboxes), the panel renders beautiful bar charts showing the percentage breakdown of each selected option.
+  </Step>
+  <Step title="Textual Analysis">
+    For Text and Number blocks, it calculates summary statistics (e.g., Average, Min, Max) and provides a randomized sample of recent raw text entries for quick sentiment analysis.
+  </Step>
+</Steps>
+
+<Callout type="info">
+  **Intelligent Grouping:** If a Dropdown block has 100 possible options, rendering a 100-bar chart would ruin the UX. The engine intelligently caps the chart at the top most-selected options, grouping the rest into an "Other" category to maintain readability.
+</Callout>
+
+---
+
+## 2. The Visits Panel
+
+The **Visits** tab provides high-level traffic metrics and demographic breakdowns, independent of whether the visitor actually filled anything out.
+
+### Core KPIs
+- **Visits:** Total number of times the form was loaded.
+- **Submissions:** Total number of completed entries.
+- **Conversion %:** The holy grail metric (Submissions ÷ Visits).
+- **Duration:** The average time it takes a user to complete the form.
+
+Below the KPIs, the engine renders demographic cards detailing the traffic's **Device Types**, **Browsers**, **Referrers**, and **Geographic Origins** (Country/City).
+
+<Tip>
+  **Trend Indicators:** Every KPI displays a small delta arrow (e.g., `<span style="color: green">↑ 12%</span>`). This automatically compares the current date range against the immediately preceding period of equal length, allowing you to spot traffic trends instantly.
+</Tip>
+
+---
+
+## 3. The Drop-offs Panel
+
+The **Drop-offs** tab is a diagnostic tool used to fix leaky funnels. It visualizes the exact moment users abandon your form.
+
+<Steps>
+  <Step title="The Global Funnel">
+    The top summary shows total Visitors vs. total Form Starts vs. total Completes.
+  </Step>
+  <Step title="The Step-by-Step Breakdown">
+    Below the summary, every single question is visualized as a bar, showing how many people viewed it, answered it, and dropped off on it.
+  </Step>
+  <Step title="Actionable Optimization">
+    Look for the question with the highest red "Drop Rate" percentage. This is your friction point. To increase conversions, consider rewriting the question, making it optional, or moving it to the end of the form.
+  </Step>
+</Steps>
+
+<Panel>
+  **Next Steps:** [Segmenting with Filters](/features/insights/filters-live) · [Sharing the Dashboard](/features/insights/public-share)
+</Panel>

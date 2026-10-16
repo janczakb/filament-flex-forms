@@ -1,0 +1,55 @@
+---
+title: "Export submissions"
+description: "Download submission rows as CSV or Excel (.xlsx) — filter-aware, streaming, ready for spreadsheets and CRM import."
+icon: "download"
+keywords: ["export", "csv", "xlsx", "excel", "download", "spreadsheet"]
+boost: 2
+---
+
+While the Inbox provides a powerful visual interface, sometimes you need to manipulate data in a dedicated spreadsheet or push it into a legacy internal system. The export engine streams a perfectly formatted payload of your submission data in seconds — as **CSV** or **Excel (.xlsx)**.
+
+## Generating an Export
+
+Flex Forms operates on a "What You See Is What You Export" principle. The export engine respects your active filters.
+
+<Steps>
+  <Step title="Apply the Correct Filter">
+    Before exporting, ensure you are on the correct tab (e.g., **Completed**). If you export while on the **All** tab, your spreadsheet will contain messy, abandoned Partial submissions.
+  </Step>
+  <Step title="Choose CSV or Excel">
+    In the Submissions toolbar, click **Download CSV** or **Download Excel**. Both respect the active filter and stream the file directly (nothing is buffered into the Studio page).
+  </Step>
+  <Step title="Retrieve the File">
+    The file downloads immediately, named with the form slug and the current filter for easy archiving.
+  </Step>
+</Steps>
+
+---
+
+## Understanding the file structure
+
+The exported file is structured to be immediately consumable by BI tools (like Tableau) or CRMs (like Salesforce).
+
+<CardGroup cols={2}>
+  <Card title="System Metadata" icon="server">
+    The first few columns are system-generated. This includes the precise **Submitted At** timestamp and the entry's **Status** (Completed/Partial).
+  </Card>
+  <Card title="Block Data" icon="columns">
+    Every block on your form gets a dedicated column, organized in the exact order they appear in the Studio Canvas.
+  </Card>
+</CardGroup>
+
+### Handling Complex Data
+
+- **Multi-Select & Checkboxes:** If a respondent selects multiple options (e.g., *"Red"*, *"Blue"*), they are exported into a single cell, separated by commas: `Red, Blue`.
+- **File Uploads & Signatures:** Flex Forms does not embed raw binary files. Instead, it exports the absolute URL to the securely stored file.
+- **Encrypted answers:** When [Encrypt submission answers](/features/settings/general) is on, exports still contain **decrypted** plaintext for authorized Studio users — encryption protects the database at rest, not the download.
+- **Deleted Fields:** If you removed a field from the Studio Canvas, it still exports! The column header will simply be appended with `(Unpublished)` to preserve your historical data integrity.
+
+<Tip>
+  **Encoding Issues in Excel (CSV only):** If you open a CSV in Microsoft Excel and notice garbled characters, open Excel first, go to Data → From Text/CSV, and set encoding to **UTF-8**. Prefer **Download Excel** when you want a native `.xlsx` without that dance.
+</Tip>
+
+<Panel>
+  **Related Actions:** [Exporting the Contacts Directory](/features/contacts/search-export) · [Transactions export](/features/transactions/overview)
+</Panel>

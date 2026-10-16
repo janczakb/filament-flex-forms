@@ -1,0 +1,139 @@
+---
+title: "Make optional"
+description: "Then action: Remove the required flag from chosen fields."
+icon: "circle-minus"
+keywords: ["logic", "action", "make-optional", "unrequire", "then"]
+---
+
+**Make optional** removes the **required** flag from selected fields while **When** matches — the opposite of [Require answer](/features/studio/logic/actions/require-answer).
+
+Use it to relax defaults when a section does not apply: optional invoice details when billing same as shipping, or skip phone when callback not requested.
+
+---
+
+## When to choose this
+
+| Goal | Use **Make optional** | Use something else instead |
+|------|----------------------|----------------------------|
+| Conditionally relax required fields | ✓ | — |
+| Make field mandatory | ✗ | **[Require answer](/features/studio/logic/actions/require-answer)** |
+| Remove field from form | ✗ | **[Hide blocks](/features/studio/logic/actions/hide-blocks)** |
+| Default optional already | Skip action | Set block default instead |
+
+Studio stores this action as **unrequire_answer** internally — the UI label is **Make optional**.
+
+---
+
+## Exact behavior
+
+- Sets `required: false` on targets while **When** is true.
+- **Last matching rule wins** vs **Require answer** on the same target.
+- Hidden fields are never required anyway — **Make optional** mainly affects visible fields.
+- When **When** becomes false, required state may revert toward block default and other rules.
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| Block default Required on | **Make optional** clears asterisk while rule matches |
+| Later **Require** rule matches | Required restored if that rule wins last |
+| Field hidden | Required already off — action has little visible effect |
+| Submit validation | Optional fields skipped even on current page |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** — identify fields that should stop being mandatory under some **When**.
+  </Step>
+  <Step title="Build When">
+    e.g. “Same as shipping” **equals** `Yes`, Phone **is empty**, Plan **equals** `Free`.
+  </Step>
+  <Step title="Add Then → Make optional">
+    Select fields to relax — VAT, Phone, Company legal name, etc.
+  </Step>
+  <Step title="Check rule order">
+    If a global **Require** exists, ensure **Make optional** evaluates later when both could match.
+  </Step>
+  <Step title="Test submit on Fill">
+    Confirm optional fields no longer block Next/Submit when rule active.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Same as shipping
+
+> **When** “Billing same as shipping” **equals** `Yes` → **Make optional** `Billing address, Billing city`
+
+Fields stay visible but skippable.
+
+### No callback
+
+> **When** “Call me back” **equals** `No` → **Make optional** `Phone, Best time to call`
+
+Pair with **Hide blocks** if you prefer removing fields entirely.
+
+### Free tier
+
+> **When** Plan **equals** `Free` → **Make optional** `Tax ID, Purchase order`
+
+### Optional attachment path
+
+> **When** “I have documentation” **equals** `No` → **Make optional** `Upload supporting file`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Default required visible">
+    Asterisk present before rule.
+  </Step>
+  <Step title="Trigger When">
+    Asterisk removed on targets.
+  </Step>
+  <Step title="Submit without optional fields">
+    Succeeds if no other blockers.
+  </Step>
+  <Step title="Revert When">
+    Required may return per block default / other rules.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- **Make optional** when **Hide** is clearer — hidden fields already non-blocking.
+- Rule order: global **Require** after **Make optional** re-mandates fields.
+- Expecting optional to clear validation errors from other rules on same field.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Still required after Make optional">
+    Later **Require** rule won — reorder or narrow **When**.
+  </Accordion>
+  <Accordion title="Optional but field hidden">
+    Redundant with Hide — consider Hide for cleaner UX.
+  </Accordion>
+  <Accordion title="Submit still fails">
+    Different required field still empty on current page.
+  </Accordion>
+  <Accordion title="Block default optional">
+    Action unnecessary unless another rule adds Require — simplify logic.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Require answer](/features/studio/logic/actions/require-answer) · [Hide blocks](/features/studio/logic/actions/hide-blocks) · [How logic works](/features/studio/logic/overview)
+</Panel>

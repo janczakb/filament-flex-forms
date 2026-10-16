@@ -1,0 +1,168 @@
+---
+title: "GetResponse"
+description: "Automatically sync respondents to your GetResponse campaigns with custom field mapping and autoresponder sequences."
+icon: "get-response"
+keywords: ["getresponse", "newsletter", "subscribers", "marketing", "campaigns", "autoresponder"]
+boost: 3
+---
+
+The **GetResponse** integration allows you to instantly route form respondents directly into your GetResponse ecosystem. It dynamically maps Custom Fields and gives you the ability to inject respondents directly into specific Autoresponder cycles.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Marketing Automation" icon="robot">
+    Inject leads into an automated 7-day email course the moment they submit a form.
+  </Card>
+  <Card title="List Segmentation" icon="filter">
+    Map complex demographic data (like company size or industry) directly into GetResponse custom fields.
+  </Card>
+  <Card title="Webinar Registration" icon="video">
+    Seamlessly push registrants into a specific campaign built exclusively for event attendees.
+  </Card>
+</CardGroup>
+
+---
+
+## Step 1: Global Connection
+
+Before you can push data to GetResponse, you must authorize Flex Forms to communicate with your account.
+
+<Steps>
+  <Step title="Locate your API Key">
+    Log into your GetResponse dashboard. Navigate to **Integrations & API → API**. 
+    Generate and copy your **API Key**.
+  </Step>
+  <Step title="Establish the Connection">
+    In your Flex Forms dashboard, open **Integrations** in the left rail (next to Global Settings).
+    Locate the **GetResponse** card and enter your API Key.
+  </Step>
+  <Step title="Test and Verify">
+    Click **Save & Verify**. Flex Forms will ping the `https://api.getresponse.com/v3` endpoint to ensure the credentials are valid and that your campaigns can be fetched.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Form-Level Configuration
+
+Once the global connection is established, you must activate the integration on a per-form basis. Open your specific form in the Studio and navigate to the **Integrations** tab.
+
+### The Masterclass: Data Mapping
+
+When mapping data from Flex Forms to GetResponse, the system fetches your campaigns via live `remote_select` directly from the API.
+
+<ParamField path="campaign_id" type="remote_select" required>
+  **Target Campaign**
+  Loaded live from your GetResponse account. All new submissions will be added to this specific campaign.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name Field**
+  Optional. Lists only **Name** blocks on this form (not every field). Leave empty to use the form’s Name field automatically when present. GetResponse may default the contact name to “Friend” when no name is sent.
+</ParamField>
+
+<ParamField path="day_of_cycle" type="number">
+  **Autoresponder Cycle Day (Optional)**
+  If your campaign has an autoresponder configured, input the exact Day (e.g., `0`) to inject the user into the sequence immediately. Leave blank to bypass autoresponders.
+</ParamField>
+
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Field Mapping**
+  Map your form block answers to GetResponse Custom Fields. 
+  
+  **Syntax:** `GetResponseCustomFieldId=flex_forms_block_name` (One per line).
+  *Warning: You must use the alphanumeric Custom Field ID from GetResponse, not the human-readable name.*
+  
+  **Example Mapping:**
+  ```text
+  xyz123=company_size_dropdown
+  abc987=job_title_input
+  ```
+</ParamField>
+
+<ParamField path="ip_field" type="select">
+  **IP Address (Optional)**
+  Map the respondent's IP address if you require geolocation tracking within GetResponse.
+</ParamField>
+
+---
+
+## Technical Resources & Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Where do I find my GetResponse Custom Field IDs?">
+    You must fetch the specific ID of the custom field. You can find this in your GetResponse account under Custom Fields, or by querying the API. The Flex Forms inspector will often display a helper list of loaded fields if available.
+  </Accordion>
+  <Accordion title="Does this update existing subscribers?">
+    Yes. If a respondent submits the form and their email address already exists in your GetResponse campaign, the engine will perform an `update` operation, refreshing their name and custom fields.
+  </Accordion>
+  <Accordion title="Official Documentation Reference">
+    For advanced architectural questions, refer to the official [GetResponse API v3 Documentation](https://apireference.getresponse.com/).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+### Global Settings
+<ParamField path="account_type" type="select" required>
+  **Account Type**
+  Whether you use standard GetResponse or GetResponse MAX.
+</ParamField>
+
+<ParamField path="api_key" type="password" required>
+  **API Key**
+  Your GetResponse API Key.
+</ParamField>
+
+<ParamField path="domain" type="text">
+  **Domain (MAX only)**
+  Required if you are on GetResponse MAX.
+</ParamField>
+
+<ParamField path="max_tld" type="select">
+  **MAX TLD**
+  The TLD for your GetResponse MAX account (e.g., `com`, `pl`).
+</ParamField>
+
+### Form-Level Settings
+
+#### Subscriber Data
+<ParamField path="campaign_id" type="remote_select" required>
+  **Target List (Campaign)**
+  The GetResponse list to add the contact to.
+</ParamField>
+
+<ParamField path="email_field" type="select" required>
+  **Email Field**
+  The primary email field for the subscriber.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name Field**
+  Optional. Only Name blocks from this form.
+</ParamField>
+
+#### Field Mapping
+<ParamField path="custom_field_map" type="textarea">
+  **Custom Fields Mapping**
+  Map your form blocks to GetResponse custom fields.
+</ParamField>
+
+<ParamField path="custom_field_catalog" type="remote_select" >
+  **Available custom fields (reference)**
+  A read-only helper to fetch live custom fields from GetResponse.
+</ParamField>
+
+#### Advanced Options
+<ParamField path="day_of_cycle" type="text">
+  **Autoresponder cycle day**
+  Add subscriber to an autoresponder cycle on a specific day (e.g., `0`).
+</ParamField>
+
+<ParamField path="include_ip" type="select" default="0">
+  **Include IP address**
+  If enabled, the respondent's IP address will be sent to GetResponse.
+</ParamField>

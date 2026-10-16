@@ -1,0 +1,212 @@
+---
+title: "Localization & RTL"
+description: "Per-form fill language, Studio language, publish and edit PHP + JS translations, add locales, and enable RTL."
+icon: "languages"
+keywords: ["language", "rtl", "translation", "i18n", "publish", "php", "js", "arabic", "hebrew", "localization"]
+boost: 2
+---
+
+Flex Forms localizes **built-in UI** (buttons, errors, Studio chrome). You still write your own field labels and placeholders in the Studio.
+
+There are **two independent language surfaces**:
+
+| Surface | Where you set it | What it translates |
+|---------|------------------|--------------------|
+| **Fill (respondents)** | Studio → **Form settings (gear) → General → Language** | Public fill UI: Next, Submit, password gate, closed/unavailable messages, validation chrome |
+| **Studio (admins)** | **Global Settings → Language** (`auto` or a catalog locale) | Studio React UI + related admin PHP strings |
+
+Selecting Arabic / Hebrew (and similar) also drives **text direction** (RTL). See [General Settings](/features/settings/general).
+
+<Tip>
+  Shipped catalogs: **English**, **Polish**, **German**, **French**, **Spanish**, **Italian**, **Dutch**, **Portuguese**, **Swedish**, **Danish**, **Norwegian**, **Finnish**, **Czech**, **Slovak**, **Ukrainian**, **Russian**, **Turkish**, **Japanese**, **Korean**, **Chinese**, **Arabic**, and **Hebrew** (PHP + Studio/Fill JS). Publish overrides to customize wording (below).
+</Tip>
+
+---
+
+## Set the form (fill) language
+
+<Steps>
+  <Step title="Open General settings">
+    In Studio, open **Form settings (gear) → General**.
+  </Step>
+  <Step title="Choose Language">
+    Pick the respondent locale. Built-in fill strings switch to that catalog when it exists (otherwise English is used as fallback).
+  </Step>
+  <Step title="Text direction">
+    RTL languages set direction automatically. You can still override **Text direction** (`ltr` / `rtl`) when the control is shown.
+  </Step>
+  <Step title="Save">
+    Click **Save** in the settings bar, then publish the form if you use draft/publish.
+  </Step>
+</Steps>
+
+<Warning>
+  Field **labels**, **placeholders**, and page titles are **not** auto-translated. Enter them in the language your respondents should see (or maintain separate forms per language).
+</Warning>
+
+---
+
+## Set the Studio language
+
+In **Global Settings**, set **Language** to:
+
+- **Auto (app locale)** — follows your Laravel `app()->getLocale()`
+- **`en` / `pl` / …** — any locale that exists in the Studio JS catalog (package or published)
+
+Studio JS catalogs are loaded on demand — you do **not** rebuild Vite assets after editing published JSON.
+
+---
+
+## Publish translations into your app
+
+Publish once so you can edit strings under your app’s `lang/` tree (safe across Composer updates as long as you keep your overrides).
+
+```bash
+# PHP + JS catalogs together
+php artisan vendor:publish --tag=filament-flex-forms-translations
+
+# Or JS catalogs only
+php artisan vendor:publish --tag=filament-flex-forms-js-locales
+
+# During install
+php artisan flex-forms:install --translations
+```
+
+Published paths:
+
+| Kind | Path in your app |
+|------|------------------|
+| **PHP** | `lang/vendor/filament-flex-forms/{locale}/*.php` |
+| **JS (Studio)** | `lang/vendor/filament-flex-forms/js/studio/{locale}.json` |
+| **JS (Fill)** | `lang/vendor/filament-flex-forms/js/fill/{locale}.json` |
+
+<Note>
+  Published files **override** package defaults. Partial files are OK — missing keys fall back to the package English (then package locale) layers. See merge order below.
+</Note>
+
+---
+
+## Edit PHP translations
+
+PHP strings power Blade / Livewire fill chrome, mail copy, validation messages, and some Studio notifications. Keys use the `filament-flex-forms::` namespace, for example `filament-flex-forms::fill.submit`.
+
+Typical files after publish:
+
+```text
+lang/vendor/filament-flex-forms/
+  en/
+    fill.php
+    studio.php
+    mail.php
+    validation.php
+    license.php
+  pl/
+    …same set…
+```
+
+Edit the arrays in those files, then clear config/view caches if you cache aggressively:
+
+```bash
+php artisan optimize:clear
+```
+
+No front-end rebuild is required for PHP strings.
+
+---
+
+## Edit JS translations (Studio + Fill)
+
+Studio (React) and Fill JS use flat JSON catalogs — one string per key.
+
+Example (`js/fill/en.json`):
+
+```json
+{
+  "submit": "Submit",
+  "next": "Next →",
+  "back": "Back"
+}
+```
+
+After publish, edit:
+
+- `lang/vendor/filament-flex-forms/js/studio/en.json` — admin Studio UI  
+- `lang/vendor/filament-flex-forms/js/fill/en.json` — respondent JS strings that share the fill surface  
+
+Keep **Studio** and **Fill** catalogs separate — do not copy Studio keys into Fill expecting them to apply on the public form.
+
+JS merge order (later wins):
+
+1. Package English  
+2. Your published English overrides  
+3. Package requested locale  
+4. Your published requested locale overrides  
+
+Optional: relocate the JS override root with `FLEX_FORMS_I18N_JS_PATH` / `filament-flex-forms.i18n.js_path` ([Config & env](/developers/config-env)).
+
+---
+
+## Add a new language (e.g. German)
+
+<Steps>
+  <Step title="Publish catalogs">
+    Run `php artisan vendor:publish --tag=filament-flex-forms-translations`.
+  </Step>
+  <Step title="Copy English → new locale">
+    PHP:
+
+    ```bash
+    cp -R lang/vendor/filament-flex-forms/en lang/vendor/filament-flex-forms/de
+    ```
+
+    JS:
+
+    ```bash
+    cp lang/vendor/filament-flex-forms/js/studio/en.json lang/vendor/filament-flex-forms/js/studio/de.json
+    cp lang/vendor/filament-flex-forms/js/fill/en.json lang/vendor/filament-flex-forms/js/fill/de.json
+    ```
+  </Step>
+  <Step title="Translate the files">
+    Edit the `de` PHP arrays and both JSON files. Locale folder / file names use tags like `de`, `en`, `pl`, or `pt_BR`.
+  </Step>
+  <Step title="Select it in the product">
+    - Fill: Form **Settings → General → Language** (once the fill catalog exists)  
+    - Studio: **Global Settings → Language** (once the studio catalog exists)
+
+    Both pickers list **every** locale file found in the package **or** your published `js/{studio|fill}/` folder — including tags that are not in the shipped list (for example `hu`, `pt_BR`). No package update is required.
+  </Step>
+</Steps>
+
+<Tip>
+  Until a locale file exists for that surface, Flex Forms falls back to **English**. Shipping only `fill/de.json` does not automatically add German to Studio.
+</Tip>
+
+---
+
+## Right-to-Left (RTL)
+
+For Arabic, Hebrew, Persian, Urdu, and similar audiences:
+
+1. Set **Language** on the form (General).  
+2. Confirm **Text direction** is `rtl` (auto for those languages, or set manually).  
+
+Flex Forms then flips layout direction, input alignment, and multi-page stepper / progress chrome via `dir="rtl"`.
+
+<Warning>
+  If you use **Custom CSS**, scope RTL fixes with `[dir="rtl"]` so LTR forms are not broken.
+</Warning>
+
+---
+
+## Checklist
+
+- [ ] Fill language set per form (General)  
+- [ ] Studio language set in Global Settings (or Auto)  
+- [ ] Translations published if you customize strings  
+- [ ] PHP + **both** JS surfaces updated for new locales  
+- [ ] Field labels written in the respondent language  
+- [ ] RTL checked on a real phone for Arabic/Hebrew forms  
+
+<Panel>
+  Related: [General Settings](/features/settings/general) · [Installation](/get-started/installation) · [Config & env](/developers/config-env) · [Customize](/features/studio/customize)
+</Panel>

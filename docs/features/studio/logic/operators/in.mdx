@@ -1,0 +1,149 @@
+---
+title: "Is any of"
+description: "When clause operator: The answer equals one of these values."
+icon: "list"
+keywords: ["logic", "operator", "in", "condition", "when"]
+---
+
+**Is any of** checks whether the answer matches **at least one** value in your list — an allow-list for single or multi-select choices.
+
+Use it for regional routing (`US`, `CA`, `GB`), role tiers, and any “if they picked one of these options” branch.
+
+---
+
+## When to choose this
+
+| Goal | Use **Is any of** | Use something else instead |
+|------|-------------------|----------------------------|
+| Answer is one of several allowed values | ✓ | Multiple **Equals** in **Any** group |
+| Block-list (forbidden set) | ✗ | **[Is none of](/features/studio/logic/operators/not_in)** |
+| Must include all listed options | ✗ | **[Includes every of](/features/studio/logic/operators/is_every_of)** |
+| Exact multi-select set only | ✗ | **[Equals set](/features/studio/logic/operators/eq_set)** |
+| Text substring | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+| Blank | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Choice fields only** (select, radio, checkbox list, tags, country, NPS, dual listbox, etc.).
+- You provide a **non-empty list** of allowed values (multi-chip in Studio).
+- Matching uses flexible [Equals](/features/studio/logic/operators/eq) rules — `"1"` matches `1`.
+- **Multi-select:** matches if **any single selected option** is in your list (not “must pick all listed values”).
+- Empty allow-list → never matches (fail-closed).
+- Blank answers generally do not match.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Choice | ✓ |
+| Text, number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+Generally **does not match**. Null/empty/`[]` will not equal normal choice values. Use [Is empty](/features/studio/logic/operators/empty) for the skipped path.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick a choice field">
+    Country, Role, Plan, Tags, etc.
+  </Step>
+  <Step title="Choose Is any of">
+    Choice family operator.
+  </Step>
+  <Step title="Add option chips">
+    One or more values — `US`, `CA`, `GB`, …
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), [Jump to page](/features/studio/logic/actions/jump-to-page).
+  </Step>
+  <Step title="Test each chip and combinations on Fill">
+    Multi-select: one match in list should fire rule.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### English legal copy
+
+> **When** Country **is any of** `US, CA, GB` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `English terms`
+
+Any one of the three countries triggers the block.
+
+### Staff roles
+
+> **When** Role **is any of** `Editor, Admin, Owner` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Advanced settings`
+
+### Priority support tier
+
+> **When** Plan **is any of** `Pro, Enterprise` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Dedicated support`
+
+### Tags include beta
+
+> **When** Tags **is any of** `Beta, Early access` → **Then** [Require answer](/features/studio/logic/actions/require-answer) `Feedback email`
+
+On multi-select, selecting either tag matches.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Pick one listed option">
+    Rule on.
+  </Step>
+  <Step title="Pick unlisted option">
+    Rule off.
+  </Step>
+  <Step title="Multi-select: one listed + others">
+    Rule on.
+  </Step>
+  <Step title="Leave empty">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Is any of** when **all** listed options must be selected — use **Includes every of**.
+- Using for exact set with no extras — use **Equals set**.
+- Block-list instead of allow-list — use **Is none of**.
+- Empty chip list in Studio — clause never matches.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires">
+    Option values in rule may not match stored values. Confirm chips match option configuration.
+  </Accordion>
+  <Accordion title="Multi-select too permissive">
+    **Is any of** is OR semantics — switch to **Includes every of** or **Equals set** if too broad.
+  </Accordion>
+  <Accordion title="Operator missing">
+    Field is not choice family — use **Equals** or text operators.
+  </Accordion>
+  <Accordion title="Need opposite list">
+    Use **Is none of** with same chip list for block-list logic.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Is none of](/features/studio/logic/operators/not_in) · [Includes every of](/features/studio/logic/operators/is_every_of) · [Equals set](/features/studio/logic/operators/eq_set) · [How logic works](/features/studio/logic/overview)
+</Panel>

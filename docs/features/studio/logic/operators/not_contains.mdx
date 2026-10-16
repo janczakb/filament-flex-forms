@@ -1,0 +1,145 @@
+---
+title: "Does not contain"
+description: "When clause operator: The text excludes this snippet, or multi-choice does not include this option."
+icon: "text-search"
+keywords: ["logic", "operator", "not_contains", "condition", "when"]
+---
+
+**Does not contain** checks that the answer **does not include** your snippet or selected option — exclusion without requiring a specific alternate value.
+
+Use it to hide compliance blocks when a risky keyword is absent, or to ensure an add-on is not selected. Requires a **non-blank answer** on the source field.
+
+---
+
+## When to choose this
+
+| Goal | Use **Does not contain** | Use something else instead |
+|------|--------------------------|----------------------------|
+| Text lacks substring | ✓ | **Not equals** for full-string inequality |
+| Multi-select missing one option | ✓ | **Is none of** for block-list of several values |
+| Blank / skipped field | ✗ | **[Is empty](/features/studio/logic/operators/empty)** — blank never matches **Does not contain** |
+| Includes substring | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+| Exact set inequality | ✗ | **[Not equals set](/features/studio/logic/operators/neq_set)** |
+
+---
+
+## Exact behavior
+
+- Requires **non-blank source answer** — null, `""`, and `[]` **never match** (fail-closed).
+- **Text:** case-insensitive; returns true when substring is absent from a non-empty string.
+- **Multi-choice:** true when **no** selected option equals your value.
+- Comparison value must be non-empty string/chip.
+- Single-choice: behaves like **Not equals** for that option.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| Choice | ✓ |
+| Number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.** Do not use **Does not contain X** to mean “empty or without X”. Add a separate **Is empty** branch.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Select text or choice field">
+    Notes, tags, checkbox list, etc.
+  </Step>
+  <Step title="Choose Does not contain">
+    Listed for text and choice families.
+  </Step>
+  <Step title="Enter excluded snippet or option">
+    Must be non-empty.
+  </Step>
+  <Step title="Add Then actions">
+    [Hide blocks](/features/studio/logic/actions/hide-blocks), [Make optional](/features/studio/logic/actions/make-optional).
+  </Step>
+  <Step title="Test answered vs blank on Fill">
+    Confirm blank does not trigger exclusion branch.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Hide legal block without keyword
+
+> **When** Project description **does not contain** `medical` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `HIPAA addendum`
+
+Only fires once they typed something without “medical”.
+
+### Exclude add-on path
+
+> **When** Add-ons **does not contain** `White-glove setup` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Implementation calendar`
+
+### Tag guard
+
+> **When** Tags **does not contain** `Beta` → **Then** [Hide blocks](/features/studio/logic/actions/hide-blocks) `Beta feedback section`
+
+### Notes without PII marker
+
+> **When** Internal notes **does not contain** `[CONFIDENTIAL]` → **Then** allow standard routing
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Include the snippet/option">
+    Rule off.
+  </Step>
+  <Step title="Answer with other content (no snippet)">
+    Rule on.
+  </Step>
+  <Step title="Leave field blank">
+    Rule off — add **Is empty** rule if needed.
+  </Step>
+  <Step title="Toggle option on multi-select">
+    Rule should flip live.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting blank to match “does not contain urgent” — it will not.
+- Using for numeric/date comparisons — wrong operator family.
+- Confusing with **Is none of** — use block-list operator for multiple forbidden choices.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires on empty notes">
+    By design. Use **Is empty** OR **Does not contain** via **Any** match if both paths matter.
+  </Accordion>
+  <Accordion title="Substring still seems present">
+    Check hidden characters, HTML from rich text, or different spelling.
+  </Accordion>
+  <Accordion title="Multi-select partial match">
+    One forbidden option among many fails **Does not contain** for that option — correct behavior.
+  </Accordion>
+  <Accordion title="Case sensitivity concerns">
+    Text match is case-insensitive — one rule covers all casings.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Contains](/features/studio/logic/operators/contains) · [Is none of](/features/studio/logic/operators/not_in) · [Is empty](/features/studio/logic/operators/empty) · [How logic works](/features/studio/logic/overview)
+</Panel>

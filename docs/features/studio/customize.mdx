@@ -1,0 +1,91 @@
+---
+title: "Design"
+description: "Apply your corporate identity. Control typography, layout, color palettes, and inject custom CSS — on every plan."
+icon: "paintbrush"
+keywords: ["customize", "design", "theme", "branding", "custom css", "logo", "cover image"]
+boost: 3
+---
+
+The **Design** panel lets you make every form feel like a native extension of your brand — available on **all plans** (Standard, Pro, and Enterprise). Open it from the canvas brand chrome (**Design**, next to logo and cover) — it is not in the Studio top bar.
+
+## Core Design Engine
+
+<Steps>
+  <Step title="Global Theme">
+    Toggle between **Light** and **Dark** modes to set the foundational UI palette.
+  </Step>
+  <Step title="Typography Injection">
+    Search the entire Google Fonts library directly within the Studio. The selected font is dynamically loaded for both your preview and live respondents.
+  </Step>
+  <Step title="Background & Typography Colors">
+    Define the exact hex codes for the page background and primary reading text to ensure optimal contrast.
+  </Step>
+  <Step title="Call-to-Action Styling">
+    Customize the **Submit/Next** button background and text colors to drive conversions.
+  </Step>
+  <Step title="The Accent Color">
+    The Accent is the interactive heartbeat of your form. It dictates the color of hyperlinks, active input borders, progress bars, and selected choices.
+  </Step>
+</Steps>
+
+<Tip>
+  **Brand Consistency:** If you are building internally, consider using your primary corporate brand color (e.g., `#0070D7`) as the Accent color to make the form feel instantly familiar.
+</Tip>
+
+---
+
+## Advanced layout controls
+
+The Advanced section unlocks structural control over the fill layout — included on every plan.
+
+<Tabs>
+  <Tab title="Layout Architecture">
+    Override defaults by defining exact pixel values for **Content Width** and **Text Size**. Upload high-resolution **Logo** and **Cover Images**, with granular control over logo rounding, scaling, and cover image positioning.
+  </Tab>
+  <Tab title="Input Engineering">
+    Force inputs to be full-width or a fixed pixel size. Manipulate input heights, interior backgrounds, placeholder hex codes, border colors, and corner rounding for a bespoke aesthetic.
+  </Tab>
+  <Tab title="Button Schematics">
+    Control button alignment (Left/Center/Right), override standard heights, adjust horizontal padding, and define custom border radii separate from inputs.
+  </Tab>
+</Tabs>
+
+---
+
+## Custom CSS Injection
+
+For pixel-perfect requirements that transcend visual controls, the Design panel includes a raw `<style>` code editor — included on every plan.
+
+```css
+/* Example: Tighter letter spacing for a more branded fill look */
+.ff-fill {
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Example: Add a subtle shadow to inputs */
+.ff-fill input[type="text"] {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+```
+
+<Warning>
+  **Security & Scoping:** Custom CSS is strictly sanitized before database storage to strip malicious scripts or `@import` rules. To prevent your CSS from bleeding into and breaking the Filament Admin UI during preview, always scope your custom selectors with `.ff-fill`.
+</Warning>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Do Design settings apply globally to all my forms?">
+    No. Design settings are strictly scoped **per form**. This allows you to build a dark-themed, highly-customized marketing quiz while maintaining a clean, standard layout for internal HR requests.
+  </Accordion>
+  <Accordion title="How do I remove the 'Powered by Flex Forms' watermark?">
+    Removing the branding watermark is a separate, server-validated capability. Navigate to **Form Settings → General** and disable **Show Branding**. *(Requires a Pro or Enterprise license).*
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Deep Dives:** [Design & branding](/guides/design-pro) · [General Settings](/features/settings/general)
+</Panel>

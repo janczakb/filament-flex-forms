@@ -1,0 +1,53 @@
+---
+title: "Meta (Facebook) Pixel & Conversions API"
+description: "Track form views and submissions with Meta Pixel plus server-side Conversions API for reliable ad optimization."
+icon: "meta"
+keywords: ["meta", "facebook", "pixel", "conversions api", "ads", "lead", "tracking"]
+---
+
+<Banner type="info" dismissible={false}>
+  Meta Events Manager → your Pixel → **Settings** for the Pixel ID and Conversions API access token. Official reference: [Conversions API](https://developers.facebook.com/docs/marketing-api/conversions-api).
+</Banner>
+
+The **Meta** integration sends form activity to Facebook / Instagram ads in two complementary ways:
+
+1. **Meta Pixel** on public fill pages (PageView + conversion on thank-you)
+2. **Conversions API** from the server when someone submits (works when browsers block the Pixel)
+
+Both events share the same `event_id`, so Meta can deduplicate client and server hits.
+
+## Setup
+
+<Steps>
+  <Step title="Open Integrations">
+    In Flex Forms, open **Integrations** in the left rail and choose **Meta (Facebook)**.
+  </Step>
+  <Step title="Paste Pixel ID">
+    In Events Manager, open your Pixel → **Settings** → copy **Pixel ID** into Flex Forms.
+  </Step>
+  <Step title="Generate access token">
+    In the same Settings screen, generate a **Conversions API** access token and paste it into Flex Forms. Keep it secret — Flex Forms stores it encrypted.
+  </Step>
+  <Step title="Optional test code">
+    While verifying, copy a **Test event code** from Events Manager → Test events. Remove it before going live.
+  </Step>
+  <Step title="Save and enable">
+    Turn the integration on, save, and confirm the connection test succeeds.
+  </Step>
+  <Step title="Enable per form">
+    In Studio → form settings → **Integrations**, enable Meta for that form. Choose the event (usually **Lead**) and whether to send server / client events.
+  </Step>
+</Steps>
+
+## What gets sent
+
+- **Server (Conversions API):** hashed email and name from the form’s primary identity fields, optional phone field, IP, user agent, `_fbp` / `_fbc` cookies when present, and form title.
+- **Client (Pixel):** `PageView` on load; standard event (e.g. `Lead`) on the thank-you screen with matching `eventID`.
+
+Turn off **Install Meta Pixel on public forms** if your host site or Tag Manager already loads the Pixel — Flex Forms will still send Conversions API events when configured.
+
+## Tips
+
+- Prefer **Lead** for contact / demo / quote forms.
+- Use a **test event code** only while debugging.
+- Pair with [Google Analytics](/integrations/google-analytics) when you need both ad platforms and product analytics.

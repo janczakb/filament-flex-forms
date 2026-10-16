@@ -1,0 +1,65 @@
+---
+title: "Block Overview"
+description: "Catalog of Studio blocks — text, numbers, choices, media, and specialized fields."
+icon: "cubes"
+keywords: ["blocks", "fields", "overview", "inputs", "forms", "components"]
+boost: 2
+---
+
+Blocks are the fields and content pieces you drag onto the Studio canvas. Flex Forms builds on Filament Flex Fields so every block is responsive, configurable, and export-ready.
+
+<img
+  src="/images/tiles/components.webp"
+  alt="Flex Forms blocks and components — text, choice, uploads, maps, payments, and more"
+/>
+
+CAPTCHA is **not** a canvas block — configure one provider under [Form Settings → Access](/features/settings/access).
+
+## Catalog
+
+<CardGroup cols={2}>
+  <Card title="Identity & text" icon="text-size" href="/features/blocks/name">
+    [Name](/features/blocks/name), [Email](/features/blocks/email), [Phone](/features/blocks/phone), [Text input](/features/blocks/short-text), [Textarea](/features/blocks/long-text), [URL](/features/blocks/url), [Rich text](/features/blocks/rich-text)
+  </Card>
+  <Card title="Content (display)" icon="align-left" href="/features/blocks/plain-text">
+    [Plain text](/features/blocks/plain-text) for instructions — not an answer field.
+  </Card>
+  <Card title="Numbers & money" icon="hashtag" href="/features/blocks/number">
+    [Number](/features/blocks/number), [Number stepper](/features/blocks/number-stepper), [Currency](/features/blocks/currency), [Slider](/features/blocks/slider), [Flex slider](/features/blocks/flex-slider), [Price range](/features/blocks/price-range), [Traffic split](/features/blocks/traffic-split)
+  </Card>
+  <Card title="Choice & selection" icon="list-check" href="/features/blocks/dropdown">
+    [Select / Dropdown](/features/blocks/dropdown), [Multiple choice](/features/blocks/multiple-choice), [Checkbox / checklist](/features/blocks/checkbox), [Toggle](/features/blocks/toggle), [Segment control](/features/blocks/segment-control), [Choice cards](/features/blocks/choice-cards), [Tags](/features/blocks/tags), [Country](/features/blocks/country), [Timezone](/features/blocks/timezone)
+  </Card>
+  <Card title="Dates & location" icon="calendar" href="/features/blocks/date-time">
+    [Date / Time / Duration](/features/blocks/date-time), [Map](/features/blocks/map), [Address autocomplete](/features/blocks/address-autocomplete) (Mapbox)
+  </Card>
+  <Card title="Media & files" icon="paper-clip" href="/features/blocks/file-upload">
+    [File upload](/features/blocks/file-upload), [Image](/features/blocks/image), [Video](/features/blocks/video), [Audio](/features/blocks/audio), [Voice note](/features/blocks/voice-note), [Signature](/features/blocks/signature)
+  </Card>
+  <Card title="Advanced" icon="blocks" href="/features/blocks/rating-nps">
+    [Matrix](/features/blocks/matrix), [Rating & NPS](/features/blocks/rating-nps), [Social links](/features/blocks/social-links), [Color](/features/blocks/color), [Credit card](/features/blocks/credit-card) (input only — not a gateway), [Stripe Payment](/features/blocks/stripe-payment). For keys, webhooks, and refunds see [Stripe](/integrations/stripe) and [Transactions](/features/transactions/overview).
+  </Card>
+</CardGroup>
+
+---
+
+## Field settings
+
+Click a block on the canvas to open **field settings** in the **left** dock (replacing the component catalog). Set the internal **Name**, public **Label**, validation, and type-specific options. See [Field settings](/features/studio/field-settings).
+
+---
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Pick the most specific block">
+    Use Phone for phones, Currency for money, Email for emails — not generic Text input.
+  </Accordion>
+  <Accordion title="Name vs label">
+    Integrations and query prefills use the internal **Name**, not the visible label. See [Name & label](/get-started/name-label-fields).
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next:** [Name](/features/blocks/name) · [Currency](/features/blocks/currency) · [Voice note](/features/blocks/voice-note) · [Form settings](/features/settings/overview)
+</Panel>

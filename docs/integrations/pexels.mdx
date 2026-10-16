@@ -1,0 +1,33 @@
+---
+title: "Pexels stock photos"
+description: "Connect Pexels once, then search free stock photos and apply them as form covers inside Studio."
+icon: "image"
+keywords: ["pexels", "stock", "photos", "cover", "media", "design"]
+---
+
+<Banner type="info" dismissible={false}>
+  Create a free API key at [pexels.com/api](https://www.pexels.com/api/). Flex Forms keeps the key on the server — Studio never sees it in the browser.
+</Banner>
+
+The **Pexels** integration unlocks a stock-photo tab in the Studio cover picker. Search landscape photos, click one, and Flex Forms downloads it into your form’s design storage (with photographer credit metadata).
+
+## Setup
+
+<Steps>
+  <Step title="Get an API key">
+    Sign in at Pexels → API → create a key for your organization.
+  </Step>
+  <Step title="Connect in Flex Forms">
+    Open **Integrations** → **Pexels**, paste the API key, enable the integration, and save. The connection test must succeed before Studio unlocks search.
+  </Step>
+  <Step title="Use in Studio">
+    Open a form → cover picker → **Pexels** tab → search → click a photo. The image is imported as a normal cover asset.
+  </Step>
+</Steps>
+
+## Notes
+
+- Pexels is a **platform** integration (like Mapbox), not a per-submission feed.
+- Photos are copied into your app storage so public forms do not hotlink Pexels forever.
+- Respect [Pexels guidelines](https://www.pexels.com/license/) when using photos commercially.
+- If search fails with an auth error, rotate the API key in Integrations and save again.

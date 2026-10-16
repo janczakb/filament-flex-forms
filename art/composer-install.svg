@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="168" viewBox="0 0 920 168" role="img" aria-label="Composer install commands">
+  <rect width="920" height="168" rx="12" fill="#0d1117"/>
+  <rect x="0" y="0" width="920" height="36" rx="12" fill="#161b22"/>
+  <rect x="0" y="24" width="920" height="12" fill="#161b22"/>
+  <circle cx="22" cy="18" r="5" fill="#ff5f56"/>
+  <circle cx="40" cy="18" r="5" fill="#ffbd2e"/>
+  <circle cx="58" cy="18" r="5" fill="#27c93f"/>
+  <text x="78" y="22" fill="#8b949e" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="12">terminal</text>
+
+  <text x="24" y="68" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14">
+    <tspan fill="#8b949e">$</tspan>
+    <tspan fill="#79c0ff"> composer</tspan>
+    <tspan fill="#ffa657"> config</tspan>
+    <tspan fill="#a5d6ff"> repositories.flex-forms</tspan>
+    <tspan fill="#79c0ff"> composer</tspan>
+    <tspan fill="#a5d6ff"> https://composer.bjanczak.com</tspan>
+  </text>
+
+  <text x="24" y="96" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14">
+    <tspan fill="#8b949e">$</tspan>
+    <tspan fill="#79c0ff"> composer</tspan>
+    <tspan fill="#ffa657"> config</tspan>
+    <tspan fill="#ff7b72"> --auth</tspan>
+    <tspan fill="#a5d6ff"> http-basic.composer.bjanczak.com</tspan>
+    <tspan fill="#79c0ff"> token</tspan>
+    <tspan fill="#a5d6ff"> YOUR_COMPOSER_TOKEN</tspan>
+  </text>
+
+  <text x="24" y="124" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14">
+    <tspan fill="#8b949e">$</tspan>
+    <tspan fill="#79c0ff"> composer</tspan>
+    <tspan fill="#ffa657"> require</tspan>
+    <tspan fill="#a5d6ff"> janczakb/filament-flex-forms</tspan>
+  </text>
+
+  <text x="24" y="152" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="12" fill="#3fb950"># keep auth.json out of git</text>
+</svg>

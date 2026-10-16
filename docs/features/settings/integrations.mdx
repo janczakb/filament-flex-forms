@@ -1,0 +1,68 @@
+---
+title: "Form-Level Integrations Settings"
+description: "Connect a form to Mailchimp, HubSpot, webhooks, and more — map fields and route submissions from the form hub Integrations tab."
+icon: "plug"
+keywords: ["integrations", "feeds", "field mapping", "conditional feed", "zapier", "webhooks", "crm"]
+boost: 3
+---
+
+Your form data shouldn't sit in a silo. Flex Forms routes completed submissions into your marketing and sales tools as soon as a respondent finishes.
+
+<Banner type="info" dismissible={false}>
+  This page covers **per-form** feeds. API keys and OAuth live under **Integrations** in the Flex Forms left rail — not inside [Global Settings](/get-started/global-settings). See the [Integrations catalog](/integrations/overview).
+
+  **Stripe** is different: connect keys under the left-rail Integrations page, then configure every payment option on the **Stripe Payment** block in Studio — Stripe does not appear on this form Integrations tab. See [Stripe](/integrations/stripe).
+</Banner>
+
+## Two tiers
+
+<CardGroup cols={2}>
+  <Card title="1. Catalog + Connections" icon="lock">
+    Admins open **Integrations** in the left rail. Use the **Catalog** tab to enable providers and paste global API keys. Use the **Connections** tab for reusable OAuth / named accounts (for example multiple Salesforce orgs). Credentials stay encrypted for the whole panel.
+  </Card>
+  <Card title="2. Form-level feed" icon="sliders">
+    On each form, open the hub **Integrations** tab to enable feeds, pick a Connection when required, choose lists/pipelines, and map blocks to CRM fields.
+  </Card>
+</CardGroup>
+
+---
+
+## Configure a form feed
+
+<Steps>
+  <Step title="Open the form hub">
+    From the Flex Forms list, open the form. Use the top hub tabs (Insights, Submissions, Share, **Integrations**).
+  </Step>
+
+  <Step title="Open Integrations">
+    Select the **Integrations** hub tab. You will see every provider that is already connected globally.
+  </Step>
+
+  <Step title="Enable the feed">
+    Turn on the provider you need (for example HubSpot). If it is missing entirely, an administrator still needs to add credentials under the left-rail **Integrations** page.
+  </Step>
+
+  <Step title="Choose destination and map fields">
+    Pick the list, audience, or pipeline. Map each form block to the provider’s property keys (API names, not display labels).
+  </Step>
+
+  <Step title="Save and test">
+    Save, then submit a real test on the fill URL to confirm the payload arrives correctly.
+  </Step>
+</Steps>
+
+---
+
+## Enterprise options
+
+<AccordionGroup>
+  <Accordion title="Primary email required">
+    Many CRMs reject contacts without an email. If a feed needs identity, add an [Email](/features/blocks/email) block and mark it primary before enabling the feed.
+  </Accordion>
+  <Accordion title="Conditional routing">
+    Use [Conditional integrations](/integrations/conditional-feeds) so only matching submissions leave Flex Forms (for example Department = Sales → HubSpot).
+  </Accordion>
+  <Accordion title="Custom webhooks">
+    For tools without a native driver, use [Webhooks](/integrations/webhooks) to `POST` the full submission JSON to your endpoint.
+  </Accordion>
+</AccordionGroup>

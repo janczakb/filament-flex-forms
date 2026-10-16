@@ -1,0 +1,131 @@
+---
+title: "OpenAPI beacon"
+description: "The analytics beacon endpoint that powers Insights — request contract, allowed event types, and rate limits."
+icon: "radio"
+keywords: ["beacon", "analytics", "openapi", "insights events"]
+---
+
+Every fill page (direct link, embed, or popup) sends batched analytics events to a single endpoint. This is what powers [Reading Insights](/guides/reading-insights) — you generally never call it directly, but it's useful to understand if you're debugging traffic numbers or building a custom fill client.
+
+<Card title="Try it in the API playground" icon="play" href="/api-reference">
+  This endpoint is also published as OpenAPI — open the interactive playground to send a real request against your app.
+</Card>
+
+## Request
+
+<ResponseField name="POST /flex-forms/analytics/beacon" type="endpoint">
+  Route throttle 60 requests/minute per client, plus a per-form × IP event budget (default 120 events/minute). `web` middleware, no auth required (public fill pages are anonymous). Only **active** forms accept events.
+</ResponseField>
+
+<ParamField body="session_id" type="string" required>
+  A UUID identifying the visitor's fill session.
+</ParamField>
+<ParamField body="form_id" type="integer">
+  Numeric form ID. Either this or `form_slug` is required.
+</ParamField>
+<ParamField body="form_slug" type="string">
+  The form's public slug, if `form_id` isn't known client-side.
+</ParamField>
+<ParamField body="events" type="array" required>
+  1–20 event objects per batch.
+</ParamField>
+
+### Event object
+
+<ResponseField name="event" type="string" required>
+  One of: `visit_start`, `page_view`, `page_leave`, `field_interact`, `started_answering`, `submit`, `heartbeat`.
+</ResponseField>
+<ResponseField name="page_id / block_id" type="string">
+  Which page/block the event refers to.
+</ResponseField>
+<ResponseField name="occurred_at" type="string">
+  ISO timestamp within **now − 5 minutes … now + 2 minutes**. Outside that window the batch is rejected (422). Omitted timestamps use server time.
+</ResponseField>
+<ResponseField name="duration_ms" type="integer">
+  0 to 86,400,000 (24h ceiling).
+</ResponseField>
+<ResponseField name="device_type / browser / os" type="string">
+  Parsed client hints, sent as plain strings.
+</ResponseField>
+<ResponseField name="country_code / city" type="string">
+  ISO-2 country code and city, when geo IP resolution is enabled.
+</ResponseField>
+<ResponseField name="utm_source / utm_medium / utm_campaign / utm_term / utm_content" type="string">
+  Standard UTM parameters captured from the visit.
+</ResponseField>
+<ResponseField name="respondent_key" type="string">
+  A hashed key used to de-duplicate a respondent across events without exposing PII.
+</ResponseField>
+
+<CodeGroup>
+```json title="Request body"
+{
+  "form_slug": "contact-us",
+  "session_id": "6f1e2c2a-9b3d-4e6a-8b2b-9d7c0a1e2f33",
+  "events": [
+    { "event": "visit_start", "occurred_at": "2026-08-01T14:00:00Z" },
+    { "event": "page_view", "page_id": "page_1" },
+    { "event": "field_interact", "block_id": "email_field" },
+    { "event": "submit", "duration_ms": 42311 }
+  ]
+}
+```
+
+```bash title="curl"
+curl -X POST "https://your-app.test/flex-forms/analytics/beacon" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "form_slug": "contact-us",
+    "session_id": "6f1e2c2a-9b3d-4e6a-8b2b-9d7c0a1e2f33",
+    "events": [{ "event": "page_view", "page_id": "page_1" }]
+  }'
+```
+</CodeGroup>
+
+## Response
+
+<ResponseField name="ok" type="boolean">
+  `true` when the batch was accepted and queued for processing.
+</ResponseField>
+<ResponseField name="queued" type="integer">
+  Number of events accepted from the batch.
+</ResponseField>
+
+<Expandable title="200 OK">
+```json
+{ "ok": true, "queued": 4 }
+```
+</Expandable>
+
+<Expandable title="422 — invalid payload">
+```json
+{
+  "message": "Invalid analytics payload.",
+  "errors": { "form_id": ["A form_id or form_slug is required."] }
+}
+```
+</Expandable>
+
+<Expandable title="404 — form not found or inactive">
+```json
+{ "message": "Form not found." }
+```
+</Expandable>
+
+<Expandable title="429 — per-form event budget exceeded">
+```json
+{ "message": "Too many analytics events." }
+```
+</Expandable>
+
+<Note>
+Events are queued for asynchronous processing (`RecordAnalyticsEventsJob`) — a `200` response means the batch was accepted, not that Insights has been recomputed yet. Bot/crawler traffic is flagged and excluded from Insights KPIs during processing, not at ingestion time.
+</Note>
+
+<Warning>
+This endpoint intentionally accepts unauthenticated requests from any public fill page. Don't rely on it as a general-purpose event pipe for your own app — it only accepts the fixed event vocabulary above, scoped to an active form.
+</Warning>
+
+<Panel>
+**Next:** [Reading Insights](/guides/reading-insights) · [Public Insights URLs](/developers/public-insights) · [Config & env](/developers/config-env)
+</Panel>

@@ -1,0 +1,115 @@
+---
+title: "Webhooks"
+description: "Outbound HTTPS payload shape, headers, merge tags, and the SSRF protections on every webhook feed."
+icon: "webhook"
+keywords: ["webhooks", "payload", "ssrf", "outbound", "integration"]
+---
+
+The **Webhooks** integration sends a completed (or, if configured, partial) submission to any HTTPS endpoint you control — method, body format, headers, and field mapping are all configurable per form, with SSRF protection built in.
+
+```mermaid
+flowchart LR
+  Submit[Submission_completed] --> Notifier[FormSubmissionNotifier]
+  Notifier --> Manager[IntegrationManager]
+  Manager --> Driver[WebhooksDriver]
+  Driver --> Guard[WebhookUrlGuard_sanitize]
+  Guard -->|Safe| Send[HTTPS_request_sent]
+  Guard -->|Unsafe| Fail[Dispatch_failed_no_request_sent]
+```
+
+## Configure a feed
+
+<Steps>
+  <Step title="Add the Webhooks integration">
+    On a form, add a **Webhooks** feed from the integrations panel.
+  </Step>
+  <Step title="Set the request URL">
+    HTTPS only. Supports `{{field_name}}` merge tags for dynamic paths (e.g. `https://example.com/hooks/{{plan}}`).
+  </Step>
+  <Step title="Choose method and format">
+    `POST` (default), `GET`, `PUT`, `PATCH`, or `DELETE`. `POST`/`PUT`/`PATCH` send `json` or `form` (`application/x-www-form-urlencoded`) bodies; `GET`/`DELETE` always send data as query params.
+  </Step>
+  <Step title="Add custom headers (optional)">
+    One `HEADER=value` per line. Values support the same `{{field_name}}` merge tags. `Host`, `Content-Length`, and `Transfer-Encoding` are always stripped for transport safety.
+  </Step>
+  <Step title="Pick the body">
+    **All fields** sends every answer keyed by field name, optionally with submission meta (`form_id`, `form_title`, `submission_id`, `submitted_at`). **Select fields** sends only the `KEY=field_name` (or literal) pairs you list.
+  </Step>
+</Steps>
+
+## Payload shape
+
+<CodeGroup>
+```http title="POST — all fields, JSON"
+POST /hooks/inbound HTTP/1.1
+Host: example.com
+Content-Type: application/json
+User-Agent: FilamentFlexForms-Webhooks/1.0
+
+{
+  "full_name": "Jane Doe",
+  "email": "jane@acme.com",
+  "plan": "enterprise",
+  "form_id": "42",
+  "form_title": "Demo request",
+  "submission_id": "1091",
+  "submitted_at": "2026-08-01T14:03:00+00:00"
+}
+```
+
+```http title="POST — select fields, FORM body"
+POST /hooks/inbound HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+email=jane%40acme.com&name=Jane+Doe&source=flex-forms
+```
+
+```http title="GET — data appended to the query string"
+GET /hooks/inbound?email=jane%40acme.com&plan=enterprise HTTP/1.1
+```
+</CodeGroup>
+
+<Table>
+  <thead><tr><th>Field type in payload</th><th>Serialized as</th></tr></thead>
+  <tbody>
+    <tr><td>Text / choice / number</td><td>Its scalar value, stringified</td></tr>
+    <tr><td>Boolean</td><td><code>"1"</code> / <code>"0"</code></td></tr>
+    <tr><td>File upload</td><td>Original filename (or URL/path if no name is available)</td></tr>
+    <tr><td>Multi-select / array</td><td>Comma-joined string of scalar values</td></tr>
+  </tbody>
+</Table>
+
+## SSRF protection
+
+Every resolved URL — after merge-tag interpolation — is validated before a request is sent:
+
+<AccordionGroup>
+  <Accordion title="HTTPS only, standard ports">
+    Only `https://` is accepted, on port `443` or `8443`. Any other scheme or port is rejected.
+  </Accordion>
+  <Accordion title="No embedded credentials">
+    URLs containing a userinfo component (`https://user:pass@host/...`) are rejected outright.
+  </Accordion>
+  <Accordion title="Private, loopback, and metadata hosts are blocked">
+    `localhost`, `*.local`, `*.localhost`, cloud metadata hosts (`metadata.google.internal`, `kubernetes.default`, …), and any hostname or literal IP that resolves to a private/reserved range (RFC1918, loopback, link-local) are rejected.
+  </Accordion>
+  <Accordion title="DNS is resolved, re-checked, and pinned when possible">
+    A hostname's resolved A/AAAA records are checked at sanitize time — a public-looking hostname that resolves to a private IP is still blocked. Immediately before the HTTPS request, Flex Forms re-resolves and, when curl is available, pins those public IPs via `CURLOPT_RESOLVE` so the connect prefers the audited addresses.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+If the resolved URL fails validation, the webhook dispatch fails immediately with **"Webhook URL rejected"** — no request is ever sent to a disallowed host. This applies even when the base URL is set via a `{{merge_tag}}` that resolves to something unsafe at submit time.
+</Warning>
+
+<Note>
+  **Residual TOCTOU:** Pinning reduces DNS-rebinding risk but cannot eliminate a theoretical race between the second resolve and the TCP handshake if an authoritative DNS answer changes in that window. Prefer allowlisted, stable HTTPS endpoints you control.
+</Note>
+
+<Tip>
+Need typed, versioned events instead of a raw generic payload? Most CRMs, spreadsheets, and Slack are available as first-class [integrations](/integrations/overview) — reach for a generic webhook when you're posting to your own backend or an automation tool without a dedicated Flex Forms integration.
+</Tip>
+
+<Panel>
+**Next:** [Integrations overview](/integrations/overview) · [Emails & PDF](/guides/emails-and-pdf) · [Config & env](/developers/config-env)
+</Panel>

@@ -1,0 +1,60 @@
+---
+title: "Redis Scaling Architecture"
+description: "Understand how Flex Forms autonomously leverages Redis to ensure real-time analytics during massive traffic spikes."
+icon: "server"
+keywords: ["redis", "scaling", "high traffic", "performance", "infrastructure"]
+boost: 1
+---
+
+The Insights Dashboard is engineered to remain instantaneous, whether you are receiving 10 submissions a day or 10,000 submissions a minute. 
+
+To achieve this, Flex Forms can hook into your Laravel **Redis** instance for Insights acceleration when available. Defaults usually stay on **Auto** in [Global Settings → Insights](/get-started/global-settings); you can force On/Off there or via environment — see [Redis production](/guides/redis-production).
+
+Insights Redis **no longer owns** the shared Flex Forms plugin cache (`FlexFormsCache`) by default. TodayBuffer / HyperLogLog still use Insights Redis when Insights mode resolves to **On**. To restore shared Redis for Studio menus, integration catalogs, fill resolvers, and similar plugin keys, set `FLEX_FORMS_CACHE_REDIS_MODE=follow_insights` (or `on`).
+
+## How Autonomous Scaling Works
+
+When the Flex Forms engine boots, it checks Global Settings and your environment. If Insights Redis mode allows it and a reachable Redis connection exists, heavy analytical workloads (TodayBuffer, HLL uniques) move off the primary SQL database onto Redis. Plugin cache stays on the default Laravel cache store unless you opt in with `FLEX_FORMS_CACHE_REDIS_MODE`.
+
+<Table>
+  <thead>
+    <tr>
+      <th>Analytical Workload</th>
+      <th>Standard Mode (SQL)</th>
+      <th>Redis Accelerated Mode</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>**Unique Visitor Counting**</td>
+      <td>Computed via expensive `COUNT(DISTINCT)` queries on raw events.</td>
+      <td>Utilizes Redis *HyperLogLog* probabilistic counters for instant, memory-efficient cardinality.</td>
+    </tr>
+    <tr>
+      <td>**Live "Today" Metrics**</td>
+      <td>Recomputes the entire day's raw events on every dashboard load.</td>
+      <td>Maintains live, constantly updated integer increments in Redis Hashes.</td>
+    </tr>
+  </tbody>
+</Table>
+
+---
+
+## Infrastructure Considerations
+
+<Steps>
+  <Step title="Low-to-Medium Traffic">
+    If your form receives standard traffic (a few hundred hits a day), the Standard SQL Mode is perfectly fine. The dashboard will feel instant, and Redis is not strictly required.
+  </Step>
+  <Step title="Viral or High-Traffic Launches">
+    If you anticipate a massive traffic spike (e.g., a SuperBowl ad or a massive influencer campaign), you **must** ensure Redis is active. Attempting to run massive live analytics entirely on a SQL database can cause locks and degrade the respondent's form-filling experience.
+  </Step>
+</Steps>
+
+<Callout type="info">
+  **Data Durability:** Redis is used purely for *acceleration*. Flex Forms always writes the permanent, durable rollups to your primary SQL database. If your Redis instance crashes or is flushed, you do not lose any historical insights data. The system simply falls back to SQL mode seamlessly.
+</Callout>
+
+<Panel>
+  **Technical Implementation:** Pass this document to your DevOps team and review the [Redis Production Checklist](/guides/redis-production).
+</Panel>

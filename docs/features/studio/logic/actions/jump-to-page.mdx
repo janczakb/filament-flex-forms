@@ -1,0 +1,152 @@
+---
+title: "Jump to page"
+description: "Then action: Skip the normal Next flow and go to a specific page."
+icon: "corner-down-right"
+keywords: ["logic", "action", "jump-to-page", "then", "branch"]
+---
+
+**Jump to page** sends the respondent **directly to another page** in your multi-page form — skipping intermediate pages when **When** matches.
+
+Use for quiz outcomes, triage routing, “skip details” paths, and winner/loser branches. Requires a [multi-page form](/guides/multi-page-stepper).
+
+---
+
+## When to choose this
+
+| Goal | Use **Jump to page** | Use something else instead |
+|------|---------------------|----------------------------|
+| Skip irrelevant pages | ✓ | — |
+| Show/hide fields on same page | ✗ | **[Show blocks](/features/studio/logic/actions/show-blocks)** / **[Hide blocks](/features/studio/logic/actions/hide-blocks)** |
+| Prevent submit | ✗ | **[Hide submit](/features/studio/logic/actions/hide-submit)** |
+| Auto-advance on single choice | ✗ | **Auto-jump** in [Behavior settings](/features/settings/behavior) (works with jump target) |
+| Single-page form | ✗ | Split into pages first |
+
+---
+
+## Exact behavior
+
+- Sets active **jump target** to selected page ID while rule matches.
+- Normal **Next** order bypassed for that navigation step.
+- Only **valid page IDs** apply — deleted pages are **cascade-scrubbed**; Studio / flow health warn on incomplete jumps.
+- **Multiple jump rules:** **last matching jump wins**.
+- Skipped pages: fields there may stay **unanswered** — operators reading those fields stay false until visited.
+- **Terminal** pages are submit steps — Map shows the badge; path validation uses the visited path.
+
+---
+
+## What changes on fill
+
+| Situation | Result |
+|-----------|--------|
+| **Auto-jump** enabled | Instant page change when **When** true (answer syncs live; **Next** remains as fallback) |
+| Rule stops matching | Next navigation may return to default order on subsequent steps |
+| Jump + Hide submit | Independent effects |
+| Invalid/deleted page id | Jump ignored — scrub / flow health flag it |
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Create multiple pages">
+    Drag blocks into Page columns in the **Pages** sidebar ([multi-page guide](/guides/multi-page-stepper)). Mark terminal/submit pages as needed.
+  </Step>
+  <Step title="Prefer Branch for per-answer jumps">
+    On a choice field → **Branch** → **Go to page** for that answer. Set **Otherwise** for the default path.
+  </Step>
+  <Step title="Or open Rules for advanced When">
+    Top bar → **Logic** → **Rules**. Jump routing for score thresholds and complex groups lives here.
+  </Step>
+  <Step title="Build When (Rules path)">
+    Score thresholds, country lists, yes/no skips — use [operators](/features/studio/logic/operators/overview) appropriate to field types.
+  </Step>
+  <Step title="Add Then → Jump to page">
+    Pick destination page by name from dropdown.
+  </Step>
+  <Step title="Optional: enable Auto-jump">
+    **Form Settings → Behavior** — instant transition when rule matches ([Behavior settings](/features/settings/behavior)).
+  </Step>
+  <Step title="Check Map + Simulator">
+    **Flow** shows jump edges and terminals. **Simulator** walks the path with mock answers. Resolve flow health criticals before publish.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Quiz winner
+
+> **When** Score **greater than** `80` → **Jump to page** `Winner`
+
+Score from [Calculate](/features/studio/logic/actions/calculate) target.
+
+### International path
+
+> **When** Country **is none of** `US, CA` → **Jump to page** `International shipping`
+
+Remember blank country does not match **Is none of** — add **Is empty** path if needed.
+
+### Skip optional details
+
+> **Branch** on “Skip details” → Yes → **Go to page** `Summary`  
+> Or Rules: **When** “Skip details” **equals** `Yes` → **Jump to page** `Summary`
+
+### Low score remediation
+
+> **When** Score **less than** `50` → **Jump to page** `Retake instructions`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Trigger jump branch">
+    Confirm landing page — intermediate pages skipped.
+  </Step>
+  <Step title="Non-jump / Otherwise branch">
+    Normal Next order (or Otherwise jump) through remaining pages.
+  </Step>
+  <Step title="Auto-jump if enabled">
+    Page changes without Next click when answer selected.
+  </Step>
+  <Step title="Fields on skipped pages">
+    Remain blank — later **When** reading them stays false. Submit validates the **visited** path.
+  </Step>
+  <Step title="Multiple jump rules">
+    Verify exclusive **When** or accept last-wins behavior. Confirm in **Simulator**.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Jump target deleted but rule left incomplete — clear flow health before publish.
+- Expecting answers on skipped pages for later rules.
+- Multiple jumps without clear exclusivity — confusing last-wins outcome.
+- Single-page form — jump has no effect.
+- Forgetting **Otherwise** on Branch so unmatched answers fall through unexpectedly.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Jump does nothing">
+    Invalid page id, **When** false, or single-page form. Check Map edges and Simulator.
+  </Accordion>
+  <Accordion title="Wrong destination">
+    Multiple jump rules — last match wins; reorder or narrow **When**.
+  </Accordion>
+  <Accordion title="Validation on skipped page blocks user">
+    Should not — path-aware validation is the visited path only. Check visible required fields on pages you reached.
+  </Accordion>
+  <Accordion title="Auto-jump too aggressive">
+    Disable Auto-jump or narrow **When** so users confirm before routing.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All actions](/features/studio/logic/actions/overview) · [Workflow → Rules](/features/studio/logic-board) · [Multi-page stepper](/guides/multi-page-stepper) · [Behavior settings](/features/settings/behavior) · [How logic works](/features/studio/logic/overview)
+</Panel>

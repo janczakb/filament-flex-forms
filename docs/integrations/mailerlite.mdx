@@ -1,0 +1,212 @@
+---
+title: "MailerLite Integration"
+description: "A comprehensive guide to syncing subscribers, updating custom demographic fields, and assigning granular Groups in MailerLite."
+icon: "envelope"
+keywords: ["mailerlite", "email", "newsletter", "groups", "subscribers", "api", "integration"]
+---
+
+<Banner type="info" dismissible={false}>
+  📚 **Developer Reference:** To deeply understand how the API handles Group assignments and strict custom field typing, please refer to the [Official MailerLite API Documentation](https://developers.mailerlite.com/docs/).
+</Banner>
+
+The **MailerLite** integration provides an incredibly fast and reliable pipeline for pushing form submissions directly into your email marketing ecosystem. Flex Forms handles the complex API routing required to not just add subscribers, but to intelligently assign them to specific MailerLite Groups for granular segmentation.
+
+## Enterprise Business Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Automated Lead Magnet Delivery" icon="magnet">
+    When a user fills out a form to download an eBook, Flex Forms instantly assigns them to a specific MailerLite Group (e.g., "Ebook Downloaders"). This Group assignment acts as the trigger for a MailerLite automation to instantly deliver the PDF via email.
+  </Card>
+  <Card title="Hyper-Personalized Newsletters" icon="newspaper">
+    Seamlessly collect custom demographic data (like location or industry) via a Flex Form and map it directly to Custom Fields in MailerLite. This allows you to send highly personalized, hyper-targeted weekly broadcast emails.
+  </Card>
+</CardGroup>
+
+---
+
+## Ultra-Detailed, Step-by-Step Setup Guide
+
+Connecting Flex Forms to MailerLite requires generating a specific API Token. Follow these exact instructions to ensure the integration is properly authenticated.
+
+<Steps>
+  <Step title="Step 1: Log into MailerLite">
+    Open your web browser and navigate to your MailerLite login portal. Enter your credentials to access the main dashboard.
+  </Step>
+  
+  <Step title="Step 2: Access the Integrations Menu">
+    Once logged in, look at the **left-hand sidebar navigation menu**. Scroll down the list until you find the section labeled **Integrations**. Click exactly on this link.
+  </Step>
+  
+  <Step title="Step 3: Locate the MailerLite API Section">
+    You are now on the Integrations overview page, which lists dozens of third-party apps. Look specifically for the box labeled **MailerLite API**.
+  </Step>
+  
+  <Step title="Step 4: Enter the API Management Interface">
+    Click the prominent button labeled **Use** (or **Manage**) located inside the "MailerLite API" box. This will take you to the secure token generation center.
+  </Step>
+  
+  <Step title="Step 5: Initiate Token Generation">
+    Look for the button labeled **Generate new token**. Click it. A configuration modal will appear.
+  </Step>
+  
+  <Step title="Step 6: Name the Token">
+    In the "Token name" field, type exactly: `Flex Forms Website Integration`. Giving it a descriptive name ensures you will not accidentally delete it during future security reviews. Click the **Create token** button.
+  </Step>
+  
+  <Step title="Step 7: Copy the API Token">
+    MailerLite will instantly generate a very long string of alphanumeric characters. 
+    
+    <Callout type="critical">
+      **CRITICAL WARNING:** You must copy this token immediately. For security reasons, MailerLite will *never* display this token to you again. If you lose it or close the window too early, you must revoke it and generate a new one.
+    </Callout>
+    
+    Click the **Copy** button (or highlight the string and press `Ctrl+C` / `Cmd+C`). After verifying it is on your clipboard, click "Download" just to be safe, then click the button to close the modal.
+  </Step>
+  
+  <Step title="Step 8: Create a Connection (recommended)">
+    Switch to Flex Forms → **Integrations** → **Connections**. Create a **MailerLite** connection, paste the API token, and connect. Catalog → MailerLite remains available for a single shared account.
+  </Step>
+</Steps>
+
+On the form hub **Integrations** tab, enable MailerLite and pick your **Connection**.
+
+---
+
+## Masterclass: Mapping Data Payloads
+
+Establishing the connection allows data to flow, but you must instruct Flex Forms on exactly how to organize that data once it arrives in MailerLite.
+
+In MailerLite, you organize and segment contacts using **Groups** (formerly called Lists). You MUST provide the specific `Group ID` in the Flex Forms integration settings for the target form to ensure the subscriber is categorized correctly.
+
+### Finding the Group ID
+
+In MailerLite, you organize and segment contacts using **Groups** (formerly called Lists). 
+
+<Callout type="info">
+  **Built-in API Sync:** You do NOT need to manually hunt for Group IDs. As long as your Global API Key is valid, Flex Forms automatically queries MailerLite and provides a live dropdown of all your available Groups directly on the form hub **Integrations** tab.
+</Callout>
+
+<Tabs>
+  <Tab title="Standard Field Mapping">
+    The primary Email address is synced automatically by Flex Forms. You must map any additional fields to MailerLite's standard fields (like `name`, `last_name`, `company`, `city`, `phone`).
+    
+    The format is always: `mailerlite_field=flex_forms_block_name`
+  </Tab>
+  <Tab title="Exact Mapping Example">
+    <CodeGroup>
+      ```text Field Map (Enter this in the form hub Integrations field map)
+      name=first_name_input
+      last_name=last_name_input
+      company=company_name_field
+      city=address_city_field
+      phone=mobile_number
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How Custom Fields Work in MailerLite
+
+If you want to send data that MailerLite doesn't support by default (e.g., `Dietary_Preference`), you must manually create that Custom Field in MailerLite first (Subscribers > Custom Fields).
+
+When mapping, you MUST use the exact **Internal Key** generated by MailerLite, NOT the human-readable name.
+
+<Callout type="warning">
+  **The Formatting Trap:** If you name your field "Dietary Preference" in MailerLite, its internal key is actually `dietary_preference`. If you map `Dietary Preference=dropdown` (with spaces and capital letters), the MailerLite API will instantly reject the entire payload as a malformed request.
+</Callout>
+
+---
+
+## Troubleshooting & Enterprise FAQs
+
+<AccordionGroup>
+  <Accordion title="Updating Existing Subscribers">
+    **The Problem:** What happens if a user who is already subscribed to my MailerLite account fills out the Flex Form again to download a new eBook?
+    
+    **The Solution:** Flex Forms intelligently handles this without throwing duplicate errors. It uses the email address as the primary key. If the subscriber already exists, Flex Forms will gracefully update their custom fields with any new information provided in the form, and it will safely append the new Group assignment to their existing profile.
+  </Accordion>
+  <Accordion title="API Error: 401 Unauthorized">
+    **The Problem:** The server logs show a `401 Unauthorized` error when attempting to sync.
+    
+    **The Solution:** This means the API Token you pasted in Step 8 is invalid. Ensure you did not accidentally copy a trailing space at the end of the token. If the issue persists, the token may have been revoked by another admin in your MailerLite account. Generate a new token and update Flex Forms.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Configuration Reference
+
+The following advanced settings are available in the Flex Forms UI for this integration. Use this reference to understand exactly how each field impacts the API payload.
+
+### Global Settings
+Located in **Integrations** in the Flex Forms left rail.
+
+<ParamField path="api_key" type="password" required>
+  **MailerLite API Token**
+  Your secure API token for MailerLite's new v2 API. Generate this inside your MailerLite account by navigating to **Integrations → API → Generate new token**.
+</ParamField>
+
+### Form-Level Settings
+Located on the form hub **Integrations** tab for a specific form.
+
+#### Subscriber Placement
+<ParamField path="group_id" type="remote_select" >
+  **MailerLite group**
+  Optional. Select the exact MailerLite Subscriber Group you want these leads added to. Flex Forms queries the API in real-time to load your actual groups into this dropdown.
+</ParamField>
+
+<ParamField path="tag_ids" type="text" >
+  **Tag IDs**
+  Unlike ActiveCampaign which accepts text tags, MailerLite strictly requires numeric Tag IDs (e.g., `123456789`). You can provide a comma-separated list of IDs to attach to the subscriber.
+</ParamField>
+
+<ParamField path="tag_catalog" type="remote_select" >
+  **Available tags (reference)**
+  A read-only helper dropdown. Select a tag to view its numeric ID, then copy/paste it into the `tag_ids` field above.
+</ParamField>
+
+#### Field Mapping
+<ParamField path="email_field" type="select" required>
+  **Email field**
+  The primary email block from your form. MailerLite requires this to identify the subscriber.
+</ParamField>
+
+<ParamField path="name_field" type="select">
+  **Name field**
+</ParamField>
+
+<ParamField path="last_name_field" type="select">
+  **Last name field**
+</ParamField>
+
+<ParamField path="field_map" type="textarea" >
+  **Custom fields**
+  The routing map for injecting form answers into MailerLite subscriber properties.
+  
+  Format requires one rule per line: `mailerlite_field_key=form_block_name`.
+  *Note: MailerLite strictly types its fields. If a MailerLite field is set to 'date', Flex Forms will automatically attempt to coerce your form answer into a `Y-m-d` format.*
+  
+  **Pro-tip:** Prefix any key with a `+` (e.g., `+company_name=company_input`), and if that field doesn't exist in MailerLite, Flex Forms will immediately call the `/api/fields` endpoint to create a new text field for you on the fly.
+</ParamField>
+
+<ParamField path="create_fields" type="textarea" >
+  **Create new custom fields**
+  A bulk-creation tool. Enter one field name per line (e.g., `Job Title`). Flex Forms will create them all as text fields in MailerLite during the next sync. You can then map to them using the generated key.
+</ParamField>
+
+<ParamField path="field_catalog" type="remote_select" >
+  **Available fields (reference)**
+  A read-only helper. Shows a live list of all your MailerLite fields (including their required keys and data types like `text`, `date`, or `number`) for easy copy/pasting.
+</ParamField>
+
+#### Consent & Opt-in Status
+<ParamField path="status" type="select" default="active" >
+  **Subscriber status**
+  Controls the subscriber's exact opt-in state when injected into MailerLite.
+  
+  **Options:**
+  - `active`: The user is fully opted-in and ready to receive emails immediately.
+  - `unconfirmed`: Triggers Double Opt-in. MailerLite will send them an automated confirmation email. They won't receive marketing until they click the link in that email.
+  - `unsubscribed`: Explicitly blocks the user from receiving emails (useful for GDPR suppression lists).
+</ParamField>
+

@@ -1,0 +1,141 @@
+---
+title: "Not equals set"
+description: "When clause operator: Multi-select answer is not exactly this set."
+icon: "layers"
+keywords: ["logic", "operator", "neq_set", "condition", "when"]
+---
+
+**Not equals set** checks that a multi-select answer is **not exactly** your specified set — any different combination, size, or membership counts as a match.
+
+Requires a **non-blank answer**. Blank never matches.
+
+---
+
+## When to choose this
+
+| Goal | Use **Not equals set** | Use something else instead |
+|------|------------------------|----------------------------|
+| Any selection except one exact combo | ✓ | — |
+| Exact combo required | ✗ | **[Equals set](/features/studio/logic/operators/eq_set)** |
+| Missing one forbidden combo | ✗ | Often **Equals set** on forbidden + inverse **Then** |
+| Blank field | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+| Does not include option X | ✗ | **[Does not contain](/features/studio/logic/operators/not_contains)** |
+
+---
+
+## Exact behavior
+
+- Choice multi-select fields.
+- Normalizes to sorted unique string sets.
+- Requires non-blank actual answer.
+- Matches when normalized sets differ (extra option, missing option, or completely different).
+- Non-empty expected set required.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Choice (multi-select) | ✓ |
+| Text, number, date, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Never matches.**
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick multi-select field">
+  </Step>
+  <Step title="Choose Not equals set">
+  </Step>
+  <Step title="Define the excluded exact set">
+    Chips for the combination that should **not** trigger this branch’s “different from” logic.
+  </Step>
+  <Step title="Add Then actions">
+  </Step>
+  <Step title="Test exact excluded set vs others on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Not the free-only bundle
+
+> **When** Features **not equals set** `Community support` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Paid onboarding`
+
+Selecting only Community support does not match this rule (they're exactly that set); any other answered combo matches.
+
+### Avoid risky pair
+
+> **When** Permissions **not equals set** `Delete, Admin` → **Then** standard approval flow
+
+Exact dangerous pair excluded from match; blank still fails.
+
+### Upsell when not bare minimum
+
+> **When** Add-ons **not equals set** `None` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Implementation offer`
+
+If “None” is a stored option representing empty bundle semantics, test carefully on Fill.
+
+### Campaign mismatch
+
+> **When** Tags **not equals set** `Staff, Internal` → **Then** external thank-you page
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Select exactly the excluded set">
+    Rule off.
+  </Step>
+  <Step title="Any other non-empty selection">
+    Rule on.
+  </Step>
+  <Step title="Blank">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Expecting “not exactly {A,B}” to fire on blank — it will not.
+- Using when you mean “does not include A” — use **Does not contain**.
+- Confusing with **Is none of** — different list semantics.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires">
+    Source may be blank or accidentally always the excluded set.
+  </Accordion>
+  <Accordion title="Rule always fires">
+    Any answered combo differs from set — may be too broad; narrow with **Equals set** on positive path instead.
+  </Accordion>
+  <Accordion title="Single option set">
+    Works as one-element exact set comparison.
+  </Accordion>
+  <Accordion title="Need blank path">
+    Add **Is empty** sibling rule with **Any** match.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Equals set](/features/studio/logic/operators/eq_set) · [Is none of](/features/studio/logic/operators/not_in) · [How logic works](/features/studio/logic/overview)
+</Panel>

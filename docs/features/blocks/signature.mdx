@@ -1,0 +1,126 @@
+---
+title: "Signature Block"
+description: "Collect hand-drawn electronic signatures from respondents on any device."
+icon: "pencil-square"
+keywords: ["signature", "sign", "e-sign", "canvas", "draw"]
+---
+
+<Banner type="info" dismissible={true}>
+  💡 **UX Tip:** Enable fullscreen so mobile users get a dedicated signing canvas without fighting page scroll.
+</Banner>
+
+The **Signature** block gives respondents an interactive canvas (mouse, trackpad, or touch). The stroke is smoothed and stored as a compact **SVG string** in the submission payload — not as a separate upload file. Optional download (SVG / WebP) is for the respondent’s browser only; it does not write to your media disk.
+
+## Business Use Cases
+
+<CardGroup cols={3}>
+  <Card title="Contract Agreements" icon="file-contract">
+    Collect an embedded signature on NDAs, service agreements, or B2B contracts.
+  </Card>
+  <Card title="Delivery Confirmations" icon="truck-ramp-box">
+    Allow customers to sign a tablet upon receiving a high-value shipment.
+  </Card>
+  <Card title="Waivers & Liability" icon="triangle-exclamation">
+    Require an electronic signature before participation.
+  </Card>
+</CardGroup>
+
+---
+
+## Configuration & Usage
+
+<Steps>
+  <Step title="Deploy to Canvas">
+    Drag the **Signature** block from the Component Catalog onto the Canvas.
+  </Step>
+  <Step title="Style the Canvas">
+    Adjust pen color, width, and optional guidelines to match your brand.
+  </Step>
+  <Step title="Enforce Validity">
+    Raise **Min Strokes** so a single accidental tap cannot pass validation.
+  </Step>
+</Steps>
+
+---
+
+## Technical Configuration Schemas
+
+<Tabs>
+  <Tab title="Canvas & Aesthetics">
+    <ParamField path="pen_color" type="string">
+      HEX ink color (e.g. `#000000`).
+    </ParamField>
+    
+    <ParamField path="pen_width" type="float">
+      Stroke thickness.
+    </ParamField>
+    
+    <ParamField path="background_color" type="string">
+      Canvas background. Leave empty for transparent SVG.
+    </ParamField>
+    
+    <ParamField path="fullscreen" type="boolean" default="false">
+      Full-screen signing mode on small screens.
+    </ParamField>
+    
+    <ParamField path="smoothing" type="boolean" default="false">
+      Smooth stroke paths for a more natural look.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Validation Rules">
+    <ParamField path="min_strokes" type="integer" default="1">
+      Minimum separate strokes before the signature is accepted.
+    </ParamField>
+  </Tab>
+
+  <Tab title="Download (optional)">
+    <ParamField path="download_format" type="string">
+      Optional browser download format (`svg` or `webp`). Does **not** change what is stored in the submission.
+    </ParamField>
+    
+    <ParamField path="download_filename" type="string">
+      Filename prefix for the optional download.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+---
+
+## Data Payload Architecture
+
+Unlike File Upload / Voice Note, signatures are **not** staged to disk. The answer is the SVG markup string inside the submission payload (same on webhooks and in the database).
+
+<CodeGroup>
+  ```json Webhook Payload (JSON)
+  {
+    "submission_id": "sub_883",
+    "data": {
+      "liability_signature": "<svg xmlns=\"http://www.w3.org/2000/svg\" ...>...</svg>"
+    }
+  }
+  ```
+
+  ```php Database Storage (PHP)
+  [
+      'liability_signature' => '<svg xmlns="http://www.w3.org/2000/svg" ...>...</svg>',
+  ]
+  ```
+</CodeGroup>
+
+---
+
+## Best Practices & FAQs
+
+<AccordionGroup>
+  <Accordion title="Stroke Validation">
+    Set **Min Strokes** to at least `2` so a single tap cannot pass as a signature.
+  </Accordion>
+  <Accordion title="PDF overlays">
+    Transparent SVG (empty background) overlays cleanly onto contract lines in generated PDFs. A solid background color makes overlays harder.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  **Next Steps:** [File Upload Block](/features/blocks/file-upload)
+</Panel>

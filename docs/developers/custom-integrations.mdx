@@ -1,0 +1,208 @@
+---
+title: "Custom integrations"
+description: "End-to-end cookbooks for Generic API, OAuth (PKCE), and signed webhooks — scaffold, register, map fields, test, and ship."
+icon: "plug"
+keywords: ["custom integration", "IntegrationDriver", "register driver", "GenericApiIntegrationDriver", "artisan", "cookbook"]
+---
+
+Ship a first-party feed for your internal API or a niche SaaS tool by implementing an **integration driver**. Drivers appear under **Integrations** (global credentials / Connections) and attach per form as feeds.
+
+## IntegrationDriver contract
+
+Every driver implements `Bjanczak\FilamentFlexForms\Integrations\Contracts\IntegrationDriver`:
+
+| Method | Purpose |
+|--------|---------|
+| `key()` / `name()` / `description()` / `category()` | Identity in Studio |
+| `globalConfigFields()` / `connectionConfigFields()` | Panel-wide vs Connection-tier credentials |
+| `credentialMode()` | `GlobalOnly`, `ConnectionOnly`, or `GlobalOrConnection` |
+| `driverSchemaVersion()` | Bump when feed/connection JSON shape changes |
+| `formFeedFields()` | Per-form options (list ID, mapping, endpoint) |
+| `normalizeGlobalConfig()` / `normalizeFormFeed()` | Sanitize saved JSON |
+| `isConfigured()` / `testConnection()` | Integrations rail health check |
+| `dispatch(..., ?FlexFormIntegrationConnection $connection = null)` | Send payload on submission |
+
+Extend `AbstractIntegrationDriver` for shared HTTP helpers, or start from:
+
+- `GenericApiIntegrationDriver` — JSON POST + bearer + SSRF guard + redacted delivery meta
+- `GenericOAuthIntegrationDriver` — OAuth authorize/callback with **PKCE S256** + Connections
+- `GenericSignedWebhookDriver` — HMAC-signed outbound webhooks
+
+## Register drivers (3 ways)
+
+### 1. Config (explicit)
+
+```php title="config/filament-flex-forms.php"
+'extensibility' => [
+    'integrations' => [
+        'drivers' => [
+            \App\FlexForms\Integrations\AcmeCrmDriver::class,
+        ],
+        'discover' => [],
+        'allow_override' => false,
+    ],
+],
+```
+
+### 2. Discovery folder
+
+```php
+'discover' => [
+    app_path('FlexForms/Integrations'),
+],
+```
+
+### 3. Plugin `boot()`
+
+```php
+FilamentFlexFormsPlugin::make()
+    ->registerIntegration(\App\FlexForms\Integrations\AcmeCrmDriver::class);
+```
+
+## Artisan scaffold
+
+```bash
+php artisan flex-forms:make-integration AcmeCrm --api
+php artisan flex-forms:make-integration AcmeHub --oauth
+php artisan flex-forms:make-integration AcmeHook --webhook
+```
+
+Creates:
+
+- `app/FlexForms/Integrations/{Name}Driver.php`
+- `tests/Feature/FlexForms/{Name}DriverTest.php` (skip with `--no-test`)
+
+The Pest stub registers the driver and extends `IntegrationDriverTestCase` (key slug, credential mode, normalize helpers).
+
+---
+
+## Cookbook 1 — REST list API (end-to-end)
+
+<Steps>
+  <Step title="Scaffold">
+    `php artisan flex-forms:make-integration AcmeList --api`
+  </Step>
+  <Step title="Implement endpoint + payload">
+    Override `endpoint()` (HTTPS public URL only — SSRF guarded) and `buildPayload()` from FieldMapper output. Optionally override `testConnectionRequest()` to return a health URL so **Test connection** performs a real GET ping.
+  </Step>
+  <Step title="Register">
+    Add the class to `extensibility.integrations.drivers` (or discovery).
+  </Step>
+  <Step title="Credentials">
+    Open **Integrations**, paste the API key (encrypted at rest). For Connection-tier drivers, create a Connection instead.
+  </Step>
+  <Step title="Map fields on a form">
+    Enable the feed → Advanced field mapping (`email` → `email`, transforms like `trim` / `phone_e164`). Save + publish.
+  </Step>
+  <Step title="Send test">
+    Use **Send test** — delivery ledger shows `source=sandbox` with redacted secrets. Submit a live response and confirm a `succeeded` delivery row.
+  </Step>
+  <Step title="Pest">
+    Extend `IntegrationDriverTestCase` and add `Http::fake()` coverage for a 200 dispatch and a 429 retryable failure if your driver surfaces that status.
+  </Step>
+</Steps>
+
+```php title="app/FlexForms/Integrations/AcmeListDriver.php"
+final class AcmeListDriver extends GenericApiIntegrationDriver
+{
+    public function key(): string { return 'acme_list'; }
+    public function name(): string { return 'Acme List'; }
+
+    protected function endpoint($form, $submission, array $globalConfig, array $feed): string
+    {
+        return 'https://api.acme.example/v1/subscribers';
+    }
+
+    protected function testConnectionRequest(array $config): ?string
+    {
+        return 'https://api.acme.example/health';
+    }
+
+    protected function buildPayload(array $mapped, $form, $submission, array $feed): array
+    {
+        return [
+            'email' => $mapped['email'] ?? null,
+            'tags' => $mapped['tags'] ?? [],
+            'source' => 'flex-forms',
+        ];
+    }
+}
+```
+
+---
+
+## Cookbook 2 — OAuth CRM with PKCE (end-to-end)
+
+Flex Forms OAuth Connections use **authorization code + PKCE (S256)** by default.
+
+<Steps>
+  <Step title="Scaffold">
+    `php artisan flex-forms:make-integration AcmeHub --oauth`
+  </Step>
+  <Step title="Wire provider URLs">
+    Implement `getOAuthAuthorizeUrl()`, `getTokenUrl()`, `getClientId()`, `getClientSecret()`, `getOAuthScopes()`. Keep `usesPkce()` at default `true` unless the provider rejects PKCE.
+  </Step>
+  <Step title="Register callback">
+    In the provider console set redirect URI exactly to
+    `https://your-domain/flex-forms/connections/oauth/callback`.
+  </Step>
+  <Step title="Connect account">
+    **Integrations → Connections → Create → Connect**. Redirect builds `code_challenge`; callback exchanges `code` + `code_verifier` (one-time cache, bound to admin user) and returns to the Connections tab.
+  </Step>
+  <Step title="Attach to a form">
+    Set `connection_id` on the feed (Studio Connections picker). Tokens refresh via `OAuthTokenManager` (mutex + `needs_reauth` on failure).
+  </Step>
+  <Step title="Verify">
+    **Test connection**, then **Send test**. Confirm deliveries never store raw `client_secret` / bearer tokens.
+  </Step>
+</Steps>
+
+Override `usesPkce(): false` only for legacy providers. Prefer fixing the provider registration over disabling PKCE.
+
+---
+
+## Cookbook 3 — Signed partner webhook (end-to-end)
+
+<Steps>
+  <Step title="Scaffold">
+    `php artisan flex-forms:make-integration AcmeHook --webhook`
+  </Step>
+  <Step title="Secret">
+    Store `webhook_secret` on the Connection (or global config). Outbound body is HMAC-SHA256 signed.
+  </Step>
+  <Step title="Feed URL">
+    Set `request_url` to an HTTPS public endpoint. Private / metadata hosts are rejected (SSRF guard).
+  </Step>
+  <Step title="Map + Send test">
+    Map nested fields, enable the feed, **Send test**, inspect the submission ledger (`source=sandbox`, redacted context).
+  </Step>
+</Steps>
+
+---
+
+## Field mapping + transforms
+
+Host transforms:
+
+```php
+use Bjanczak\FilamentFlexForms\Integrations\Mapping\FieldMapper;
+
+FieldMapper::extend('acme_code', fn (mixed $value): mixed => strtoupper((string) $value));
+```
+
+Built-ins include `trim`, `uppercase`, `merge_template`, `split_name`, `phone_e164`, `file_url`, and more — see [Field mapping](/developers/field-mapping).
+
+## Isolation & safety checklist
+
+- Use `AbstractIntegrationDriver::httpClient()` (timeouts, no open redirects)
+- Expect delivery `context` to be redacted (`Authorization`, `api_key`, tokens)
+- Scope Connections in multi-tenant apps via `modifyConnectionsEloquentQueryUsing()` — [Multi-tenancy](/developers/multi-tenancy)
+- Run `php artisan flex-forms:upgrade` after package updates
+
+## Platform helpers (sealed)
+
+GraphQL HTTP helpers, device-code OAuth, SAML assertion verification, inbound webhook receivers, and scheduled remote sync are first-class SDK surfaces — see [Public API](/developers/PUBLIC_API), [Inbound webhooks](/developers/inbound-webhooks), and the sections below in this cookbook.
+
+<Panel>
+**Next:** [OAuth integrations](/developers/oauth-integrations) · [OAuth token management](/developers/oauth-token-management) · [Field mapping](/developers/field-mapping) · [Integrations catalog](/integrations/overview)
+</Panel>

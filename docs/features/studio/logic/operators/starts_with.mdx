@@ -1,0 +1,148 @@
+---
+title: "Starts with"
+description: "When clause operator: The text begins with this prefix."
+icon: "text-quote"
+keywords: ["logic", "operator", "starts_with", "condition", "when"]
+---
+
+**Starts with** checks whether text **begins with** your prefix — useful for codes, country calling prefixes, SKU families, and routing by the first characters typed.
+
+Matching is **case-insensitive**. Only **text fields** support this operator.
+
+---
+
+## When to choose this
+
+| Goal | Use **Starts with** | Use something else instead |
+|------|---------------------|----------------------------|
+| Prefix at beginning of string | ✓ | **Contains** if prefix can appear anywhere |
+| Suffix at end | ✗ | **[Ends with](/features/studio/logic/operators/ends_with)** |
+| Substring anywhere | ✗ | **[Contains](/features/studio/logic/operators/contains)** |
+| Exact full string | ✗ | **[Equals](/features/studio/logic/operators/eq)** |
+| Blank text | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- **Text only** — both actual and expected must be non-empty strings.
+- Case-insensitive prefix test via `mb_strtolower`.
+- Null, non-string, or empty string `""` on source → **does not match**.
+- Empty prefix in rule → **does not match** (fail-closed).
+- Unlike **Equals** / **Not equals**, **Starts with** does not require a separate “answered” guard — but blank text still fails.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| Number, date, choice, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Does not match** — empty text has no prefix. Use [Is empty](/features/studio/logic/operators/empty) for skipped fields.
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick a text field">
+    Short text, email, phone, URL, textarea, etc.
+  </Step>
+  <Step title="Choose Starts with">
+    Available only in text family.
+  </Step>
+  <Step title="Enter non-empty prefix">
+    e.g. `+48`, `SKU-`, `INV-`
+  </Step>
+  <Step title="Add Then actions">
+    [Show blocks](/features/studio/logic/actions/show-blocks), [Jump to page](/features/studio/logic/actions/jump-to-page).
+  </Step>
+  <Step title="Test prefix at start vs middle on Fill">
+    Middle substring should not match.
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Polish phone prefix
+
+> **When** Phone **starts with** `+48` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `PESEL (optional)`
+
+`+48123456789` matches; `0048…` does not unless it literally starts with `+48`.
+
+### Invoice routing
+
+> **When** Reference **starts with** `INV-` → **Then** [Jump to page](/features/studio/logic/actions/jump-to-page) `Billing details`
+
+### Internal email domains
+
+> **When** Email **starts with** `contractor.` → **Then** [Require answer](/features/studio/logic/actions/require-answer) `Vendor ID`
+
+Prefix match only — `@company.com` in the middle needs **Contains** or **Ends with**.
+
+### Promo code family
+
+> **When** Coupon **starts with** `SUMMER` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Seasonal terms`
+
+Case-insensitive — `summer2026` matches `SUMMER`.
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Type text starting with prefix">
+    Rule on.
+  </Step>
+  <Step title="Put prefix in middle or end">
+    Rule off.
+  </Step>
+  <Step title="Different casing">
+    Still matches.
+  </Step>
+  <Step title="Empty field">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using on choice fields — use **Equals** or **Is any of**.
+- Expecting **Starts with +48** to match `48` without plus — prefix must match literally.
+- Using **Contains** when position matters — switch to **Starts with**.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rule never fires">
+    Source not string, empty, or prefix longer than input. Confirm non-empty prefix in rule.
+  </Accordion>
+  <Accordion title="False positive on similar prefixes">
+    Narrow prefix (`SKU-EU-` vs `SKU-`) or add second clause with **All** match.
+  </Accordion>
+  <Accordion title="Rich text field">
+    HTML tags may prefix the value — test real Fill output, not just Studio label.
+  </Accordion>
+  <Accordion title="Need negated prefix">
+    Use [Does not start with](/features/studio/logic/operators/not_starts_with) — requires non-blank answer.
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Does not start with](/features/studio/logic/operators/not_starts_with) · [Ends with](/features/studio/logic/operators/ends_with) · [Contains](/features/studio/logic/operators/contains) · [How logic works](/features/studio/logic/overview)
+</Panel>

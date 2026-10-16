@@ -1,0 +1,143 @@
+---
+title: "Ends with"
+description: "When clause operator: The text finishes with this suffix."
+icon: "text-quote"
+keywords: ["logic", "operator", "ends_with", "condition", "when"]
+---
+
+**Ends with** checks whether text **finishes with** your suffix — common for file extensions, email domains, and structured IDs.
+
+Matching is **case-insensitive**. **Text fields only.**
+
+---
+
+## When to choose this
+
+| Goal | Use **Ends with** | Use something else instead |
+|------|-------------------|----------------------------|
+| Suffix at end of string | ✓ | **Contains** if suffix can appear mid-string |
+| Prefix at start | ✗ | **[Starts with](/features/studio/logic/operators/starts_with)** |
+| Exact email domain | ✓ (suffix) | Often `@company.com` via **Ends with** or **Contains** |
+| Blank text | ✗ | **[Is empty](/features/studio/logic/operators/empty)** |
+
+---
+
+## Exact behavior
+
+- Both actual and expected must be non-empty strings.
+- Case-insensitive suffix via `mb_strtolower` / `str_ends_with`.
+- Null, non-string, or empty source → no match.
+- Empty suffix in rule → fail-closed.
+
+---
+
+## Which field types
+
+| Family | Available |
+|--------|-----------|
+| Text | ✓ |
+| Number, date, choice, yes/no, presence | — |
+
+---
+
+## Blank / unanswered answers
+
+**Does not match.**
+
+---
+
+## Configure in Studio
+
+<Steps>
+  <Step title="Open a rule">
+    **Logic** → **Rules**, or **Branch** / **Add condition** on a field.
+  </Step>
+  <Step title="Pick text field">
+    Email, filename, account number, etc.
+  </Step>
+  <Step title="Choose Ends with">
+    Text operators only.
+  </Step>
+  <Step title="Enter suffix">
+    e.g. `.pdf`, `@partner.com`, `-EU`
+  </Step>
+  <Step title="Add Then actions">
+    [Require answer](/features/studio/logic/actions/require-answer), [Show blocks](/features/studio/logic/actions/show-blocks).
+  </Step>
+  <Step title="Test suffix placement on Fill">
+  </Step>
+</Steps>
+
+---
+
+## Worked examples
+
+### Corporate email domain
+
+> **When** Work email **ends with** `@acme.com` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Employee ID`
+
+`user@acme.com` matches; `@acme.com.evil.com` does not.
+
+### PDF upload name (text field)
+
+> **When** Filename **ends with** `.pdf` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `PDF disclaimer`
+
+For actual file blocks, use [Is not empty](/features/studio/logic/operators/not_empty) on the file field.
+
+### Regional SKU
+
+> **When** Product code **ends with** `-EU` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `GDPR notice`
+
+### Student email
+
+> **When** Email **ends with** `.edu` → **Then** [Show blocks](/features/studio/logic/actions/show-blocks) `Student discount`
+
+---
+
+## Test on fill
+
+<Steps>
+  <Step title="Suffix at end">
+    Rule on.
+  </Step>
+  <Step title="Suffix in middle only">
+    Rule off.
+  </Step>
+  <Step title="Case variants">
+    Match regardless of case.
+  </Step>
+  <Step title="Empty">
+    Rule off.
+  </Step>
+</Steps>
+
+---
+
+## Common mistakes
+
+- Using **Contains @acme.com** when domain must be true suffix — **Ends with** is stricter.
+- Applying to file upload blocks — use presence empty/not empty; filename may be separate text field.
+- Empty suffix in rule.
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Domain false positives">
+    Use **Ends with** not **Contains** to avoid `@acme.com.attacker.net`.
+  </Accordion>
+  <Accordion title="Trailing spaces">
+    Spaces before suffix break match — test realistic typing on Fill.
+  </Accordion>
+  <Accordion title="International characters">
+    Multibyte suffixes supported via `mb_strtolower`.
+  </Accordion>
+  <Accordion title="Negated suffix">
+    Use [Does not end with](/features/studio/logic/operators/not_ends_with).
+  </Accordion>
+</AccordionGroup>
+
+<Panel>
+  [All operators](/features/studio/logic/operators/overview) · [Does not end with](/features/studio/logic/operators/not_ends_with) · [Starts with](/features/studio/logic/operators/starts_with) · [How logic works](/features/studio/logic/overview)
+</Panel>

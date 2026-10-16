@@ -1,0 +1,55 @@
+---
+title: "Inbound webhooks"
+description: "Accept provider → Flex Forms webhooks with signature verification, idempotency, and custom drivers."
+icon: "inbox"
+keywords: ["inbound", "webhook", "SupportsInboundWebhooks", "HubSpot", "signature"]
+---
+
+# Inbound webhooks
+
+Outbound feeds push on submit. **Inbound webhooks** let a provider call Flex Forms when something changes in their system (CRM contact update, signed relay, etc.).
+
+## Endpoint
+
+```
+POST /flex-forms/integrations/{driver}/webhook
+```
+
+Named route: `flex-forms.integrations.inbound.webhook`.
+
+Optional query: `?connection={id}` to resolve Connection-tier credentials.
+
+## Contract
+
+Implement `SupportsInboundWebhooks` on your `IntegrationDriver`:
+
+- `inboundRouteKey()` — must match the `{driver}` segment
+- `verifyInbound(Request, config, ?Connection)` — throw `RuntimeException` on bad signatures
+- `handleInbound(payload, Request, config, ?Connection): InboundWebhookResult`
+
+Flex Forms stores idempotency rows in `flex_form_inbound_webhook_events` keyed by `driver_key` + `provider_event_id`.
+
+## Shipped references
+
+| Driver | Signature | Effect |
+|--------|-----------|--------|
+| **Webhooks** | `X-Flex-Forms-Signature` HMAC-SHA256 (same as outbound signed webhooks) | Accept + ledger |
+| **HubSpot** | `X-HubSpot-Signature` / `X-HubSpot-Signature-v3` | Sync matching `FlexFormContact` name fields + last seen by email |
+| **Slack** | `X-Slack-Signature` (+ `url_verification` challenge) | Accept signed events; configure **Signing Secret** on Catalog / Connection |
+
+Configure secrets under Integrations → Catalog / Connections. Other catalog drivers stay outbound-first unless you implement `SupportsInboundWebhooks` on a custom driver.
+
+## Scaffold
+
+```bash
+php artisan flex-forms:make-integration AcmeRelay --inbound
+```
+
+Uses `VerifiesFlexFormsInboundSignature` by default.
+
+## Events
+
+- `IntegrationInboundReceived`
+- `IntegrationInboundFailed`
+
+Stripe payment webhooks stay on `flex-forms.stripe.webhook` (payment ledger), not this generic route.
